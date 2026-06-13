@@ -1,8 +1,8 @@
-60 Days of AI
+# 60 Days of AI
 
-Hi, I'm Dharani, a B.Tech student passionate about AI, Cybersecurity and teaching technology.
+Hi, I'm Dharani, a B.Tech student passionate about AI, Cybersecurity, Data Analytics, and teaching technology.
 
-Goals
+## Goals
 
 * Learn AI tools and workflows
 * Build real-world projects
@@ -10,15 +10,15 @@ Goals
 * Document my learning journey publicly
 * Grow CyberVidyarthi
 
-Progress
+## Progress
 
-Day 01
+### Day 01
 
 * Created AI Personality Profile
 * Generated AI Portrait
 * Started GitHub Documentation
 
-Upcoming
+### Upcoming
 
 * AI Tools
 * Prompt Engineering
