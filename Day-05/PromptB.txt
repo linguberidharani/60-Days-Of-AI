@@ -1,0 +1,20 @@
+```
+Create a 30-day learning roadmap.
+
+Context:
+- Current Situation: Student
+- Current Skills: Cyber Security Fundamentals
+- Goal: To learn Cyber Security tools 
+- Available Time: 1 Hour per Day
+- Experience Level: Beginner
+- Preferred Learning Style: Videos & Projects & Reading
+
+Include:
+- Weekly milestones
+- Daily tasks
+- Resources
+- Projects
+- Final outcome
+
+Make it practical and beginner-friendly.
+```
