@@ -1,0 +1,602 @@
+
+<h2 class="sr-only">Personal Environmental Health Analyzer — Premium dark interactive dashboard with live AQI, PM2.5, PM10, water quality scores, city selector, animated charts, and personalized health recommendations for Visakhapatnam and major Indian cities.</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
+--border:#30363d;--border2:#484f58;
+--teal:#1d9e75;--teal2:#5dcaa5;--teal3:#9fe1cb;
+--amber:#ef9f27;--amber2:#fac775;
+--red:#e24b4a;--red2:#f09595;
+--blue:#378add;--blue2:#85b7eb;
+--green:#639922;--green2:#97c459;
+--txt:#e6edf3;--txt2:#8b949e;--txt3:#6e7681;
+}
+body{background:var(--bg);color:var(--txt);font-family:var(--font-sans,'system-ui');min-height:100vh}
+
+.shell{background:var(--bg);border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.logo-dot{width:32px;height:32px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.app-name{font-size:15px;font-weight:500;color:var(--txt)}
+.app-sub{font-size:11px;color:var(--txt2);margin-top:1px}
+.live-pill{display:flex;align-items:center;gap:6px;background:#0d2a1f;border:1px solid #1d4a34;border-radius:20px;padding:4px 12px;font-size:11px;color:var(--teal2)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--teal2);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:0;overflow-x:auto}
+.nav-btn{padding:11px 18px;font-size:12px;font-weight:500;color:var(--txt2);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
+.nav-btn:hover{color:var(--txt)}
+.nav-btn.on{color:var(--teal2);border-bottom-color:var(--teal)}
+.nav-btn i{font-size:14px}
+
+.body{padding:20px}
+.pane{display:none}
+.pane.on{display:block}
+
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.g3c{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+
+.kpi{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden;cursor:default}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
+.kpi.k-teal::before{background:var(--teal)}
+.kpi.k-amber::before{background:var(--amber)}
+.kpi.k-red::before{background:var(--red)}
+.kpi.k-blue::before{background:var(--blue)}
+.kpi.k-green::before{background:var(--green)}
+.kpi-label{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:500;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--txt3)}
+
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.card-hd{font-size:12px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.card-hd i{font-size:15px;color:var(--teal)}
+
+.aqi-meter{display:flex;flex-direction:column;align-items:center;margin:0 auto 16px;width:160px}
+.meter-arc{position:relative;width:160px;height:90px;overflow:hidden}
+.meter-arc svg{position:absolute;top:0;left:0}
+.meter-val{position:absolute;bottom:0;width:100%;text-align:center}
+.meter-num{font-size:32px;font-weight:500;line-height:1}
+.meter-lbl{font-size:11px;color:var(--txt2);margin-top:2px}
+
+.cat-bar{height:8px;border-radius:4px;background:var(--border);overflow:hidden;margin:8px 0}
+.cat-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.risk-item{background:var(--bg4);border-radius:8px;padding:10px 12px;border-left:3px solid transparent}
+.risk-item.low{border-left-color:var(--teal)}
+.risk-item.mod{border-left-color:var(--amber)}
+.risk-item.hi{border-left-color:var(--red)}
+.risk-name{font-size:11px;color:var(--txt2);margin-bottom:3px}
+.risk-val{font-size:12px;font-weight:500}
+.risk-val.low{color:var(--teal2)}
+.risk-val.mod{color:var(--amber2)}
+.risk-val.hi{color:var(--red2)}
+
+.city-btn{background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;transition:all .18s;position:relative}
+.city-btn:hover{border-color:var(--border2);background:var(--bg3)}
+.city-btn.sel{border-color:var(--teal);background:#0d2a1f}
+.city-btn.sel::after{content:'';position:absolute;top:8px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--teal)}
+.city-nm{font-size:13px;font-weight:500;color:var(--txt);margin-bottom:3px}
+.city-st{font-size:10px;color:var(--txt3);margin-bottom:8px}
+.city-aqi-big{font-size:22px;font-weight:500;line-height:1;margin-bottom:4px}
+.mini-bar{height:4px;border-radius:2px;background:var(--bg3);overflow:hidden;margin:3px 0}
+.mini-fill{height:100%;border-radius:2px}
+.mini-row{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--txt3)}
+.mini-row span:first-child{width:30px}
+.mini-row span:last-child{width:24px;text-align:right;color:var(--txt2)}
+
+.chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
+.chip-good{background:#0d2a1f;color:var(--teal2);border:1px solid #1d4a34}
+.chip-sat{background:#1a2a0d;color:var(--green2);border:1px solid #2a4a1a}
+.chip-mod{background:#2a1f00;color:var(--amber2);border:1px solid #4a3600}
+.chip-poor{background:#2a1000;color:#f09575;border:1px solid #4a2000}
+.chip-vp{background:#2a0a0a;color:var(--red2);border:1px solid #4a1a1a}
+
+.prog-row{display:flex;align-items:center;gap:10px;margin:7px 0}
+.prog-label{font-size:11px;color:var(--txt2);width:58px;flex-shrink:0}
+.prog-bar{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .9s}
+.prog-num{font-size:11px;color:var(--txt);width:30px;text-align:right}
+
+.score-ring-wrap{display:flex;align-items:center;gap:20px;margin-bottom:14px}
+.score-ring{position:relative;width:80px;height:80px;flex-shrink:0}
+.score-ring svg{position:absolute;top:0;left:0;width:80px;height:80px}
+.score-ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num-lg{font-size:20px;font-weight:500;line-height:1}
+.score-sub-sm{font-size:9px;color:var(--txt3)}
+
+.grade-pill{display:inline-block;font-size:18px;font-weight:500;padding:6px 16px;border-radius:8px}
+
+.insight-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.insight-row:last-child{border-bottom:none}
+.insight-icon-wrap{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.insight-text{font-size:12px;color:var(--txt);line-height:1.55}
+.insight-head{font-size:11px;font-weight:500;color:var(--txt2);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
+
+.rec-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)}
+.rec-item:last-child{border-bottom:none}
+.rec-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.rec-text{font-size:12px;color:var(--txt);line-height:1.55}
+.rec-head{font-size:11px;font-weight:500;color:var(--txt2);margin-bottom:2px}
+
+.sec-label{font-size:10px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 8px}
+
+.filter-strip{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.filter-strip label{font-size:11px;color:var(--txt2)}
+.filter-strip select{background:var(--bg4);color:var(--txt);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:11px;cursor:pointer}
+.filter-strip input[type=range]{accent-color:var(--teal);cursor:pointer}
+.range-val{font-size:11px;color:var(--teal2);min-width:28px}
+
+.summary-box{background:#0d1f17;border:1px solid #1d4a34;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.summary-box p{font-size:12px;color:var(--txt);line-height:1.7}
+
+.surp-box{background:#1a1200;border:1px solid #3a2a00;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.surp-box p{font-size:12px;color:var(--txt);line-height:1.7}
+
+.src-note{font-size:10px;color:var(--txt3);margin-top:10px;line-height:1.6}
+
+.chart-wrap{position:relative;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2)}
+.legend-dot{width:9px;height:9px;border-radius:2px}
+
+.aqi-legend{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.aqi-leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--txt3)}
+.aqi-leg-dot{width:8px;height:8px;border-radius:2px}
+
+.tab-sub-nav{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tsn-btn{padding:5px 12px;font-size:11px;border-radius:6px;border:1px solid var(--border);background:var(--bg4);color:var(--txt2);cursor:pointer;transition:all .15s}
+.tsn-btn.on{background:#0d2a1f;border-color:var(--teal);color:var(--teal2)}
+
+.water-param{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.water-param:last-child{border-bottom:none}
+.wp-name{font-size:12px;color:var(--txt)}
+.wp-val{font-size:12px;font-weight:500}
+.wp-status{font-size:10px;padding:2px 7px;border-radius:8px}
+.wp-ok{background:#0d2a1f;color:var(--teal2)}
+.wp-warn{background:#2a1f00;color:var(--amber2)}
+.wp-bad{background:#2a0a0a;color:var(--red2)}
+
+@keyframes countUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.kpi-val{animation:countUp .5s ease both}
+
+</style>
+
+<div class="shell">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-dot"><i class="ti ti-world" style="color:#0d2a1f;font-size:18px" aria-hidden="true"></i></div>
+    <div>
+      <div class="app-name">Personal Environmental Health Analyzer</div>
+      <div class="app-sub">Real-time AQI · Water Quality · Health Intelligence · Visakhapatnam, AP</div>
+    </div>
+  </div>
+  <div class="live-pill"><span class="live-dot"></span>Live · June 2026 · CPCB / IQAir</div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn on" onclick="goPane('overview',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Overview</button>
+  <button class="nav-btn" onclick="goPane('charts',this)"><i class="ti ti-chart-bar" aria-hidden="true"></i>Charts</button>
+  <button class="nav-btn" onclick="goPane('cities',this)"><i class="ti ti-building-skyscraper" aria-hidden="true"></i>Cities</button>
+  <button class="nav-btn" onclick="goPane('health',this)"><i class="ti ti-heart-rate-monitor" aria-hidden="true"></i>Health Impact</button>
+  <button class="nav-btn" onclick="goPane('report',this)"><i class="ti ti-clipboard-list" aria-hidden="true"></i>My Report</button>
+</div>
+
+<div class="body">
+
+<div id="pane-overview" class="pane on">
+  <div class="g4">
+    <div class="kpi k-amber"><div class="kpi-label">Avg AQI · India</div><div class="kpi-val" style="color:var(--amber)" id="k1">83</div><div class="kpi-sub">Moderate band · 9 cities</div></div>
+    <div class="kpi k-red"><div class="kpi-label">Highest AQI</div><div class="kpi-val" style="color:var(--red)" id="k2">113</div><div class="kpi-sub">New Delhi</div></div>
+    <div class="kpi k-teal"><div class="kpi-label">Lowest AQI</div><div class="kpi-val" style="color:var(--teal2)" id="k3">45</div><div class="kpi-sub">Mumbai</div></div>
+    <div class="kpi k-blue"><div class="kpi-label">Your city · Vizag</div><div class="kpi-val" style="color:var(--amber)" id="k4">89</div><div class="kpi-sub">Moderate · ranked 7 of 9</div></div>
+    <div class="kpi k-teal"><div class="kpi-label">PM2.5 · Vizag</div><div class="kpi-val" style="color:var(--amber)" id="k5">30</div><div class="kpi-sub">µg/m³ · 3.3× WHO limit</div></div>
+    <div class="kpi k-blue"><div class="kpi-label">PM10 · Vizag</div><div class="kpi-val" style="color:var(--teal2)" id="k6">40</div><div class="kpi-sub">µg/m³ · moderate</div></div>
+    <div class="kpi k-amber"><div class="kpi-label">Env. Health Score</div><div class="kpi-val" style="color:var(--blue2)" id="k7">62</div><div class="kpi-sub">/ 100 · Moderate</div></div>
+    <div class="kpi k-teal"><div class="kpi-label">Cities analyzed</div><div class="kpi-val" style="color:var(--txt)" id="k8">9</div><div class="kpi-sub">Major Indian metros</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-chart-donut" aria-hidden="true"></i>Visakhapatnam AQI gauge</div>
+      <div class="aqi-meter">
+        <div class="meter-arc">
+          <svg viewBox="0 0 160 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 85 A70 70 0 0 1 150 85" stroke="#21262d" stroke-width="10" stroke-linecap="round"/>
+            <path d="M10 85 A70 70 0 0 1 150 85" stroke="url(#aqig)" stroke-width="10" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="66"/>
+            <defs>
+              <linearGradient id="aqig" x1="10" y1="85" x2="150" y2="85"><stop offset="0%" stop-color="#1d9e75"/><stop offset="50%" stop-color="#ef9f27"/><stop offset="100%" stop-color="#e24b4a"/></linearGradient>
+            </defs>
+          </svg>
+          <div class="meter-val">
+            <div class="meter-num" style="color:var(--amber)">89</div>
+            <div class="meter-lbl">AQI · Moderate</div>
+          </div>
+        </div>
+      </div>
+      <div class="aqi-legend">
+        <div class="aqi-leg-item"><div class="aqi-leg-dot" style="background:#1d9e75"></div>Good 0–50</div>
+        <div class="aqi-leg-item"><div class="aqi-leg-dot" style="background:#639922"></div>Sat. 51–100</div>
+        <div class="aqi-leg-item"><div class="aqi-leg-dot" style="background:#ef9f27"></div>Mod 101–150</div>
+        <div class="aqi-leg-item"><div class="aqi-leg-dot" style="background:#e24b4a"></div>Poor 151+</div>
+      </div>
+      <div class="prog-row"><span class="prog-label">PM2.5</span><div class="prog-bar"><div class="prog-fill" style="width:25%;background:var(--amber)"></div></div><span class="prog-num">30 µg</span></div>
+      <div class="prog-row"><span class="prog-label">PM10</span><div class="prog-bar"><div class="prog-fill" style="width:18%;background:var(--teal)"></div></div><span class="prog-num">40 µg</span></div>
+      <div class="prog-row"><span class="prog-label">NO2</span><div class="prog-bar"><div class="prog-fill" style="width:10%;background:var(--blue)"></div></div><span class="prog-num">18 µg</span></div>
+      <div class="prog-row"><span class="prog-label">O3</span><div class="prog-bar"><div class="prog-fill" style="width:6%;background:var(--green)"></div></div><span class="prog-num">13 µg</span></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-hd"><i class="ti ti-trophy" aria-hidden="true"></i>Cleanest cities</div>
+        <div class="insight-row">
+          <div class="insight-icon-wrap" style="background:#0d2a1f"><i class="ti ti-award" style="color:var(--teal2)" aria-hidden="true"></i></div>
+          <div><div class="insight-head">Mumbai · AQI 45</div><div class="insight-text">Coastal winds & fewer heavy industries. PM2.5 at 36 µg/m³ — India's best metro.</div></div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon-wrap" style="background:#1a2a0d"><i class="ti ti-medal" style="color:var(--green2)" aria-hidden="true"></i></div>
+          <div><div class="insight-head">Pune · AQI 53</div><div class="insight-text">Deccan plateau elevation + lower humidity. PM2.5 33 µg/m³.</div></div>
+        </div>
+        <div class="insight-row" style="border-bottom:none">
+          <div class="insight-icon-wrap" style="background:#0d1520"><i class="ti ti-rosette" style="color:var(--blue2)" aria-hidden="true"></i></div>
+          <div><div class="insight-head">Hyderabad · AQI 71</div><div class="insight-text">Semi-arid climate disperses particles. PM2.5 38 µg/m³.</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-alert-triangle" style="color:var(--red)" aria-hidden="true"></i>Most polluted cities</div>
+        <div class="insight-row">
+          <div class="insight-icon-wrap" style="background:#2a0a0a"><i class="ti ti-alert-circle" style="color:var(--red2)" aria-hidden="true"></i></div>
+          <div><div class="insight-head">New Delhi · AQI 113</div><div class="insight-text">Vehicular, crop burning, trapped by geography. PM2.5 at 107 µg/m³ — 21× WHO limit.</div></div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon-wrap" style="background:#2a1500"><i class="ti ti-flame" style="color:#f09575" aria-hidden="true"></i></div>
+          <div><div class="insight-head">Chennai · AQI 84</div><div class="insight-text">Port traffic & dense urban congestion drive PM2.5 to 30 µg/m³.</div></div>
+        </div>
+        <div class="insight-row" style="border-bottom:none">
+          <div class="insight-icon-wrap" style="background:#2a1f00"><i class="ti ti-factory" style="color:var(--amber2)" aria-hidden="true"></i></div>
+          <div><div class="insight-head">Ahmedabad · AQI 82</div><div class="insight-text">Textile & heavy industry output. PM2.5 36 µg/m³, PM10 80 µg/m³.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-box">
+    <div style="font-size:11px;font-weight:500;color:var(--teal2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px"><i class="ti ti-file-analytics" aria-hidden="true"></i> Executive summary</div>
+    <p>Analysis of 9 major Indian cities (June 2026) confirms New Delhi as the most polluted (AQI 113) while Mumbai leads as cleanest (AQI 45). <strong style="color:var(--txt)">Visakhapatnam sits at AQI 89</strong> — in the Moderate band but better than Delhi, Kolkata, Chennai and Bangalore, primarily because Eastern Ghats + Bay of Bengal breezes continuously flush pollutants seaward. The RINL steel plant (7.3 MTPA) causes PM10 spikes 30–50% above city average in Gajuwaka. Coastal aquifer TDS ranges 380–800 mg/L with moderate hardness, elevating hair and skin risk. Overall Vizag scores <strong style="color:var(--blue2)">62/100</strong> — moderate, better than most Indian metros but still far below WHO safe thresholds.</p>
+  </div>
+  <div class="surp-box">
+    <div style="font-size:11px;font-weight:500;color:var(--amber2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px"><i class="ti ti-bulb" aria-hidden="true"></i> Most surprising observation</div>
+    <p>Despite hosting one of India's largest steel plants (RINL, 7.3 MTPA), Visakhapatnam's AQI (89) is <strong style="color:var(--txt)">better than Chennai, Bangalore, and Kolkata</strong>. The Eastern Ghats act as a windbreak while Bay of Bengal sea breezes provide continuous natural air scrubbing — a geographic advantage no inland city can replicate. Vizag's PM2.5 is 50–70% lower than Delhi's.</p>
+  </div>
+  <div class="src-note">Data: CPCB via aqi.in (June 2026) · IQAir 2025 World Air Quality Report · Berkeley Earth · APPCB / IWA Journal Visakhapatnam Coastal Aquifer Study (2023) · IJESI GVMC Area Groundwater Quality</div>
+</div>
+
+<div id="pane-charts" class="pane">
+  <div class="filter-strip">
+    <label>Metric:</label>
+    <select id="chartMetric" onchange="rebuildCharts()">
+      <option value="aqi">AQI</option>
+      <option value="pm25">PM2.5 (µg/m³)</option>
+      <option value="pm10">PM10 (µg/m³)</option>
+    </select>
+    <label>Max AQI:</label>
+    <input type="range" id="aqiMax" min="50" max="200" value="200" step="5" oninput="document.getElementById('aqiMaxLbl').textContent=this.value;rebuildCharts()">
+    <span class="range-val" id="aqiMaxLbl">200</span>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-chart-bar" aria-hidden="true"></i>AQI comparison — all cities</div>
+    <div class="aqi-legend">
+      <div class="aqi-leg-item"><div class="aqi-leg-dot" style="background:#1d9e75"></div>Good</div>
+      <div class="aqi-leg-item"><div class="aqi-leg-dot" style="background:#639922"></div>Satisfactory</div>
+      <div class="aqi-leg-item"><div class="aqi-leg-dot" style="background:#ef9f27"></div>Moderate</div>
+      <div class="aqi-leg-item"><div class="aqi-leg-dot" style="background:#e24b4a"></div>Poor</div>
+    </div>
+    <div class="chart-wrap" style="height:240px"><canvas id="cAqi" role="img" aria-label="Bar chart AQI by city. Delhi highest 113, Mumbai lowest 45, Vizag 89.">Delhi 113, Bangalore 90, Visakhapatnam 89, Chennai 84, Ahmedabad 82, Kolkata 79, Hyderabad 71, Pune 53, Mumbai 45.</canvas></div>
+  </div>
+  <div class="g2">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><i class="ti ti-chart-bar" aria-hidden="true"></i>PM2.5 comparison</div>
+      <div style="font-size:10px;color:var(--red2);margin-bottom:8px">WHO annual limit: 5 µg/m³ — all cities exceed</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="cPm25" role="img" aria-label="PM2.5 levels by city. Delhi 107 far highest. Others 30–44.">Delhi 107, Kolkata 44, Hyderabad 38, Mumbai 36, Ahmedabad 36, Visakhapatnam 30, Chennai 30, Bangalore 33, Pune 33.</canvas></div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><i class="ti ti-chart-bar" aria-hidden="true"></i>PM10 comparison</div>
+      <div style="font-size:10px;color:var(--amber2);margin-bottom:8px">WHO annual limit: 15 µg/m³</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="cPm10" role="img" aria-label="PM10 levels by city. Delhi 200 highest, Vizag 40 among lowest.">Delhi 200, Kolkata 120, Chennai 90, Ahmedabad 80, Bangalore 60, Hyderabad 55, Pune 45, Visakhapatnam 40, Mumbai 35.</canvas></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <div class="card-hd"><i class="ti ti-chart-dots" aria-hidden="true"></i>City pollution ranking (low → high)</div>
+    <div class="chart-wrap" style="height:180px"><canvas id="cRank" role="img" aria-label="Line chart of cities ranked cleanest to most polluted. Gentle curve from 45 to 113.">Mumbai 45, Pune 53, Hyderabad 71, Kolkata 79, Ahmedabad 82, Chennai 84, Vizag 89, Bangalore 90, Delhi 113.</canvas></div>
+  </div>
+</div>
+
+<div id="pane-cities" class="pane">
+  <div class="filter-strip">
+    <label>Filter:</label>
+    <select id="cityFilter" onchange="renderCities()">
+      <option value="all">All</option>
+      <option value="clean">AQI ≤ 75 (cleaner)</option>
+      <option value="mod">AQI 76–100 (moderate)</option>
+      <option value="poor">AQI &gt; 100 (poor)</option>
+    </select>
+    <label>Sort:</label>
+    <select id="citySort" onchange="renderCities()">
+      <option value="aqi">By AQI</option>
+      <option value="pm25">By PM2.5</option>
+      <option value="name">Alphabetical</option>
+      <option value="score">By health score</option>
+    </select>
+  </div>
+  <div id="cityGrid" class="g3c"></div>
+  <div id="cityDetail" style="margin-top:4px"></div>
+</div>
+
+<div id="pane-health" class="pane">
+  <div class="tab-sub-nav">
+    <button class="tsn-btn on" onclick="showHealth('air',this)"><i class="ti ti-lungs" aria-hidden="true"></i> Air impact</button>
+    <button class="tsn-btn" onclick="showHealth('water',this)"><i class="ti ti-droplet" aria-hidden="true"></i> Water impact</button>
+  </div>
+  <div id="health-air">
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-lungs" aria-hidden="true"></i>Air quality health impact · Vizag AQI 89 (Moderate)</div>
+      <div class="risk-grid">
+        <div class="risk-item mod"><div class="risk-name">Lung health</div><div class="risk-val mod">Moderate risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">PM2.5 causes mild bronchial irritation; worsens asthma & COPD over sustained exposure</div></div>
+        <div class="risk-item mod"><div class="risk-name">Sleep quality</div><div class="risk-val mod">Moderate risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">Particulates reduce O₂ saturation; coastal humidity worsens congestion at night</div></div>
+        <div class="risk-item low"><div class="risk-name">Energy levels</div><div class="risk-val low">Low risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">Daytime AQI 62–89; morning hours are generally safe for outdoor activities</div></div>
+        <div class="risk-item mod"><div class="risk-name">Exercise performance</div><div class="risk-val mod">Moderate risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">Avoid 6–9 PM (AQI peaks ~109). Best window: 5–7 AM near beach</div></div>
+        <div class="risk-item mod"><div class="risk-name">Long-term health</div><div class="risk-val mod">Moderate risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">PM2.5 at 10.2× WHO annual guideline; AQLI estimates −0.16 yr life expectancy</div></div>
+        <div class="risk-item low"><div class="risk-name">Children & elderly</div><div class="risk-val low">Moderate risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">Sensitive groups should avoid prolonged outdoor exposure, especially near port zones</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-wind" aria-hidden="true"></i>Outdoor activity guidance</div>
+      <div class="rec-item"><div class="rec-icon" style="background:#0d2a1f"><i class="ti ti-clock" style="color:var(--teal2)" aria-hidden="true"></i></div><div><div class="rec-head">Best exercise window</div><div class="rec-text">5–7 AM near Rushikonda beach or RK Beach when AQI drops to 62–70. Sea breeze peaks in early morning.</div></div></div>
+      <div class="rec-item"><div class="rec-icon" style="background:#2a1500"><i class="ti ti-alert-triangle" style="color:var(--amber2)" aria-hidden="true"></i></div><div><div class="rec-head">Peak pollution times</div><div class="rec-text">6–9 PM near port and industrial zones (Gajuwaka, Steel Plant Township). AQI can spike to 109. Wear N95.</div></div></div>
+      <div class="rec-item" style="border-bottom:none"><div class="rec-icon" style="background:#0d1520"><i class="ti ti-plant" style="color:var(--blue2)" aria-hidden="true"></i></div><div><div class="rec-head">Indoor air improvements</div><div class="rec-text">Keep windows closed 6–9 PM. Run HEPA purifier. Place snake plant and areca palm in bedroom — natural PM filters.</div></div></div>
+    </div>
+  </div>
+  <div id="health-water" style="display:none">
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-droplet" aria-hidden="true"></i>Water quality · Vizag (TDS 380–800 mg/L · Moderately hard)</div>
+      <div class="sec-label">Key water parameters</div>
+      <div class="water-param"><span class="wp-name">TDS (Total Dissolved Solids)</span><span class="wp-val" style="color:var(--amber2)">380–800 mg/L</span><span class="wp-status wp-warn">Elevated</span></div>
+      <div class="water-param"><span class="wp-name">Total Hardness</span><span class="wp-val" style="color:var(--amber2)">64–292 mg/L</span><span class="wp-status wp-warn">Moderate-hard</span></div>
+      <div class="water-param"><span class="wp-name">pH</span><span class="wp-val" style="color:var(--teal2)">6.5–8.5</span><span class="wp-status wp-ok">Normal</span></div>
+      <div class="water-param"><span class="wp-name">Seawater intrusion risk</span><span class="wp-val" style="color:var(--amber2)">Moderate</span><span class="wp-status wp-warn">Low-lying zones</span></div>
+      <div class="water-param"><span class="wp-name">Industrial zone groundwater</span><span class="wp-val" style="color:var(--red2)">Unsafe</span><span class="wp-status wp-bad">Not potable</span></div>
+      <div class="water-param"><span class="wp-name">GVMC municipal supply</span><span class="wp-val" style="color:var(--teal2)">Safe</span><span class="wp-status wp-ok">Treated</span></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-hair" aria-hidden="true"></i>Hair & skin risk assessment</div>
+      <div class="risk-grid">
+        <div class="risk-item hi"><div class="risk-name">Hair fall</div><div class="risk-val hi">High risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">Hard water Ca/Mg ions coat follicles, weaken shaft, accelerate breakage</div></div>
+        <div class="risk-item hi"><div class="risk-name">Hair dryness</div><div class="risk-val hi">High risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">Mineral deposits strip natural scalp oils; disrupts sebum production</div></div>
+        <div class="risk-item mod"><div class="risk-name">Scalp health</div><div class="risk-val mod">Moderate risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">Coastal chloride/sulphate traces can trigger mild dandruff flares</div></div>
+        <div class="risk-item hi"><div class="risk-name">Skin dryness</div><div class="risk-val hi">High risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">High TDS mineral film blocks moisturizer absorption after washing</div></div>
+        <div class="risk-item mod"><div class="risk-name">Acne risk</div><div class="risk-val mod">Moderate risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">Mineral residue + coastal humidity = moderate pore-clogging risk</div></div>
+        <div class="risk-item hi"><div class="risk-name">Sensitive skin</div><div class="risk-val hi">High risk</div><div style="font-size:10px;color:var(--txt3);margin-top:3px">Industrial-zone iron traces trigger contact dermatitis in sensitive individuals</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-bottle" aria-hidden="true"></i>Hair & skin care recommendations</div>
+      <div class="rec-item"><div class="rec-icon" style="background:#2a0a0a"><i class="ti ti-filter" style="color:var(--red2)" aria-hidden="true"></i></div><div><div class="rec-head">Install a shower filter</div><div class="rec-text">Reduces TDS and hard-water minerals at point of use. Single biggest intervention for hair fall in Vizag.</div></div></div>
+      <div class="rec-item"><div class="rec-icon" style="background:#2a1f00"><i class="ti ti-droplet-half-2" style="color:var(--amber2)" aria-hidden="true"></i></div><div><div class="rec-head">Chelating shampoo once a week</div><div class="rec-text">Removes mineral buildup from calcium/magnesium deposits. Follow with deep-conditioning mask.</div></div></div>
+      <div class="rec-item"><div class="rec-icon" style="background:#0d1520"><i class="ti ti-sun" style="color:var(--blue2)" aria-hidden="true"></i></div><div><div class="rec-head">SPF 30+ daily + barrier moisturizer</div><div class="rec-text">UV index 8–11 at coast. Apply barrier cream immediately post-bath to seal against TDS mineral film.</div></div></div>
+      <div class="rec-item" style="border-bottom:none"><div class="rec-icon" style="background:#0d2a1f"><i class="ti ti-leaf" style="color:var(--teal2)" aria-hidden="true"></i></div><div><div class="rec-head">RO water for face washing</div><div class="rec-text">Use RO/filtered water for face rinse, especially during dust events near industrial zones. Niacinamide cleanser counteracts pore clogging.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="pane-report" class="pane">
+  <div class="g2">
+    <div class="card" style="text-align:center;margin-bottom:0">
+      <div class="card-hd" style="justify-content:center">Overall environmental score</div>
+      <div class="score-ring-wrap" style="justify-content:center;flex-direction:column;align-items:center">
+        <div class="score-ring">
+          <svg viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="34" stroke="#21262d" stroke-width="7"/>
+            <circle cx="40" cy="40" r="34" stroke="#378add" stroke-width="7" stroke-linecap="round"
+              stroke-dasharray="213.6" stroke-dashoffset="81" transform="rotate(-90 40 40)"/>
+          </svg>
+          <div class="score-ring-inner"><div class="score-num-lg" style="color:var(--blue2)">62</div><div class="score-sub-sm">/ 100</div></div>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--txt2)">Moderate · Better than most Indian metros</div>
+      </div>
+      <div id="reportBars"></div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd">Grade breakdown</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="text-align:center;background:var(--bg4);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--txt3);margin-bottom:6px">Air quality</div><div class="grade-pill" style="background:#2a1f00;color:var(--amber2)">C+</div></div>
+        <div style="text-align:center;background:var(--bg4);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--txt3);margin-bottom:6px">Water quality</div><div class="grade-pill" style="background:#2a0a0a;color:var(--red2)">D+</div></div>
+        <div style="text-align:center;background:var(--bg4);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--txt3);margin-bottom:6px">Hair risk</div><div class="grade-pill" style="background:#2a0a0a;color:var(--red2)">High</div></div>
+        <div style="text-align:center;background:var(--bg4);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--txt3);margin-bottom:6px">Skin risk</div><div class="grade-pill" style="background:#2a1f00;color:var(--amber2)">Mod</div></div>
+      </div>
+      <div class="card-hd"><i class="ti ti-sparkles" aria-hidden="true"></i>Quick wins for Vizag</div>
+      <div class="insight-row"><div class="insight-icon-wrap" style="background:#0d2a1f"><i class="ti ti-clock" style="color:var(--teal2)" aria-hidden="true"></i></div><div class="insight-text">Exercise before 7 AM near beach — AQI at its daily best (62–70)</div></div>
+      <div class="insight-row"><div class="insight-icon-wrap" style="background:#2a0a0a"><i class="ti ti-filter" style="color:var(--red2)" aria-hidden="true"></i></div><div class="insight-text">Install shower filter — biggest single impact on hair fall from hard water</div></div>
+      <div class="insight-row" style="border-bottom:none"><div class="insight-icon-wrap" style="background:#2a1f00"><i class="ti ti-mask" style="color:var(--amber2)" aria-hidden="true"></i></div><div class="insight-text">N95 mask in Gajuwaka / Steel Plant Township — PM10 spikes 30–50% above city average</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-hd"><i class="ti ti-checklist" aria-hidden="true"></i>Full personalized recommendations</div>
+    <div class="sec-label">Daily air quality actions</div>
+    <div class="rec-item"><div class="rec-icon" style="background:#0d2a1f"><i class="ti ti-clock" style="color:var(--teal2)" aria-hidden="true"></i></div><div><div class="rec-head">Morning exercise 5–7 AM</div><div class="rec-text">AQI at lowest (62–70) near Rushikonda beach. Bay breeze at peak. Ideal for running or yoga outdoors.</div></div></div>
+    <div class="rec-item"><div class="rec-icon" style="background:#2a1500"><i class="ti ti-mask" style="color:#f09575" aria-hidden="true"></i></div><div><div class="rec-head">N95 in industrial zones</div><div class="rec-text">Gajuwaka, Steel Plant Township, Dwaraka Nagar see PM10 30–50% above city average due to RINL blast furnace emissions.</div></div></div>
+    <div class="rec-item"><div class="rec-icon" style="background:#0d1520"><i class="ti ti-window" style="color:var(--blue2)" aria-hidden="true"></i></div><div><div class="rec-head">Window timing</div><div class="rec-text">Open windows 5–7 AM for sea breeze. Close 6–9 PM when AQI peaks to 109 near port and traffic zones.</div></div></div>
+    <div class="sec-label">Indoor air</div>
+    <div class="rec-item"><div class="rec-icon" style="background:#0d2a1f"><i class="ti ti-plant" style="color:var(--teal2)" aria-hidden="true"></i></div><div><div class="rec-head">Air-purifying plants</div><div class="rec-text">Snake plant, peace lily, areca palm in bedroom. Supplement with HEPA purifier running 6–10 PM during peak outdoor AQI.</div></div></div>
+    <div class="sec-label">Hair care</div>
+    <div class="rec-item"><div class="rec-icon" style="background:#2a0a0a"><i class="ti ti-filter" style="color:var(--red2)" aria-hidden="true"></i></div><div><div class="rec-head">Shower filter (top priority)</div><div class="rec-text">Hard water TDS 380–800 mg/L is the primary driver of Vizag hair fall. A shower filter cuts calcium/magnesium at point of use.</div></div></div>
+    <div class="rec-item"><div class="rec-icon" style="background:#2a1f00"><i class="ti ti-droplet-half-2" style="color:var(--amber2)" aria-hidden="true"></i></div><div><div class="rec-head">Chelating shampoo weekly</div><div class="rec-text">Removes mineral buildup. Pair with coconut or castor oil pre-wash (1 hr before) to protect follicle from Ca/Mg deposits.</div></div></div>
+    <div class="sec-label">Skin care</div>
+    <div class="rec-item"><div class="rec-icon" style="background:#0d1520"><i class="ti ti-sun" style="color:var(--blue2)" aria-hidden="true"></i></div><div><div class="rec-head">SPF 30+ daily + barrier moisturizer</div><div class="rec-text">Coastal UV index 8–11. Barrier moisturizer applied immediately post-bath seals pores against mineral film.</div></div></div>
+    <div class="rec-item" style="border-bottom:none"><div class="rec-icon" style="background:#0d2a1f"><i class="ti ti-leaf" style="color:var(--teal2)" aria-hidden="true"></i></div><div><div class="rec-head">Niacinamide cleanser + RO water rinse</div><div class="rec-text">Counteracts pore-clogging from TDS residue. Switch to RO water face wash during industrial dust events.</div></div></div>
+  </div>
+  <div class="sec-label">Water improvement</div>
+  <div class="card">
+    <div class="rec-item" style="border-bottom:none"><div class="rec-icon" style="background:#0d2a1f"><i class="ti ti-droplet" style="color:var(--teal2)" aria-hidden="true"></i></div><div><div class="rec-head">RO + UV purifier for drinking water</div><div class="rec-text">Reduces TDS from 800 mg/L to safe 50–150 mg/L. GVMC municipal supply is treated and safe. Groundwater in industrial zones (Gajuwaka, Parawada) is not safe for direct consumption — TDS mean 1,174 mg/L in JNPC vicinity.</div></div></div>
+  </div>
+  <div class="src-note">Sources: CPCB / aqi.in (June 2026) · IQAir 2025 World Air Quality Report · Berkeley Earth · APPCB / IWA Journal Visakhapatnam Coastal Aquifer Study (2023) · IJESI GVMC Groundwater Quality · JNPC Industrial Zone WQI Study</div>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+var CITIES=[
+  {name:'New Delhi',state:'Delhi',aqi:113,pm25:107,pm10:200,cat:'Poor',airScore:28,waterScore:42,overall:35,hairRisk:'High',skinRisk:'High'},
+  {name:'Bangalore',state:'Karnataka',aqi:90,pm25:33,pm10:60,cat:'Moderate',airScore:52,waterScore:65,overall:58,hairRisk:'Low',skinRisk:'Low'},
+  {name:'Visakhapatnam',state:'Andhra Pradesh',aqi:89,pm25:30,pm10:40,cat:'Moderate',airScore:68,waterScore:52,overall:62,hairRisk:'High',skinRisk:'Moderate'},
+  {name:'Chennai',state:'Tamil Nadu',aqi:84,pm25:30,pm10:90,cat:'Moderate',airScore:54,waterScore:58,overall:56,hairRisk:'Moderate',skinRisk:'Moderate'},
+  {name:'Ahmedabad',state:'Gujarat',aqi:82,pm25:36,pm10:80,cat:'Moderate',airScore:56,waterScore:50,overall:53,hairRisk:'Moderate',skinRisk:'Moderate'},
+  {name:'Kolkata',state:'West Bengal',aqi:79,pm25:44,pm10:120,cat:'Moderate',airScore:58,waterScore:55,overall:56,hairRisk:'Moderate',skinRisk:'Moderate'},
+  {name:'Hyderabad',state:'Telangana',aqi:71,pm25:38,pm10:55,cat:'Moderate',airScore:65,waterScore:62,overall:63,hairRisk:'Moderate',skinRisk:'Low'},
+  {name:'Pune',state:'Maharashtra',aqi:53,pm25:33,pm10:45,cat:'Satisfactory',airScore:74,waterScore:68,overall:71,hairRisk:'Low',skinRisk:'Low'},
+  {name:'Mumbai',state:'Maharashtra',aqi:45,pm25:36,pm10:35,cat:'Satisfactory',airScore:82,waterScore:70,overall:76,hairRisk:'Low',skinRisk:'Low'},
+];
+
+function catColor(c){
+  return c==='Good'?'#1d9e75':c==='Satisfactory'?'#639922':c==='Moderate'?'#ef9f27':c==='Poor'?'#e24b4a':'#a32d2d';
+}
+function catChip(c){
+  return c==='Good'?'chip-good':c==='Satisfactory'?'chip-sat':c==='Moderate'?'chip-mod':c==='Poor'?'chip-poor':'chip-vp';
+}
+function riskCls(r){return r==='High'?'hi':r==='Moderate'?'mod':'low';}
+function riskEmoji(r){return r==='High'?'High':r==='Moderate'?'Moderate':'Low';}
+
+function goPane(id,btn){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pane-'+id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='charts')setTimeout(initCharts,80);
+  if(id==='cities')renderCities();
+  if(id==='report')renderReport();
+}
+
+function showHealth(t,btn){
+  document.querySelectorAll('#pane-health .tsn-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('health-air').style.display=t==='air'?'block':'none';
+  document.getElementById('health-water').style.display=t==='water'?'block':'none';
+}
+
+var _chartsInited=false;
+function initCharts(){
+  if(_chartsInited)return;
+  _chartsInited=true;
+  buildAllCharts();
+}
+function rebuildCharts(){
+  ['cAqi','cPm25','cPm10','cRank'].forEach(id=>{var c=Chart.getChart(id);if(c)c.destroy();});
+  _chartsInited=false;
+  initCharts();
+}
+
+function buildAllCharts(){
+  var maxAqi=parseInt(document.getElementById('aqiMax').value);
+  var filt=CITIES.filter(c=>c.aqi<=maxAqi);
+  var byAqi=[...filt].sort((a,b)=>b.aqi-a.aqi);
+  var byPm25=[...filt].sort((a,b)=>b.pm25-a.pm25);
+  var byPm10=[...filt].sort((a,b)=>b.pm10-a.pm10);
+  var ranked=[...filt].sort((a,b)=>a.aqi-b.aqi);
+
+  new Chart(document.getElementById('cAqi'),{
+    type:'bar',
+    data:{labels:byAqi.map(c=>c.name),datasets:[{label:'AQI',data:byAqi.map(c=>c.aqi),backgroundColor:byAqi.map(c=>catColor(c.cat)),borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'AQI: '+c.raw}}},scales:{x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'},beginAtZero:true,max:160}}}
+  });
+  new Chart(document.getElementById('cPm25'),{
+    type:'bar',
+    data:{labels:byPm25.map(c=>c.name),datasets:[{label:'PM2.5',data:byPm25.map(c=>c.pm25),backgroundColor:'#378add',borderRadius:4},{type:'line',label:'WHO limit (5)',data:Array(byPm25.length).fill(5),borderColor:'#e24b4a',borderDash:[5,3],borderWidth:1.5,pointRadius:0,fill:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',font:{size:9}},grid:{color:'#21262d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'},beginAtZero:true}}}
+  });
+  new Chart(document.getElementById('cPm10'),{
+    type:'bar',
+    data:{labels:byPm10.map(c=>c.name),datasets:[{label:'PM10',data:byPm10.map(c=>c.pm10),backgroundColor:'#1d9e75',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',font:{size:9}},grid:{color:'#21262d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'},beginAtZero:true}}}
+  });
+  new Chart(document.getElementById('cRank'),{
+    type:'line',
+    data:{labels:ranked.map(c=>c.name.replace('Visakhapatnam','Vizag')),datasets:[{label:'AQI',data:ranked.map(c=>c.aqi),borderColor:'#1d9e75',backgroundColor:'rgba(29,158,117,0.07)',fill:true,tension:0.45,pointBackgroundColor:ranked.map(c=>catColor(c.cat)),pointRadius:5,pointHoverRadius:7}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'}},y:{min:30,ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'}}}}
+  });
+}
+
+function renderCities(){
+  var filter=document.getElementById('cityFilter').value;
+  var sort=document.getElementById('citySort').value;
+  var list=CITIES.filter(c=>{
+    if(filter==='clean')return c.aqi<=75;
+    if(filter==='mod')return c.aqi>75&&c.aqi<=100;
+    if(filter==='poor')return c.aqi>100;
+    return true;
+  });
+  if(sort==='aqi')list.sort((a,b)=>a.aqi-b.aqi);
+  else if(sort==='pm25')list.sort((a,b)=>a.pm25-b.pm25);
+  else if(sort==='name')list.sort((a,b)=>a.name.localeCompare(b.name));
+  else list.sort((a,b)=>b.overall-a.overall);
+
+  document.getElementById('cityGrid').innerHTML=list.map(c=>`
+    <div class="city-btn${c.name==='Visakhapatnam'?' sel':''}" onclick="showCityDetail('${c.name}')">
+      <div class="city-nm">${c.name}</div>
+      <div class="city-st">${c.state}</div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+        <span class="city-aqi-big" style="color:${catColor(c.cat)}">${c.aqi}</span>
+        <span class="chip ${catChip(c.cat)}">${c.cat}</span>
+      </div>
+      <div class="mini-row"><span>PM2.5</span><div class="mini-bar" style="flex:1"><div class="mini-fill" style="width:${Math.min(c.pm25/120*100,100)}%;background:${catColor(c.cat)}"></div></div><span>${c.pm25}</span></div>
+      <div class="mini-row"><span>PM10</span><div class="mini-bar" style="flex:1"><div class="mini-fill" style="width:${Math.min(c.pm10/220*100,100)}%;background:#378add"></div></div><span>${c.pm10}</span></div>
+      <div style="margin-top:7px;display:flex;gap:6px;flex-wrap:wrap;font-size:10px;color:#8b949e">
+        <span>Score: <strong style="color:#e6edf3">${c.overall}</strong></span>
+        <span>Hair: <strong class="risk-val ${riskCls(c.hairRisk)}" style="font-size:10px">${riskEmoji(c.hairRisk)}</strong></span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showCityDetail(name){
+  document.querySelectorAll('.city-btn').forEach(b=>b.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  var c=CITIES.find(x=>x.name===name);
+  if(!c)return;
+  document.getElementById('cityDetail').innerHTML=`
+    <div class="card" style="border-color:${catColor(c.cat)}33">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div><div style="font-size:16px;font-weight:500;color:var(--txt)">${c.name}</div><div style="font-size:11px;color:var(--txt3)">${c.state}</div></div>
+        <div style="text-align:right"><div style="font-size:28px;font-weight:500;color:${catColor(c.cat)}">${c.aqi}</div><span class="chip ${catChip(c.cat)}">${c.cat}</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:12px">
+        <div style="background:var(--bg4);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--txt3);margin-bottom:4px">PM2.5</div><div style="font-size:18px;font-weight:500;color:var(--amber2)">${c.pm25} <span style="font-size:10px">µg</span></div></div>
+        <div style="background:var(--bg4);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--txt3);margin-bottom:4px">PM10</div><div style="font-size:18px;font-weight:500;color:var(--blue2)">${c.pm10} <span style="font-size:10px">µg</span></div></div>
+        <div style="background:var(--bg4);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--txt3);margin-bottom:4px">Air score</div><div style="font-size:18px;font-weight:500;color:var(--teal2)">${c.airScore}</div></div>
+        <div style="background:var(--bg4);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--txt3);margin-bottom:4px">Water score</div><div style="font-size:18px;font-weight:500;color:var(--teal2)">${c.waterScore}</div></div>
+        <div style="background:var(--bg4);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--txt3);margin-bottom:4px">Overall</div><div style="font-size:18px;font-weight:500;color:var(--blue2)">${c.overall}</div></div>
+        <div style="background:var(--bg4);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--txt3);margin-bottom:4px">Hair risk</div><div style="font-size:13px;font-weight:500" class="risk-val ${riskCls(c.hairRisk)}">${c.hairRisk}</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderReport(){
+  var bars=document.getElementById('reportBars');
+  if(!bars)return;
+  bars.innerHTML=`
+    <div class="prog-row"><span class="prog-label">Air quality</span><div class="prog-bar"><div class="prog-fill" style="width:68%;background:var(--amber)"></div></div><span class="prog-num">68/100</span></div>
+    <div class="prog-row"><span class="prog-label">Water quality</span><div class="prog-bar"><div class="prog-fill" style="width:52%;background:var(--red)"></div></div><span class="prog-num">52/100</span></div>
+    <div class="prog-row"><span class="prog-label">Overall env.</span><div class="prog-bar"><div class="prog-fill" style="width:62%;background:var(--blue)"></div></div><span class="prog-num">62/100</span></div>
+    <div class="prog-row"><span class="prog-label">vs Delhi avg</span><div class="prog-bar"><div class="prog-fill" style="width:28%;background:var(--red)"></div></div><span class="prog-num">28/100</span></div>
+  `;
+}
+
+renderCities();
+renderReport();
+</script>
