@@ -1,0 +1,491 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.container { padding: 1.5rem 1rem; max-width: 680px; }
+.header { text-align: center; margin-bottom: 1.5rem; }
+.header h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+.header p { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.tab { padding: 6px 14px; font-size: 12px; border: 0.5px solid var(--color-border-secondary); border-radius: 20px; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); transition: all 0.2s; }
+.tab.active { background: #534AB7; color: #EEEDFE; border-color: #534AB7; }
+.section { display: none; }
+.section.active { display: block; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.card-title { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.stat { background: var(--color-background-secondary); border-radius: 8px; padding: 10px 12px; }
+.stat-label { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 3px; }
+.stat-value { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.stat-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.badge-purple { background: #EEEDFE; color: #3C3489; }
+.badge-teal { background: #E1F5EE; color: #085041; }
+.badge-amber { background: #FAEEDA; color: #633806; }
+.badge-red { background: #FCEBEB; color: #791F1F; }
+.badge-coral { background: #FAECE7; color: #4A1B0C; }
+.badge-blue { background: #E6F1FB; color: #0C447C; }
+.badge-green { background: #EAF3DE; color: #27500A; }
+@media (prefers-color-scheme: dark) {
+  .badge-purple { background: #26215C; color: #CECBF6; }
+  .badge-teal { background: #04342C; color: #9FE1CB; }
+  .badge-amber { background: #412402; color: #FAC775; }
+  .badge-red { background: #501313; color: #F7C1C1; }
+  .badge-coral { background: #4A1B0C; color: #F5C4B3; }
+  .badge-blue { background: #042C53; color: #B5D4F4; }
+  .badge-green { background: #173404; color: #C0DD97; }
+}
+.planet-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); gap: 8px; }
+.planet-row:last-child { border-bottom: none; }
+.planet-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); min-width: 90px; }
+.planet-detail { font-size: 12px; color: var(--color-text-secondary); flex: 1; }
+.insight { padding: 10px 12px; border-left: 2px solid #534AB7; background: var(--color-background-secondary); border-radius: 0 8px 8px 0; margin-bottom: 8px; }
+.insight p { font-size: 13px; color: var(--color-text-primary); line-height: 1.6; }
+.insight .label { font-size: 11px; color: #534AB7; font-weight: 500; margin-bottom: 3px; }
+.insight-teal { border-left-color: #0F6E56; }
+.insight-teal .label { color: #0F6E56; }
+.insight-amber { border-left-color: #BA7517; }
+.insight-amber .label { color: #BA7517; }
+.insight-coral { border-left-color: #993C1D; }
+.insight-coral .label { color: #993C1D; }
+.yr-grid { display: grid; grid-template-columns: 54px 1fr 1fr 1fr 1fr; gap: 8px; padding: 9px 0; border-bottom: 0.5px solid var(--color-border-tertiary); align-items: start; }
+.yr-grid:last-child { border-bottom: none; }
+.yr-label { font-size: 11px; color: var(--color-text-tertiary); font-weight: 500; }
+.yr-val { font-size: 12px; color: var(--color-text-primary); line-height: 1.5; }
+.yr-year { font-size: 14px; font-weight: 500; color: #534AB7; }
+.highlight-yr { background: #EEEDFE; border-radius: 8px; padding: 9px 8px; margin: 0 -4px; }
+@media (prefers-color-scheme: dark) { .highlight-yr { background: #26215C; } }
+.remedy-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.remedy-item:last-child { border-bottom: none; }
+.remedy-icon { font-size: 20px; min-width: 28px; margin-top: 1px; }
+.remedy-text { font-size: 13px; color: var(--color-text-primary); line-height: 1.6; }
+.remedy-text strong { font-weight: 500; }
+.dasha-bar { height: 6px; border-radius: 4px; background: var(--color-background-secondary); margin: 8px 0 4px; overflow: hidden; }
+.dasha-fill { height: 100%; background: #534AB7; border-radius: 4px; }
+.yoga-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.note { font-size: 12px; color: var(--color-text-tertiary); font-style: italic; line-height: 1.6; margin-top: 10px; padding: 0 2px; }
+.section-divider { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); letter-spacing: 0.06em; text-transform: uppercase; margin: 14px 0 8px; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+</style>
+
+<div class="container">
+
+<div class="header">
+  <h1>Vedic Birth Chart — Dharani Linguberi</h1>
+  <p>27 Jan 2006 · 10:00 PM IST · Palasa, Srikakulam, AP · Female</p>
+  <p style="margin-top:4px;font-size:12px;color:#534AB7;font-weight:500">Moon Sign corrected: Sagittarius (Dhanu) · Mula Nakshatra</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('chart',this)">Birth Chart</div>
+  <div class="tab" onclick="showTab('life',this)">Life Patterns</div>
+  <div class="tab" onclick="showTab('career',this)">Career & Wealth</div>
+  <div class="tab" onclick="showTab('marriage',this)">Relationships</div>
+  <div class="tab" onclick="showTab('dasha',this)">Dasha</div>
+  <div class="tab" onclick="showTab('forecast',this)">5-Year Forecast</div>
+  <div class="tab" onclick="showTab('remedies',this)">Remedies</div>
+</div>
+
+<!-- ══════════════ BIRTH CHART ══════════════ -->
+<div id="tab-chart" class="section active">
+
+  <div class="card">
+    <div class="card-title">Core Identifiers</div>
+    <div class="grid3">
+      <div class="stat"><div class="stat-label">Lagna (Ascendant)</div><div class="stat-value">Virgo</div><div class="stat-sub">Kanya Lagna · ~22°</div></div>
+      <div class="stat"><div class="stat-label">Moon Sign (Rashi)</div><div class="stat-value">Sagittarius</div><div class="stat-sub">Dhanu Rashi ✓ Corrected</div></div>
+      <div class="stat"><div class="stat-label">Sun Sign</div><div class="stat-value">Capricorn</div><div class="stat-sub">Makara Rashi</div></div>
+    </div>
+    <div class="grid3" style="margin-top:10px">
+      <div class="stat"><div class="stat-label">Nakshatra</div><div class="stat-value">Mula</div><div class="stat-sub">Pada 1 · Ketu ruled</div></div>
+      <div class="stat"><div class="stat-label">Nakshatra Deity</div><div class="stat-value">Niritti</div><div class="stat-sub">Dissolution · Root truth</div></div>
+      <div class="stat"><div class="stat-label">Rashi Lord</div><div class="stat-value">Jupiter</div><div class="stat-sub">Wisdom · Expansion</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Planetary Placements (Corrected)</div>
+    <div class="planet-row">
+      <span class="planet-name">☉ Sun</span>
+      <span class="planet-detail">Capricorn · 5th House · Uttarashada Nakshatra</span>
+      <span><span class="badge badge-teal">Neutral</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name">☽ Moon</span>
+      <span class="planet-detail">Sagittarius · 4th House · Mula Nakshatra Pada 1</span>
+      <span><span class="badge badge-green">Corrected ✓</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name">♂ Mars</span>
+      <span class="planet-detail">Taurus · 9th House · Rohini Nakshatra</span>
+      <span><span class="badge badge-teal">Strong</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name">☿ Mercury</span>
+      <span class="planet-detail">Capricorn · 5th House · Shravana Nakshatra</span>
+      <span><span class="badge badge-teal">Benefic</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name">♃ Jupiter</span>
+      <span class="planet-detail">Libra · 2nd House · Vishakha Nakshatra</span>
+      <span><span class="badge badge-amber">Kendradhipati</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name">♀ Venus</span>
+      <span class="planet-detail">Sagittarius · 4th House · Purva Ashadha Nakshatra</span>
+      <span><span class="badge badge-teal">Strong Benefic</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name">♄ Saturn</span>
+      <span class="planet-detail">Cancer · 11th House · Pushya Nakshatra · Retrograde</span>
+      <span><span class="badge badge-red">Debilitated (R)</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name">☊ Rahu</span>
+      <span class="planet-detail">Aries · 8th House · Ashwini Nakshatra</span>
+      <span><span class="badge badge-coral">Intense</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name">☋ Ketu</span>
+      <span class="planet-detail">Libra · 2nd House · Vishakha Nakshatra</span>
+      <span><span class="badge badge-coral">Karmic</span></span>
+    </div>
+    <p class="note">Palasa coords: 18.77°N, 84.42°E · Lahiri Ayanamsha · Lagna ≈ 22° Virgo at 22:00 IST. Moon in early Sagittarius (Mula Pada 1) confirmed by your own knowledge.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Key Yogas & Doshas</div>
+    <div class="yoga-list">
+      <span class="badge badge-purple">Budha-Aditya Yoga (5H)</span>
+      <span class="badge badge-teal">Moon + Venus in 4H (Sukha Yoga)</span>
+      <span class="badge badge-teal">Mars in 9H (Dharma Strength)</span>
+      <span class="badge badge-blue">Mula Nakshatra (Root Seeker)</span>
+      <span class="badge badge-coral">Rahu 8H (Transformation)</span>
+      <span class="badge badge-red">Saturn Debilitated (R) 11H</span>
+      <span class="badge badge-amber">Jupiter-Ketu Conjunction 2H</span>
+      <span class="badge badge-amber">Kendradhipati Dosha (Jupiter)</span>
+    </div>
+    <div style="margin-top:12px">
+      <div class="insight"><div class="label">Moon + Venus in 4th House — Powerful Sukha Yoga</div><p>Both Moon and Venus occupy your 4H (Sagittarius). This is a significant upgrade from the earlier reading. It gives deep love for home, aesthetic sensibility, emotional generosity, and strong maternal bonds. It also makes you naturally magnetic and likeable.</p></div>
+      <div class="insight insight-teal"><div class="label">Budha-Aditya Yoga in 5H (Sun + Mercury · Capricorn)</div><p>Analytical brilliance, intellectual authority, and a natural teaching gift. This yoga powers your content creation, technical writing, and research output. Sun in Uttarashada adds laser-focus determination — you finish what you start.</p></div>
+      <div class="insight insight-coral"><div class="label">Rahu 8H + Mula Moon — Double Root-Seeker Pattern</div><p>Mula Nakshatra's keyword is "the root" — digging beneath surfaces to find hidden truths. Combined with Rahu in 8H (hidden systems, occult knowledge, research), this double pattern makes cybersecurity and AI security not just a career choice but a soul-level calling.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Functional Benefics & Malefics for Virgo Lagna</div>
+    <div class="grid2">
+      <div>
+        <div class="stat-label" style="margin-bottom:6px">Functional Benefics</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          <span class="badge badge-teal">Mercury (Lagna + 10H Lord)</span>
+          <span class="badge badge-teal">Venus (2H + 9H Lord)</span>
+          <span class="badge badge-teal">Mars (3H + 8H Lord)</span>
+        </div>
+      </div>
+      <div>
+        <div class="stat-label" style="margin-bottom:6px">Functional Malefics</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          <span class="badge badge-red">Saturn (5H + 6H Lord)</span>
+          <span class="badge badge-amber">Jupiter (Kendradhipati)</span>
+          <span class="badge badge-coral">Moon (11H Lord — mixed)</span>
+        </div>
+      </div>
+    </div>
+    <p class="note" style="margin-top:10px">Mercury is your most powerful planet — it rules both your Lagna (1H) and your career house (10H). Strengthening Mercury directly strengthens your identity and career simultaneously.</p>
+  </div>
+
+</div>
+
+<!-- ══════════════ LIFE PATTERNS ══════════════ -->
+<div id="tab-life" class="section">
+
+  <div class="card">
+    <div class="card-title">Core Personality (Virgo Lagna + Mula Moon in 4H)</div>
+    <div class="insight"><div class="label">The Root Investigator</div><p>Virgo Lagna makes you precise, analytical, and improvement-oriented. Mula Moon adds philosophical fire — you don't just analyze systems, you question why they exist. This combo produces natural security researchers and systems thinkers.</p></div>
+    <div class="insight insight-teal"><div class="label">Moon + Venus in 4H — Warmth Behind the Intellect</div><p>People may first see your analytical side, but those close to you experience deep warmth, loyalty, and emotional generosity. You create comfort wherever you go. Home and family are genuinely centering for you — not just sentiment.</p></div>
+    <div class="insight insight-amber"><div class="label">Mula Nakshatra — The Uprooting Quality</div><p>Mula people often experience one or more significant "uprootings" in life — changes that feel disruptive but ultimately redirect toward a truer path. This is not bad fortune; it is the nakshatra doing its job. Trust the disruptions.</p></div>
+    <div class="insight insight-coral"><div class="label">Perfectionism & the Inner Critic</div><p>Virgo Lagna's shadow is the inner critic that never quite approves. Combined with Mula Moon's philosophical restlessness, you can feel perpetually "not ready" or "not enough." Recognize this as the Lagna speaking, not reality.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Childhood & Family Influences</div>
+    <div class="insight"><div class="label">4H Moon + Venus — Strong Home Foundation</div><p>Your 4th house is unusually loaded (Moon + Venus in Sagittarius). This indicates a home environment that valued education, philosophy, and aspiration. Your mother or a maternal figure likely played a guiding, inspiring role in who you are becoming.</p></div>
+    <div class="insight insight-amber"><div class="label">Jupiter + Ketu in 2H — Mixed Family Wealth Story</div><p>The 2nd house (family wealth, speech, values) has Jupiter (wisdom, expansion) with Ketu (detachment, past-life). Your family may have had philosophical or spiritual values but inconsistent material stability. This shapes your drive for financial independence.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Karmic Patterns (Rahu-Ketu Axis · 8H-2H)</div>
+    <div class="insight"><div class="label">Past Life (Ketu 2H): Accumulated Wealth & Speech Power</div><p>In prior lifetimes you mastered the domain of wealth, family, and persuasive speech. You carry residual skill in communication and teaching (why content creation feels natural). But the soul grew restless with surface-level comfort.</p></div>
+    <div class="insight insight-teal"><div class="label">Soul Direction (Rahu 8H): Hidden Knowledge & Transformation</div><p>This life's karmic assignment is to go deep into what is hidden, feared, or misunderstood — exactly what cybersecurity and AI risk represent. Every vulnerability you find, every system you analyze, is dharmic work at the soul level.</p></div>
+    <div class="insight insight-amber"><div class="label">Mula Moon — Ketu-Ruled Nakshatra</div><p>Because your Moon is in Mula (ruled by Ketu) and Ketu sits in your 2H, there is a strong past-life thread around letting go of material attachment to find deeper truth. This lifetime asks you to build wealth while not being enslaved by it.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Financial Psychology</div>
+    <div class="insight"><div class="label">Jupiter + Ketu in 2H</div><p>You have the wisdom to earn well (Jupiter) but may unconsciously detach from money (Ketu) — sometimes spending freely, sometimes ignoring savings. Build financial systems and automate savings so the Ketu detachment doesn't quietly erode wealth.</p></div>
+    <div class="insight insight-teal"><div class="label">Saturn in 11H — The Long-Game Gains</div><p>Saturn retrograde in the 11H (gains, network, income) delivers slowly but surely. Your biggest wealth accumulation will come between ages 33–48 through consistent compounding, not shortcuts. The chart rewards patience over speculation.</p></div>
+  </div>
+
+</div>
+
+<!-- ══════════════ CAREER & WEALTH ══════════════ -->
+<div id="tab-career" class="section">
+
+  <div class="card">
+    <div class="card-title">Career Suitability</div>
+    <div class="insight"><div class="label">Primary Domain: AI Security · AppSec · Threat Research</div><p>Budha-Aditya Yoga (5H intelligence) + Rahu 8H (hidden systems) + Mula Moon (root investigation) + Virgo Lagna (precision) = a chart built for cybersecurity research and AI security. This is not generic — this specific combination is rare and powerful for this field.</p></div>
+    <div class="insight insight-teal"><div class="label">Secondary Domain: Content, Teaching & Technical Writing</div><p>Moon + Venus in 4H + Budha-Aditya Yoga + 3H Mars (courage in communication) makes you a natural educator. CyberVidyarthi and LinkedIn content creation are not distractions from career — they ARE career assets that will generate opportunities the resume cannot.</p></div>
+    <div class="insight insight-amber"><div class="label">Job vs Business</div><p>Ages 19–27 (Rahu MD): employment at a specialist firm (Quick Heal, Sequretek, EY GDS, IBM Security) gives fastest technical depth and credibility. Ages 27–33 (Jupiter MD): independent consulting, training business, or startup co-founding becomes strongly favored. Plant the seed now; harvest later.</p></div>
+    <div class="insight"><div class="label">Leadership Potential</div><p>Mars in 9H (house of dharma and higher principles) gives principled, values-driven leadership. You lead through deep competence and mentoring, not authority for its own sake. Security Architect, Head of AppSec, or CISO-track by your mid-30s is realistic with this chart.</p></div>
+    <div class="insight insight-teal"><div class="label">Government Job Potential</div><p>Moderate. Venus rules 9H (government service, higher authority) and is strong in 4H. CERT-In, DRDO Cyber Division, or NIC-type roles are karmically accessible — but private sector will deliver faster growth and better pay during your current Rahu dasha.</p></div>
+    <div class="insight insight-coral"><div class="label">Foreign Opportunities</div><p>Sun (12H lord) sits in the 5H with Mercury. This creates a link between creative intelligence and foreign lands. International bug bounty programs, remote roles with global firms, or overseas higher education are all supported — particularly from 2028 onward during Rahu-Jupiter AD.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Career & Wealth Timeline by Age</div>
+    <div class="yr-grid" style="padding-bottom:6px">
+      <div class="yr-label">Age</div>
+      <div class="yr-label">Dasha</div>
+      <div class="yr-label">Career Phase</div>
+      <div class="yr-label">Wealth</div>
+      <div class="yr-label">Signal</div>
+    </div>
+    <div class="yr-grid">
+      <div class="yr-year">19–21</div>
+      <div class="yr-val">Rahu–Rahu</div>
+      <div class="yr-val">First job, brand building, certification sprint</div>
+      <div class="yr-val">₹3–6 LPA first income</div>
+      <div><span class="badge badge-blue">Foundation</span></div>
+    </div>
+    <div class="yr-grid highlight-yr">
+      <div class="yr-year" style="color:#3C3489">21–24</div>
+      <div class="yr-val" style="font-weight:500">Rahu–Jupiter</div>
+      <div class="yr-val" style="font-weight:500">First major breakthrough · role upgrade · recognition</div>
+      <div class="yr-val" style="font-weight:500">₹8–14 LPA</div>
+      <div><span class="badge badge-purple">Best Phase</span></div>
+    </div>
+    <div class="yr-grid">
+      <div class="yr-year">24–27</div>
+      <div class="yr-val">Rahu–Saturn</div>
+      <div class="yr-val">Restructuring, possible job change, pressure</div>
+      <div class="yr-val">Plateau · manage debt</div>
+      <div><span class="badge badge-amber">Navigate</span></div>
+    </div>
+    <div class="yr-grid">
+      <div class="yr-year">27–33</div>
+      <div class="yr-val">Jupiter MD</div>
+      <div class="yr-val">Leadership · consulting · teaching revenue</div>
+      <div class="yr-val">₹18–30 LPA</div>
+      <div><span class="badge badge-teal">Expansion</span></div>
+    </div>
+    <div class="yr-grid">
+      <div class="yr-year">33–43</div>
+      <div class="yr-val">Saturn MD</div>
+      <div class="yr-val">Institution-building · senior roles</div>
+      <div class="yr-val">Peak accumulation</div>
+      <div><span class="badge badge-blue">Peak Wealth</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Investments & Property</div>
+    <div class="insight"><div class="label">Property (Venus in 4H — Strongest Signal)</div><p>Venus in the 4th house (home, land, property) is one of the clearest property-ownership indicators in Vedic astrology. You will likely own property. Best window: ages 28–32 during Jupiter MD. Avoid large commitments before 26.</p></div>
+    <div class="insight insight-teal"><div class="label">Investments</div><p>Saturn in 11H favors slow-compounding assets — index funds, SIPs, gold bonds — over speculation. Start an SIP even now at ₹500/month. The habit matters more than the amount at this stage. Avoid crypto and intraday trading before age 26.</p></div>
+  </div>
+
+</div>
+
+<!-- ══════════════ RELATIONSHIPS ══════════════ -->
+<div id="tab-marriage" class="section">
+
+  <div class="card">
+    <div class="card-title">Love vs Arranged Marriage Indicators</div>
+    <div class="insight"><div class="label">Strong Love Marriage Signature</div><p>Moon + Venus in 4H Sagittarius creates deep romantic idealism and emotional warmth. Mars in 9H (9H = dharma, also long-distance or cross-background connections) adds attraction to partners from different environments. 5H Budha-Aditya Yoga favors intellectual love connections. Your current relationship reflects these patterns.</p></div>
+    <div class="insight insight-teal"><div class="label">7th House Analysis (Pisces · Ruled by Jupiter)</div><p>Pisces 7H ruled by Jupiter (2H, conjunct Ketu) gives a partner who is philosophical, educated, spiritually inclined or creatively driven. The Ketu conjunction adds a "fated" quality — this relationship likely feels like it was meant to happen. Jupiter also suggests the partner may be from a slightly different socioeconomic or cultural background.</p></div>
+    <div class="insight insight-amber"><div class="label">Marriage Timing Windows</div><p>Window 1 (favorable): Age 22–25 during Rahu-Jupiter AD (Aug 2027–Jan 2030) — if the relationship has matured and both are settled professionally. Window 2: Age 27–29 (Jupiter MD onset) — expansion-oriented period favoring long-term commitments. Caution: avoid rushed commitment during ages 24–27 (Rahu-Saturn AD) — external pressures can distort decisions.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Spouse Characteristics</div>
+    <div class="grid2">
+      <div class="stat"><div class="stat-label">Personality</div><div class="stat-value" style="font-size:13px">Philosophical, intelligent, idealistic</div></div>
+      <div class="stat"><div class="stat-label">Likely Field</div><div class="stat-value" style="font-size:13px">Tech, Law, Education, or Finance</div></div>
+      <div class="stat"><div class="stat-label">Meeting Context</div><div class="stat-value" style="font-size:13px">Academic, professional, or online</div></div>
+      <div class="stat"><div class="stat-label">Bond Quality</div><div class="stat-value" style="font-size:13px">Karmic · strong past-life link</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Relationship Strengths & Risks</div>
+    <div class="insight insight-teal"><div class="label">Strength: Deep Loyalty & Warmth</div><p>Moon + Venus in 4H makes you a deeply nurturing, loyal partner. You invest heavily in relationships and create emotional safety for those you love. This is a genuine gift.</p></div>
+    <div class="insight insight-amber"><div class="label">Risk: Mula Moon — Intensity & Philosophical Restlessness</div><p>Mula Nakshatra Moon can create a restlessness that feels like the relationship is "never quite right" even when it is good. This is the nakshatra seeking the "root truth" in relationships too. Learn to distinguish genuine incompatibility from Mula's inherent philosophical hunger.</p></div>
+    <div class="insight insight-coral"><div class="label">Risk: 4H Concentration — Over-Investing in Home Life</div><p>With Moon, Venus, and the emotional axis concentrated in 4H, there is a tendency to make the home/relationship the primary source of identity and security. Maintain your individual career and creative pursuits independently — this actually strengthens the relationship.</p></div>
+  </div>
+
+</div>
+
+<!-- ══════════════ DASHA ══════════════ -->
+<div id="tab-dasha" class="section">
+
+  <div class="card">
+    <div class="card-title">Current Dasha Periods</div>
+    <div class="grid2">
+      <div class="stat"><div class="stat-label">Mahadasha</div><div class="stat-value">Rahu</div><div class="stat-sub">Feb 2024 – Feb 2042 (18 yrs)</div></div>
+      <div class="stat"><div class="stat-label">Antardasha</div><div class="stat-value">Rahu–Rahu</div><div class="stat-sub">Feb 2024 – Aug 2027</div></div>
+    </div>
+    <div class="dasha-bar"><div class="dasha-fill" style="width:22%"></div></div>
+    <p style="font-size:11px;color:var(--color-text-tertiary)">Rahu Mahadasha: ~22% elapsed · June 2026</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Rahu Mahadasha Interpretation (8th House Rahu)</div>
+    <div class="insight"><div class="label">What Rahu in 8H Activates During Its Own MD</div><p>The 8th house rules hidden knowledge, research, transformation, sudden changes, and occult sciences. Rahu here during its own Mahadasha accelerates all of these. You are in a period of rapid, sometimes disorienting, expansion into new domains. This is by design.</p></div>
+    <div class="insight insight-teal"><div class="label">Current Opportunities (Rahu–Rahu · Until Aug 2027)</div><p>First professional entry, aggressive skill building, personal brand explosion, unconventional opportunities (bug bounties, research publications, content monetization). Rahu rewards bold, non-traditional moves. Apply widely, experiment visibly, document everything publicly.</p></div>
+    <div class="insight insight-amber"><div class="label">Current Challenges</div><p>Rahu–Rahu creates ambition overload — too many directions, FOMO, identity flux ("Who am I really?"). Relationships may feel unstable as you change rapidly. Sleep and digestion can be disrupted. Grounding rituals are not optional — they are strategic.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Upcoming Antardasha Periods</div>
+    <div class="planet-row">
+      <span class="planet-name" style="font-size:12px">Rahu–Jupiter</span>
+      <span class="planet-detail">Aug 2027 – Jan 2030 · Breakthrough, expansion, recognition</span>
+      <span><span class="badge badge-purple">Highly Favorable</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name" style="font-size:12px">Rahu–Saturn</span>
+      <span class="planet-detail">Jan 2030 – Dec 2032 · Pressure, restructure, karmic tests</span>
+      <span><span class="badge badge-amber">Challenging</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name" style="font-size:12px">Rahu–Mercury</span>
+      <span class="planet-detail">Dec 2032 – Jul 2035 · Technical peak, writing, teaching income</span>
+      <span><span class="badge badge-teal">Career Peak</span></span>
+    </div>
+    <div class="planet-row">
+      <span class="planet-name" style="font-size:12px">Rahu–Ketu</span>
+      <span class="planet-detail">Jul 2035 – Dec 2036 · Spiritual pivot, letting go</span>
+      <span><span class="badge badge-coral">Introspective</span></span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ 5-YEAR FORECAST ══════════════ -->
+<div id="tab-forecast" class="section">
+
+  <div class="card">
+    <div class="card-title">5-Year Forecast (2026–2030)</div>
+    <div class="yr-grid" style="padding-bottom:6px">
+      <div class="yr-label">Year</div>
+      <div class="yr-label">Career</div>
+      <div class="yr-label">Money</div>
+      <div class="yr-label">Relationships</div>
+      <div class="yr-label">Health</div>
+    </div>
+    <div class="yr-grid">
+      <div class="yr-year">2026</div>
+      <div class="yr-val">Final year, campus placements, portfolio launch, first offer likely</div>
+      <div class="yr-val">Pre-income phase; manage spending, build SIP habit</div>
+      <div class="yr-val">Relationship at a crossroads — clarity needed</div>
+      <div class="yr-val">Digestive stress, sleep disruption — prioritize routine</div>
+    </div>
+    <div class="yr-grid highlight-yr">
+      <div class="yr-year" style="color:#3C3489">2027</div>
+      <div class="yr-val" style="font-weight:500">Role upgrade or new offer · major recognition · Rahu-Jupiter begins Aug</div>
+      <div class="yr-val" style="font-weight:500">Salary jump · ₹8–12 LPA range · first real savings</div>
+      <div class="yr-val">Positive — relationship stability or committed step forward</div>
+      <div class="yr-val">Good energy; maintain exercise, reduce screen time at night</div>
+    </div>
+    <div class="yr-grid">
+      <div class="yr-year">2028</div>
+      <div class="yr-val">Jupiter AD fully active · domain mastery · possible abroad opportunity</div>
+      <div class="yr-val">Strong growth · begin investing · property planning</div>
+      <div class="yr-val">Very favorable · marriage window opens</div>
+      <div class="yr-val">Generally excellent; watch overwork tendency</div>
+    </div>
+    <div class="yr-grid">
+      <div class="yr-year">2029</div>
+      <div class="yr-val">Leadership or team-lead role · mentoring · teaching income possible</div>
+      <div class="yr-val">Compounding begins to show · ₹15–20 LPA range</div>
+      <div class="yr-val">Stable · family integration · possible marriage</div>
+      <div class="yr-val">Monitor hormonal/reproductive health proactively</div>
+    </div>
+    <div class="yr-grid">
+      <div class="yr-year">2030</div>
+      <div class="yr-val">Rahu-Saturn AD begins · pressure · possible role restructure</div>
+      <div class="yr-val">Be conservative · avoid large debt or new loans</div>
+      <div class="yr-val">Relationship tested by external pressure · communicate actively</div>
+      <div class="yr-val">Saturn transit — joints, immunity, skin; regular check-ups</div>
+    </div>
+    <div class="tag-row">
+      <span class="badge badge-purple">Best Year: 2027–2028</span>
+      <span class="badge badge-amber">Toughest: 2030</span>
+      <span class="badge badge-teal">Major Turning Point: Aug 2027 (Rahu-Jupiter begins)</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ REMEDIES ══════════════ -->
+<div id="tab-remedies" class="section">
+
+  <div class="card">
+    <div class="card-title">Astrologically Justified Remedies</div>
+
+    <div class="remedy-item">
+      <div class="remedy-icon"><i class="ti ti-sparkles" aria-hidden="true" style="color:#534AB7;font-size:20px"></i></div>
+      <div class="remedy-text"><strong>Mercury Mantra (Lagna + 10H Lord — Highest Priority):</strong> Chant "ॐ बुं बुधाय नमः" (Om Bum Budhaya Namaha) 17 times every Wednesday morning before starting work or study. Mercury rules your identity, career, and intelligence simultaneously — this is your single most powerful remedy.</div>
+    </div>
+
+    <div class="remedy-item">
+      <div class="remedy-icon"><i class="ti ti-moon" aria-hidden="true" style="color:#0F6E56;font-size:20px"></i></div>
+      <div class="remedy-text"><strong>Moon + Venus Remedy (4H Concentration · Emotional Grounding):</strong> Since Moon and Venus are both in 4H (home axis), keep a small copper or silver water vessel near your study space. Drink water stored in copper in the morning. On Fridays, offer white flowers or white sweets. This stabilizes 4H energy and reduces restlessness.</div>
+    </div>
+
+    <div class="remedy-item">
+      <div class="remedy-icon"><i class="ti ti-flame" aria-hidden="true" style="color:#993C1D;font-size:20px"></i></div>
+      <div class="remedy-text"><strong>Rahu Remedy (Current Mahadasha · Critical):</strong> Chant "ॐ रां राहवे नमः" (Om Ram Rahave Namaha) 18 times on Saturdays. Feed crows or dogs dark-colored food (black sesame ladoos, coconut) on Saturdays. This pacifies Rahu's restlessness and reduces anxiety and FOMO during the Rahu–Rahu period.</div>
+    </div>
+
+    <div class="remedy-item">
+      <div class="remedy-icon"><i class="ti ti-eye" aria-hidden="true" style="color:#BA7517;font-size:20px"></i></div>
+      <div class="remedy-text"><strong>Mula Nakshatra Remedy (Moon Nakshatra):</strong> Mula is ruled by Ketu — light a sesame oil lamp (til ka diya) on Tuesday evenings or donate sesame seeds at a temple. Since Ketu also sits in your 2H, this simultaneously pacifies both the Moon's nakshatra lord and the 2H Ketu. Helps with emotional grounding and family harmony.</div>
+    </div>
+
+    <div class="remedy-item">
+      <div class="remedy-icon"><i class="ti ti-book" aria-hidden="true" style="color:#3B6D11;font-size:20px"></i></div>
+      <div class="remedy-text"><strong>Saraswati Sadhana (5H Budha-Aditya Yoga):</strong> Recite the Saraswati Vandana or Gayatri Mantra at sunrise daily — even 5 minutes. Your 5H yoga is the engine of intellectual growth and public recognition. Activating it through daily practice compounds its effect over time.</div>
+    </div>
+
+    <div class="remedy-item">
+      <div class="remedy-icon"><i class="ti ti-diamond" aria-hidden="true" style="color:#185FA5;font-size:20px"></i></div>
+      <div class="remedy-text"><strong>Gemstone (Optional · Only If Desired):</strong> Emerald (Panna) for Mercury — your Lagna lord. 4–5 ratti, set in gold or silver, worn on the little finger of the right hand on a Wednesday after proper puja. Do NOT wear Blue Sapphire (Saturn is functionally malefic for Virgo Lagna). Do NOT wear Yellow Sapphire independently (Jupiter is Kendradhipati). Always consult before wearing any gemstone.</div>
+    </div>
+
+    <div class="remedy-item">
+      <div class="remedy-icon"><i class="ti ti-gift" aria-hidden="true" style="color:#639922;font-size:20px"></i></div>
+      <div class="remedy-text"><strong>Donations:</strong> Wednesday — green moong dal, green vegetables, or green cloth to a student or temple. Saturday — sesame oil, black sesame seeds, or dark clothing to someone in need (pacifies debilitated Saturn in 11H). Friday — white sweets or white flowers to strengthen Venus in 4H.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Health Guidance — Body Weight & Energy</div>
+    <div class="insight"><div class="label">Virgo Lagna — Gut-Brain Connection</div><p>Virgo governs the digestive system. Weight fluctuations in Virgo Lagna individuals are almost always stress and cortisol-driven, not simply caloric. Managing anxiety, sleep, and mental load will regulate weight more effectively than restrictive diets.</p></div>
+    <div class="insight insight-teal"><div class="label">Mula Moon + 4H Venus — Emotional Eating Pattern</div><p>With Moon in Mula (philosophical restlessness) and Venus in 4H (comfort-seeking at home), emotional eating during periods of frustration or relationship stress is the primary pattern to watch. Awareness alone reduces this by 50%.</p></div>
+    <div class="insight insight-amber"><div class="label">Practical Protocol</div><p>Morning: 20 minutes walking or yoga (activates Mercury, calms Rahu anxiety). Evening: no screens 45 minutes before bed (Rahu in 8H over-stimulates at night). Weekly: one full rest day with no digital content creation. These three alone will shift energy and body composition over 90 days.</p></div>
+  </div>
+
+  <p class="note">This reading is for self-reflection and life guidance. All astrological predictions are probabilistic interpretations — not deterministic outcomes. Consistent action, self-awareness, and dharmic effort always carry more weight than planetary positions.</p>
+
+</div>
+</div>
+
+<script>
+function showTab(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+}
+</script>
