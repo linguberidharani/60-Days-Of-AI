@@ -72,3 +72,209 @@ Users can configure:
 # 📊 Readiness Analysis
 
 The simulator generates an initial readiness score between:
+
+
+Final admission decision is hidden initially.
+
+The readiness score uses weighted healthcare workflow factors:
+
+| Category | Weight |
+|----------|--------|
+| Prior Authorization | 25% |
+| Clinical Documentation | 20% |
+| Physician Orders | 20% |
+| Insurance Verification | 15% |
+| Consent | 10% |
+| Bed Assignment | 10% |
+
+---
+
+# 🔐 Prior Authorization Workflow
+
+Supports multiple PA scenarios:
+
+### ✅ Approved
+
+Continues admission workflow.
+
+### ⏳ Pending
+
+Required actions:
+
+- Follow up with payer
+- Upload supporting documents
+- Contact physician
+
+
+### ❌ Denied
+
+Actions:
+
+- Review denial reason
+- Contact insurance
+- Submit appeal
+
+Successful appeals convert status to:
+
+---
+
+# 🏥 Workflow Actions
+
+Users can complete:
+
+- Assign Bed
+- Verify Insurance
+- Upload Documentation
+- Complete Consent
+- Contact Physician
+- Notify Nursing
+- Prepare Patient Arrival
+
+
+Each action improves admission readiness.
+
+---
+
+# 📅 Admission Timeline
+
+Tracks milestones:
+
+---
+
+# 👥 Care Coordination
+
+Includes healthcare team roles:
+
+### Attending Physician
+
+Responsible for clinical decisions and orders.
+
+### Case Manager
+
+Coordinates resources and admission planning.
+
+### Nursing
+
+Ensures patient care readiness.
+
+### Utilization Review
+
+Handles:
+
+- Concurrent review
+- Denial risk identification
+- InterQual criteria
+- Milliman criteria
+
+### Discharge Planner
+
+Supports transition planning.
+
+---
+
+# ⚠️ Risk Tracking
+
+Tracks:
+
+- Documentation Risk
+- Insurance Risk
+- Bed Risk
+- Clinical Risk
+
+Clinical risk receives higher weighting for:
+
+- Acute MI
+- CHF
+- ICU Admissions
+
+
+---
+
+# 📈 Governance Snapshot
+
+Unlocked when readiness reaches:
+
+Displays healthcare operational benchmarks:
+
+- PA turnaround: 3–5 days
+- Inpatient denial rate estimates
+- PA rework cost estimates
+
+*(All benchmarks are training estimates only.)*
+
+---
+
+# ✅ Final Decision Logic
+
+Admission evaluation:
+
+### Ready
+
+### Not Ready
+
+---
+
+# 🛠️ Technologies Used
+
+Frontend:
+
+- HTML5
+- Tailwind CSS CDN
+- Vanilla JavaScript
+
+AI Tools:
+
+- Claude AI
+- Prompt Engineering
+
+Development Approach:
+
+- Single-file application
+- AI-assisted coding workflow
+- Healthcare simulation design
+
+
+---
+
+# 📂 Project Structure
+
+---
+
+# 🧠 Key Learnings
+
+During this project I learned:
+
+- Designing real-world workflow simulations
+- Translating business requirements into application logic
+- Building interactive UI without frameworks
+- Creating rule-based scoring systems
+- Managing complex state transitions
+- Using AI as a development assistant
+
+---
+
+# 📸 Screenshots
+
+(Add screenshots here)
+
+---
+
+# 🔮 Future Improvements
+
+Possible enhancements:
+
+- Patient database integration
+- Real-time hospital bed availability
+- AI admission recommendation engine
+- Authentication system
+- Cloud deployment
+- Analytics dashboard
+
+---
+
+# 👩‍💻 Created By
+
+**Dharani**
+
+60 Days of AI Challenge  
+GitHub: https://github.com/linguberidharani
