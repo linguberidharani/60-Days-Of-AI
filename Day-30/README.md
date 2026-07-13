@@ -1,3 +1,4 @@
+
 # 🚚 Day 30 - Supply Chain Builder
 ### 60 Days Of AI Challenge
 
@@ -260,6 +261,3 @@ Possible enhancements:
 
 ## 🏆 60 Days Of AI Challenge
 
-Day 30 completed successfully 🚀
-
-Building interactive AI-powered learning experiences by combining technology, business concepts, and user eexperience
