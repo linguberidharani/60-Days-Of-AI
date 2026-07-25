@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Architect — CyberVidyarthi Daily Pipeline</title>
+<style>
+  :root{
+    --bg-0:#080b14;
+    --bg-1:#0d1220;
+    --bg-2:#121a2e;
+    --card:rgba(22,32,54,0.55);
+    --card-solid:#141d34;
+    --border:rgba(120,150,220,0.14);
+    --teal:#33e0c7;
+    --blue:#4f8cff;
+    --purple:#9b6bff;
+    --amber:#ffb15c;
+    --red:#ff6b6b;
+    --text-0:#eef2fb;
+    --text-1:#aab4cc;
+    --text-2:#6d7690;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+    --disp:'Space Grotesk','Segoe UI',sans-serif;
+    --body:'Inter','Segoe UI',sans-serif;
+    --radius:16px;
+    --shadow:0 20px 60px rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--body), ui-sans-serif, system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(79,140,255,0.10), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(155,107,255,0.10), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(51,224,199,0.06), transparent 45%),
+      var(--bg-0);
+    background-attachment:fixed;
+    color:var(--text-0);
+    min-height:100vh;
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(79,140,255,0.10), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(155,107,255,0.10), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(51,224,199,0.06), transparent 45%),
+      radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size:auto,auto,auto,22px 22px;
+  }
+  body.light{
+    --bg-0:#f5f7fb; --bg-1:#eef1f8; --bg-2:#e7ebf5;
+    --card:rgba(255,255,255,0.65); --card-solid:#ffffff;
+    --border:rgba(60,80,140,0.14);
+    --text-0:#141a2b; --text-1:#4b5570; --text-2:#7c869e;
+    --shadow:0 20px 50px rgba(70,90,150,0.12);
+  }
+  ::selection{background:var(--teal); color:#04140f;}
+  a{color:var(--teal);}
+  ::-webkit-scrollbar{width:10px; height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border); border-radius:10px;}
+
+  .glass{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    backdrop-filter:blur(18px) saturate(140%);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    box-shadow:var(--shadow);
+  }
+
+  /* ---------- NAV ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:100;
+    display:flex; align-items:center; gap:14px;
+    padding:12px 22px;
+    background:rgba(8,11,20,0.72);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+  }
+  body.light .topbar{background:rgba(245,247,251,0.78);}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--disp); font-weight:700; letter-spacing:0.2px; white-space:nowrap;}
+  .brand-badge{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,var(--teal),var(--blue));
+    display:flex;align-items:center;justify-content:center;font-size:16px; color:#05121a; font-weight:800;
+  }
+  .navlinks{display:flex; gap:4px; overflow-x:auto; flex:1; scrollbar-width:none;}
+  .navlinks::-webkit-scrollbar{display:none;}
+  .navlinks button{
+    background:none;border:none;color:var(--text-1); font-family:var(--body); font-size:13px;
+    padding:8px 12px;border-radius:9px; cursor:pointer; white-space:nowrap; transition:.15s;
+  }
+  .navlinks button:hover{color:var(--text-0); background:rgba(255,255,255,0.05);}
+  .navlinks button.active{color:#04140f; background:var(--teal); font-weight:600;}
+  .topActions{display:flex; gap:8px; align-items:center;}
+  .iconbtn{
+    width:36px;height:36px;border-radius:10px;border:1px solid var(--border); background:rgba(255,255,255,0.03);
+    color:var(--text-1); cursor:pointer; display:flex;align-items:center;justify-content:center; font-size:15px;
+    transition:.15s;
+  }
+  .iconbtn:hover{color:var(--text-0); border-color:var(--teal);}
+
+  .wrap{max-width:1200px; margin:0 auto; padding:26px 20px 80px;}
+  section{scroll-margin-top:70px; margin-bottom:46px;}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; gap:12px; flex-wrap:wrap;}
+  .section-head h2{font-family:var(--disp); font-size:22px; letter-spacing:-0.2px;}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--teal); margin-bottom:6px; display:block;}
+  .muted{color:var(--text-1); font-size:13.5px; line-height:1.6;}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:46px 30px; position:relative; overflow:hidden;}
+  .hero::before{
+    content:''; position:absolute; inset:0; opacity:.5;
+    background:linear-gradient(120deg, rgba(79,140,255,0.10), rgba(155,107,255,0.08) 40%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero h1{font-family:var(--disp); font-size:clamp(28px,4vw,44px); line-height:1.08; letter-spacing:-0.5px; max-width:760px;}
+  .hero h1 span{background:linear-gradient(90deg,var(--teal),var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .hero p.desc{margin-top:14px; max-width:640px; color:var(--text-1); font-size:15px; line-height:1.7;}
+  .stat-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-top:28px;}
+  .stat{
+    padding:14px 16px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid var(--border);
+  }
+  .stat .num{font-family:var(--mono); font-size:22px; font-weight:700; color:var(--text-0);}
+  .stat .lbl{font-size:11.5px; color:var(--text-2); margin-top:2px; text-transform:uppercase; letter-spacing:0.6px;}
+  .cta-row{display:flex; gap:12px; margin-top:26px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--body); font-weight:600; font-size:13.5px; padding:11px 20px; border-radius:11px; border:1px solid var(--border);
+    cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:.15s; background:rgba(255,255,255,0.03); color:var(--text-0);
+  }
+  .btn.primary{background:linear-gradient(90deg,var(--teal),var(--blue)); color:#05121a; border:none;}
+  .btn.primary:hover{filter:brightness(1.08); transform:translateY(-1px);}
+  .btn:hover{border-color:var(--teal); color:var(--teal);}
+  .pill{font-family:var(--mono); font-size:10.5px; padding:3px 9px; border-radius:20px; border:1px solid var(--border); color:var(--text-1); text-transform:uppercase; letter-spacing:0.5px;}
+
+  /* ---------- DASHBOARD ---------- */
+  .grid-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px;}
+  .dash-card{padding:16px 18px;}
+  .dash-card .top{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+  .dash-card .top .tag{font-size:11px; color:var(--text-2); text-transform:uppercase; letter-spacing:0.6px;}
+  .dash-card .value{font-family:var(--mono); font-size:26px; font-weight:700;}
+  .ring{width:44px;height:44px;}
+  .barbg{height:6px; border-radius:4px; background:rgba(255,255,255,0.06); overflow:hidden; margin-top:10px;}
+  .barfg{height:100%; border-radius:4px; background:linear-gradient(90deg,var(--teal),var(--blue));}
+
+  /* ---------- DIAGRAM ---------- */
+  .diagram-wrap{padding:10px; overflow:hidden; position:relative;}
+  .diagram-controls{position:absolute; top:16px; right:16px; display:flex; gap:6px; z-index:5;}
+  #diagramViewport{width:100%; height:420px; overflow:hidden; cursor:grab; border-radius:12px;}
+  #diagramViewport:active{cursor:grabbing;}
+  #diagramCanvas{transform-origin:0 0; transition:transform .12s ease-out;}
+  .node{
+    fill:var(--card-solid); stroke:var(--border); stroke-width:1.5; cursor:pointer; transition:.15s;
+  }
+  .node:hover{stroke:var(--teal);}
+  .node.decision{fill:#20263f;}
+  .node.active{stroke:var(--teal); stroke-width:2.5;}
+  .node-text{fill:var(--text-0); font-family:var(--body); font-size:12px; pointer-events:none;}
+  .node-sub{fill:var(--text-2); font-family:var(--mono); font-size:9.5px; pointer-events:none;}
+  .edge{stroke:var(--border); stroke-width:1.6; fill:none;}
+  .edge.branch{stroke:var(--purple); stroke-dasharray:4 3;}
+  .tooltip-diagram{
+    position:absolute; pointer-events:none; background:var(--card-solid); border:1px solid var(--border);
+    padding:8px 12px; border-radius:9px; font-size:12px; max-width:220px; opacity:0; transition:opacity .12s; z-index:20; box-shadow:var(--shadow);
+  }
+
+  /* ---------- STAGES ---------- */
+  .stage-list{display:flex; flex-direction:column; gap:12px;}
+  .stage-card{padding:0; overflow:hidden;}
+  .stage-header{display:flex; align-items:center; gap:14px; padding:18px 20px; cursor:pointer;}
+  .stage-num{
+    font-family:var(--mono); font-size:12px; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.04); border:1px solid var(--border); flex-shrink:0;
+  }
+  .stage-header .info{flex:1; min-width:0;}
+  .stage-header h3{font-family:var(--disp); font-size:16.5px;}
+  .stage-header .meta{display:flex; gap:8px; margin-top:5px; flex-wrap:wrap;}
+  .badge{font-size:10.5px; font-family:var(--mono); padding:2px 8px; border-radius:20px; border:1px solid var(--border); color:var(--text-1);}
+  .badge.risk-low{color:var(--teal); border-color:var(--teal);}
+  .badge.risk-med{color:var(--amber); border-color:var(--amber);}
+  .badge.risk-high{color:var(--red); border-color:var(--red);}
+  .stage-check{width:22px;height:22px; border-radius:6px; border:1.5px solid var(--border); flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .stage-check.done{background:var(--teal); border-color:var(--teal); color:#05121a;}
+  .chev{transition:.2s; color:var(--text-2); flex-shrink:0;}
+  .stage-card.open .chev{transform:rotate(90deg);}
+  .stage-body{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+  .stage-card.open .stage-body{max-height:none;}
+  .stage-inner{padding:0 20px 24px;}
+  .sub-grid{display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:6px;}
+  @media(max-width:720px){.sub-grid{grid-template-columns:1fr;}}
+  .field-title{font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--teal); margin:16px 0 8px;}
+  ul.clean{list-style:none; display:flex; flex-direction:column; gap:6px;}
+  ul.clean li{font-size:13px; color:var(--text-1); line-height:1.55; padding-left:16px; position:relative;}
+  ul.clean li::before{content:'—'; position:absolute; left:0; color:var(--text-2);}
+  .checklist-item{display:flex; gap:10px; align-items:flex-start; font-size:13px; color:var(--text-1); cursor:pointer; padding:4px 0;}
+  .checklist-item input{margin-top:3px; accent-color:var(--teal); width:15px;height:15px; cursor:pointer;}
+  .checklist-item.checked span{text-decoration:line-through; color:var(--text-2);}
+  .tool-box{padding:14px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid var(--border); margin-top:6px;}
+  .tool-box h4{font-size:13.5px; margin-bottom:4px;}
+  .tool-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;}
+  .tool-grid .col b{font-size:11px; color:var(--teal); display:block; margin-bottom:3px;}
+  .tool-grid .col{font-size:12px; color:var(--text-1);}
+  .alt-tools{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .alt-chip{font-size:11px; font-family:var(--mono); padding:4px 9px; border-radius:20px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--text-1);}
+  .prompt-box{
+    background:#080c16; border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin:8px 0; position:relative;
+  }
+  body.light .prompt-box{background:#0d1424; color:#eef2fb;}
+  .prompt-box .kind{font-family:var(--mono); font-size:9.5px; color:var(--purple); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; display:block;}
+  .prompt-box pre{font-family:var(--mono); font-size:12px; color:#d7e0f5; white-space:pre-wrap; line-height:1.55; padding-right:34px;}
+  .copy-btn{
+    position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-1);
+    font-size:10.5px; padding:4px 8px; border-radius:7px; cursor:pointer; font-family:var(--body);
+  }
+  .copy-btn:hover{color:var(--teal); border-color:var(--teal);}
+  .note-box{margin-top:10px;}
+  .note-box textarea{
+    width:100%; min-height:70px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; color:var(--text-0);
+    font-family:var(--body); font-size:13px; padding:10px; resize:vertical;
+  }
+  .bookmark-star{cursor:pointer; font-size:16px; color:var(--text-2); background:none; border:none;}
+  .bookmark-star.on{color:var(--amber);}
+
+  /* ---------- DECISION TREE ---------- */
+  .path-select{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+  .path-btn{
+    flex:1; min-width:160px; padding:16px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,0.03);
+    cursor:pointer; text-align:left; transition:.15s;
+  }
+  .path-btn:hover{border-color:var(--teal);}
+  .path-btn.active{border-color:var(--teal); background:rgba(51,224,199,0.08);}
+  .path-btn b{font-family:var(--disp); font-size:14.5px; display:block; margin-bottom:4px;}
+  .path-btn span{font-size:12px; color:var(--text-1);}
+  .path-output{padding:18px 20px;}
+
+  /* ---------- TABLES ---------- */
+  .table-scroll{overflow-x:auto;}
+  table.cmp{width:100%; border-collapse:collapse; min-width:640px;}
+  table.cmp th, table.cmp td{padding:10px 14px; text-align:left; font-size:12.5px; border-bottom:1px solid var(--border);}
+  table.cmp th{font-family:var(--mono); text-transform:uppercase; font-size:10.5px; letter-spacing:0.6px; color:var(--teal);}
+  table.cmp tr:hover td{background:rgba(255,255,255,0.02);}
+  .stars{color:var(--amber); letter-spacing:1px;}
+
+  /* ---------- NOTES / SEARCH ---------- */
+  .search-bar{display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+  .search-bar input, .search-bar select{
+    background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; color:var(--text-0);
+    padding:10px 14px; font-size:13px; font-family:var(--body);
+  }
+  .search-bar input{flex:1; min-width:200px;}
+  .search-bar input:focus, .search-bar select:focus{outline:none; border-color:var(--teal);}
+  .notes-list{display:flex; flex-direction:column; gap:10px;}
+  .note-item{padding:12px 16px; display:flex; justify-content:space-between; gap:10px; align-items:flex-start;}
+  .note-item .txt{font-size:13px; color:var(--text-1); line-height:1.5;}
+  .note-item .meta{font-family:var(--mono); font-size:10px; color:var(--text-2); margin-top:5px;}
+  .del-btn{background:none; border:none; color:var(--text-2); cursor:pointer; font-size:15px;}
+  .del-btn:hover{color:var(--red);}
+
+  /* ---------- TIMELINE ---------- */
+  .tl{position:relative; padding-left:26px;}
+  .tl::before{content:''; position:absolute; left:8px; top:6px; bottom:6px; width:2px; background:linear-gradient(var(--teal),var(--purple));}
+  .tl-item{position:relative; padding-bottom:22px;}
+  .tl-item::before{content:''; position:absolute; left:-22px; top:3px; width:12px; height:12px; border-radius:50%; background:var(--bg-0); border:2.5px solid var(--teal);}
+  .tl-item h4{font-size:13.5px; margin-bottom:2px;}
+  .tl-item p{font-size:12px; color:var(--text-1);}
+  .tl-item .when{font-family:var(--mono); font-size:10.5px; color:var(--text-2);}
+
+  /* ---------- INSIGHTS / RESOURCES ---------- */
+  .insight-card{padding:16px 18px; display:flex; gap:12px; align-items:flex-start;}
+  .insight-icon{width:32px;height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:15px;}
+  .res-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;}
+  .res-card{padding:16px 18px;}
+  .res-card h4{font-family:var(--disp); font-size:14px; margin-bottom:10px; color:var(--teal);}
+  .kw-cloud{display:flex; flex-wrap:wrap; gap:8px;}
+  .kw-chip{font-family:var(--mono); font-size:11.5px; padding:5px 11px; border-radius:20px; background:rgba(255,255,255,0.03); border:1px solid var(--border); color:var(--text-1);}
+
+  footer{text-align:center; padding:30px 20px; color:var(--text-2); font-size:12px; font-family:var(--mono);}
+
+  @media print{
+    .topbar, .diagram-controls, .cta-row, .search-bar, .export-row, .path-select{display:none !important;}
+    body{background:#fff; color:#000;}
+    .glass{background:#fff; border:1px solid #ccc; box-shadow:none;}
+    .stage-body{max-height:none !important;}
+  }
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+    background:var(--card-solid); border:1px solid var(--teal); color:var(--text-0); padding:10px 18px; border-radius:10px;
+    font-size:13px; z-index:200; transition:.25s; pointer-events:none;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  kbd{font-family:var(--mono); background:rgba(255,255,255,0.06); border:1px solid var(--border); padding:1px 6px; border-radius:5px; font-size:11px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><div class="brand-badge">CV</div> AI Workflow Architect</div>
+  <div class="navlinks" id="navlinks"></div>
+  <div class="topActions">
+    <button class="iconbtn" id="themeToggle" title="Toggle light/dark">◐</button>
+    <button class="iconbtn" onclick="window.print()" title="Print">⎙</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ===================== LANDING ===================== -->
+  <section id="landing">
+    <div class="glass hero">
+      <span class="eyebrow">Workflow · Content Creation → YouTube → LinkedIn</span>
+      <h1>Daily Cyber Hygiene Videos, <span>Scripted by AI, Shipped Every Day.</span></h1>
+      <p class="desc">An end-to-end production pipeline for a solo creator publishing daily beginner-friendly cyber-hygiene &amp; awareness videos (shorts, mid-length explainers, and long-form deep dives) on YouTube — heavily AI-assisted from idea to SEO — with every video automatically repurposed into a LinkedIn educational post, ABtalks-style.</p>
+
+      <div class="stat-row">
+        <div class="stat"><div class="num">8</div><div class="lbl">Stages</div></div>
+        <div class="stat"><div class="num">~2.5h</div><div class="lbl">Per video (avg)</div></div>
+        <div class="stat"><div class="num">Beginner+</div><div class="lbl">Difficulty</div></div>
+        <div class="stat"><div class="num">86%</div><div class="lbl">AI readiness</div></div>
+        <div class="stat"><div class="num">₹0–800</div><div class="lbl">Monthly tool cost</div></div>
+        <div class="stat"><div class="num">~62%</div><div class="lbl">Time saved w/ AI</div></div>
+      </div>
+
+      <div class="cta-row">
+        <button class="btn primary" onclick="go('stages')">▶ Start Workflow</button>
+        <button class="btn" onclick="go('diagram')">🗺 View Diagram</button>
+        <button class="btn" onclick="window.print()">🖨 Print Workflow</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== OVERVIEW DASHBOARD ===================== -->
+  <section id="overview">
+    <div class="section-head"><h2>Overview Dashboard</h2><span class="pill" id="statusPill">Status: Not Started</span></div>
+    <div class="grid-cards">
+      <div class="glass dash-card"><div class="top"><span class="tag">Progress</span></div><div class="value" id="dProgress">0%</div><div class="barbg"><div class="barfg" id="dProgressBar" style="width:0%"></div></div></div>
+      <div class="glass dash-card"><div class="top"><span class="tag">Stages Done</span></div><div class="value" id="dStages">0 / 8</div></div>
+      <div class="glass dash-card"><div class="top"><span class="tag">Est. Hours Left</span></div><div class="value" id="dHours">20h</div></div>
+      <div class="glass dash-card"><div class="top"><span class="tag">Notes</span></div><div class="value" id="dNotes">0</div></div>
+      <div class="glass dash-card"><div class="top"><span class="tag">Bookmarks</span></div><div class="value" id="dBookmarks">0</div></div>
+      <div class="glass dash-card"><div class="top"><span class="tag">Automation Score</span></div><div class="value">78</div></div>
+      <div class="glass dash-card"><div class="top"><span class="tag">Favorite Tool</span></div><div class="value" style="font-size:15px;">Claude</div></div>
+      <div class="glass dash-card"><div class="top"><span class="tag">Timeline</span></div><div class="value" style="font-size:15px;">Daily cadence</div></div>
+    </div>
+  </section>
+
+  <!-- ===================== DIAGRAM ===================== -->
+  <section id="diagram">
+    <div class="section-head"><h2>Workflow Diagram</h2><span class="muted">Click a node · drag to pan · scroll or use buttons to zoom</span></div>
+    <div class="glass diagram-wrap">
+      <div class="diagram-controls">
+        <button class="iconbtn" onclick="zoomDiagram(1.2)">+</button>
+        <button class="iconbtn" onclick="zoomDiagram(0.83)">−</button>
+        <button class="iconbtn" onclick="resetDiagram()">⤾</button>
+      </div>
+      <div id="diagramViewport">
+        <svg id="diagramCanvas" width="1500" height="640"></svg>
+      </div>
+      <div class="tooltip-diagram" id="diagTooltip"></div>
+    </div>
+  </section>
+
+  <!-- ===================== STAGES ===================== -->
+  <section id="stages">
+    <div class="section-head"><h2>Workflow Stages</h2><span class="muted">8 stages · click to expand · check off as you complete</span></div>
+    <div class="search-bar">
+      <input type="text" id="stageSearch" placeholder="Search stages, tasks, tools, prompts...">
+      <select id="difficultyFilter"><option value="">All difficulties</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+      <select id="toolFilter"><option value="">All tools</option></select>
+    </div>
+    <div class="stage-list" id="stageList"></div>
+  </section>
+
+  <!-- ===================== DECISION TREE ===================== -->
+  <section id="decision">
+    <div class="section-head"><h2>Decision Tree — Choose Your Path</h2></div>
+    <div class="path-select" id="pathSelect"></div>
+    <div class="glass path-output" id="pathOutput"></div>
+  </section>
+
+  <!-- ===================== COMPARISON TABLES ===================== -->
+  <section id="comparison">
+    <div class="section-head"><h2>Tool Comparison</h2></div>
+    <div class="glass" style="padding:8px;">
+      <div class="table-scroll">
+        <table class="cmp" id="cmpTable"></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== AI INSIGHTS ===================== -->
+  <section id="insights">
+    <div class="section-head"><h2>AI Insights Panel</h2></div>
+    <div class="grid-cards" id="insightsGrid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));"></div>
+  </section>
+
+  <!-- ===================== FUTURE AUTOMATION ===================== -->
+  <section id="automation">
+    <div class="section-head"><h2>Future Automation</h2></div>
+    <div class="grid-cards" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));" id="automationGrid"></div>
+  </section>
+
+  <!-- ===================== TIMELINE ===================== -->
+  <section id="timeline">
+    <div class="section-head"><h2>Interactive Timeline</h2><span class="muted">A single daily production cycle</span></div>
+    <div class="glass" style="padding:22px 24px;"><div class="tl" id="tlList"></div></div>
+  </section>
+
+  <!-- ===================== NOTES & BOOKMARKS ===================== -->
+  <section id="notes">
+    <div class="section-head"><h2>Notes &amp; Bookmarks</h2></div>
+    <div class="glass" style="padding:18px 20px; margin-bottom:14px;">
+      <textarea id="globalNoteInput" placeholder="Jot a general note about this workflow... (Ctrl+Enter to save)" style="width:100%;min-height:70px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;color:var(--text-0);font-family:var(--body);font-size:13px;padding:10px;"></textarea>
+      <button class="btn primary" style="margin-top:10px;" onclick="addGlobalNote()">+ Add Note</button>
+    </div>
+    <div class="notes-list" id="notesList"></div>
+    <h3 style="font-family:var(--disp); font-size:15px; margin:22px 0 10px;">Bookmarked Stages</h3>
+    <div class="notes-list" id="bookmarksList"></div>
+  </section>
+
+  <!-- ===================== WORKFLOW SUMMARY ===================== -->
+  <section id="summary">
+    <div class="section-head"><h2>Workflow Summary</h2></div>
+    <div class="sub-grid">
+      <div class="glass" style="padding:18px 20px;">
+        <div class="field-title">Executive Summary</div>
+        <p class="muted">A solo creator can sustain a <b>daily</b> cyber-hygiene YouTube channel by treating AI (Claude) as co-writer, co-editor, and co-strategist across ideation, scripting, thumbnails, SEO and LinkedIn repurposing — while keeping recording and final polish human-led for authenticity and trust, which matters most in a security-education niche.</p>
+        <div class="field-title">Recommended AI Stack</div>
+        <ul class="clean"><li>Claude — scripting, structuring, repurposing, SEO metadata, insight generation</li><li>CapCut (free) — editing, captions, short-form reframing</li><li>Canva (free tier) — thumbnails</li><li>TubeBuddy/VidIQ (free tier) — keyword research</li></ul>
+        <div class="field-title">Key Deliverables</div>
+        <ul class="clean"><li>1 published video/day across short/medium/long formats</li><li>1 repurposed LinkedIn post per video</li><li>A running content calendar &amp; topic backlog</li></ul>
+      </div>
+      <div class="glass" style="padding:18px 20px;">
+        <div class="field-title">Estimated Cost</div><p class="muted">₹0–800/month (free tools sufficient at this stage; optional paid Canva Pro or TubeBuddy Pro later).</p>
+        <div class="field-title">Expected ROI</div><p class="muted">Portfolio proof for Application Security / SOC Analyst roles, inbound recruiter interest, and compounding LinkedIn authority as "CyberVidyarthi" — non-monetary ROI dominates in year one.</p>
+        <div class="field-title">Learning Path</div><ul class="clean"><li>Week 1–2: nail the repeatable template &amp; batching rhythm</li><li>Week 3–6: build a 4-video buffer to remove daily pressure</li><li>Month 2+: layer in basic analytics-driven topic selection</li></ul>
+        <div class="field-title">Implementation &amp; Scaling Strategy</div><p class="muted">Start solo with heavy templating; once cadence is stable, consider outsourcing thumbnail design or editing via Fiverr, and explore Zapier/Make automation to auto-schedule LinkedIn posts on publish.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RESOURCES ===================== -->
+  <section id="resources">
+    <div class="section-head"><h2>Resources</h2></div>
+    <div class="res-grid" id="resourcesGrid"></div>
+  </section>
+
+  <!-- ===================== KEYWORDS ===================== -->
+  <section id="keywords">
+    <div class="section-head"><h2>Search Keywords &amp; Prompt Bank</h2></div>
+    <div class="field-title">Google Search Keywords</div>
+    <div class="kw-cloud" id="googleKw"></div>
+    <div class="field-title">YouTube Search Ideas</div>
+    <div class="kw-cloud" id="ytKw"></div>
+    <div class="field-title">AI Prompts</div>
+    <div class="kw-cloud" id="aiKw"></div>
+    <div class="field-title">Advanced Research Prompts</div>
+    <div class="kw-cloud" id="researchKw"></div>
+  </section>
+
+  <!-- ===================== EXPORT ===================== -->
+  <section id="export">
+    <div class="section-head"><h2>Export</h2></div>
+    <div class="glass export-row" style="padding:18px 20px; display:flex; gap:12px; flex-wrap:wrap;">
+      <button class="btn" onclick="window.print()">🖨 Print Workflow</button>
+      <button class="btn" onclick="downloadNotes()">📝 Download Notes</button>
+      <button class="btn" onclick="downloadChecklist()">☑ Download Checklist</button>
+      <button class="btn" onclick="exportJSON()">{ } Export JSON</button>
+      <button class="btn" onclick="exportMarkdown()">▤ Export Markdown</button>
+    </div>
+  </section>
+
+  <footer>Built with the AI Workflow Architect · Data saved locally in this browser · Keyboard: <kbd>/</kbd> search stages, <kbd>P</kbd> print</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   DATA MODEL
+   ============================================================ */
+const NAV = [
+  ['landing','Home'],['overview','Overview'],['diagram','Diagram'],['stages','Stages'],
+  ['decision','Decision Tree'],['comparison','Comparison'],['insights','AI Insights'],
+  ['automation','Automation'],['timeline','Timeline'],['notes','Notes'],
+  ['summary','Summary'],['resources','Resources'],['keywords','Keywords'],['export','Export']
+];
+
+const STAGES = [
+{
+  id:'s1', name:'Idea &amp; Research', difficulty:'Beginner', priority:'High', risk:'low',
+  time:'20–30 min', aiScore:88, autoScore:70,
+  objectives:['Identify a specific, timely cyber-hygiene topic','Validate the topic is genuinely useful to a beginner audience','Avoid duplicating yesterday\'s angle'],
+  description:'Every day starts with picking one narrow, concrete cyber-hygiene concept (e.g. "why reusing passwords is dangerous") rather than a broad theme, so the video stays tight and beginner-friendly.',
+  tasks:['Scan a running backlog spreadsheet of 30+ pre-brainstormed topics','Cross-check recent security news for a timely hook','Ask Claude for 5 fresh angles on the chosen topic','Pick ONE angle and write a one-line thesis'],
+  deliverables:['One-line video thesis','Chosen topic + angle logged in backlog sheet'],
+  inputs:['Topic backlog','Recent breach/security news','Audience comments/questions'],
+  outputs:['Confirmed topic + thesis statement'],
+  dependencies:['None (first stage)'],
+  successCriteria:['Thesis fits in one sentence a total beginner understands','Topic has not been covered in the last 30 days'],
+  commonProblems:['Topic is too broad ("cybersecurity basics")','Picking a topic with no clear beginner takeaway'],
+  commonMistakes:['Skipping research and going straight to scripting from memory'],
+  tips:['Keep a rolling backlog so you never face a blank page','Batch-brainstorm 10 topics every Sunday'],
+  bestPractices:['One thesis, one video — resist cramming multiple concepts'],
+  checklist:['Topic selected from backlog or news','One-line thesis written','Angle validated as non-duplicate'],
+  primaryTool:{name:'Claude', why:'Fast at generating fresh angles and checking a topic isn\'t stale or overly broad', pricing:'Free tier / Pro ₹1,700/mo', skill:'Beginner', curve:'Low'},
+  altTools:['Google Trends','TryHackMe news feed','r/cybersecurity'],
+  freeAlternatives:['Google Alerts for "data breach"','Reddit r/netsec'],
+  prompts:{
+    production:'Suggest 5 specific, narrow cyber-hygiene video topics for beginners, each expressible as a single-sentence thesis, based on this week\'s security news: [paste headlines].',
+    advanced:'Given this list of my last 30 video topics: [paste list], identify 5 new angles that do not overlap in theme or example with any of them.',
+    expert:'Act as a content strategist for a cybersecurity education channel. Score these 5 candidate topics on (a) beginner relevance, (b) timeliness, (c) visual teachability, and recommend one.',
+    variations:['Ask for a "myth vs fact" framing','Ask for a "story-first" framing (a relatable scenario)'],
+    negative:'Avoid topics that require prior networking or coding knowledge to understand.',
+    optimization:'Rewrite this thesis to be under 12 words while keeping the core lesson intact: [thesis].'
+  }
+},
+{
+  id:'s2', name:'Scripting', difficulty:'Beginner', priority:'High', risk:'med',
+  time:'25–40 min', aiScore:92, autoScore:80,
+  objectives:['Turn the thesis into a tight, spoken-language script','Match script length to chosen format (short/medium/long)'],
+  description:'Claude drafts a first-pass script matched to the target length (Shorts ~150 words, medium ~500–700 words, long-form ~1,500+ words), which is then trimmed and personalized in your own voice.',
+  tasks:['Feed thesis + format length into Claude','Ask for hook, body (2–3 beats), and CTA','Edit for your own voice and remove AI-sounding phrasing','Read the script aloud once to check pacing'],
+  deliverables:['Final script with timestamps for hook/body/CTA'],
+  inputs:['Thesis from Stage 1','Target format (short/medium/long)'],
+  outputs:['Voice-ready script'],
+  dependencies:['Idea & Research'],
+  successCriteria:['Hook lands in first 3 seconds (shorts) or 8 seconds (long-form)','Script reads naturally aloud, no robotic phrasing'],
+  commonProblems:['Script sounds generic/AI-written','Script too long for the chosen format'],
+  commonMistakes:['Not reading the script aloud before recording, missing awkward phrasing'],
+  tips:['Always ask Claude for 2 hook variations and pick the punchier one','Keep one recurring script skeleton so editing later is predictable'],
+  bestPractices:['Bold or timestamp the hook, body, CTA sections so recording is easy to follow'],
+  checklist:['First draft generated','Personalized in own voice','Read aloud for pacing','Length matches format'],
+  primaryTool:{name:'Claude', why:'Strong at matching tone, length constraints, and hook-body-CTA structure in one pass', pricing:'Free tier / Pro ₹1,700/mo', skill:'Beginner', curve:'Low'},
+  altTools:['ChatGPT','Notion AI'],
+  freeAlternatives:['ChatGPT free tier'],
+  prompts:{
+    production:'Write a {format} YouTube script (Shorts=~150 words / Medium=~600 words / Long=~1500 words) on this thesis: [thesis]. Structure: hook (first line grabs attention), 2-3 body beats explaining the concept simply, one practical takeaway, short CTA to follow for daily cyber-safety tips.',
+    advanced:'Rewrite this script so a complete beginner with zero IT background understands every sentence, replacing any jargon with plain-language analogies: [script].',
+    expert:'Act as a scriptwriter for educational shorts with high retention. Rewrite this script\'s first two sentences to maximize a 3-second hook, and flag any sentence likely to cause viewer drop-off.',
+    variations:['Ask for a version with a personal anecdote opening','Ask for a version structured as a myth-bust'],
+    negative:'Do not use fear-based fMonger language ("hackers are coming for you") — keep tone calm and empowering.',
+    optimization:'Trim this script by 20% without losing the core lesson or the hook: [script].'
+  }
+},
+{
+  id:'s3', name:'Recording', difficulty:'Beginner', priority:'High', risk:'low',
+  time:'20–35 min', aiScore:35, autoScore:20,
+  objectives:['Capture clean audio and video in one or two takes','Preserve authenticity — this stage stays human-led'],
+  description:'Recording is intentionally low-AI: authenticity and trust matter most in a security-education niche, so this stage is about efficient, repeatable human execution, not automation.',
+  tasks:['Set up consistent lighting/frame using a fixed phone stand position','Do one warm-up read-through, then record in 2-3 takes max','Record a few B-roll cutaways (typing, phone, lock icon, etc.)'],
+  deliverables:['Raw footage + B-roll clips'],
+  inputs:['Final script'],
+  outputs:['Raw video/audio files'],
+  dependencies:['Scripting'],
+  successCriteria:['Audio is clear with no background noise','At least 2 usable takes of the hook line'],
+  commonProblems:['Inconsistent lighting between days','Reading script too flatly'],
+  commonMistakes:['Skipping a script read-through and rambling on camera, creating painful edit work later'],
+  tips:['Mark your camera position with tape so setup is identical every day','Batch-record 3-4 videos in one sitting to reduce daily setup time'],
+  bestPractices:['Always record 5 extra seconds of silence at start/end for clean cuts'],
+  checklist:['Lighting/frame checked','Script read aloud once before recording','Main take recorded','B-roll captured'],
+  primaryTool:{name:'Phone camera (native app)', why:'Zero cost, sufficient quality for educational content, no learning curve', pricing:'Free', skill:'Beginner', curve:'Low'},
+  altTools:['DSLR/mirrorless camera','Webcam + OBS'],
+  freeAlternatives:['Any smartphone from the last 5 years'],
+  prompts:{
+    production:'Given this script, mark exactly where I should pause, emphasize a word, or change pace for natural delivery: [script].',
+    advanced:'Suggest 3 simple B-roll shots I could film with just my phone to visually support this script: [script].',
+    expert:'Act as a video coach. Given this is my Nth take of a security-education video, suggest one specific delivery adjustment to sound more confident and less scripted.',
+    variations:['Ask for a version of delivery notes for shorts (punchy, fast) vs long-form (measured, explanatory)'],
+    negative:'Do not suggest jump-cut-heavy delivery styles that require heavy editing — keep takes clean.',
+    optimization:'Suggest how to compress a 3-minute script recording into 2 clean takes rather than 6 fragmented ones.'
+  }
+},
+{
+  id:'s4', name:'Editing', difficulty:'Intermediate', priority:'High', risk:'med',
+  time:'30–50 min', aiScore:75, autoScore:65,
+  objectives:['Cut to a tight, watchable final video per format','Add captions, cuts, and simple visual aids'],
+  description:'CapCut (free, mobile+desktop) handles cutting, auto-captions, and format-specific export (9:16 for Shorts, 16:9 for medium/long), with Claude used to write on-screen text callouts and caption cleanup.',
+  tasks:['Import raw footage, remove dead air and filler words','Auto-generate captions, then proofread against script','Add 2-3 on-screen text callouts for key terms','Export in correct aspect ratio for the chosen format'],
+  deliverables:['Edited, captioned, export-ready video file'],
+  inputs:['Raw footage','B-roll'],
+  outputs:['Final edited video (correct aspect ratio)'],
+  dependencies:['Recording'],
+  successCriteria:['No dead air longer than 1 second','Captions 100% accurate to spoken words'],
+  commonProblems:['Auto-captions misreading technical terms (e.g. "phishing" as "fishing")','Pacing too slow for short-form audience'],
+  commonMistakes:['Forgetting to proofread auto-captions before publishing'],
+  tips:['Save a CapCut template with your intro/outro/font style once, reuse daily','Keep cuts under 4 seconds apart for shorts to sustain attention'],
+  bestPractices:['Always double-check captions for security jargon auto-caption tools frequently mishear'],
+  checklist:['Filler words/dead air cut','Captions generated and proofread','On-screen callouts added','Exported in correct aspect ratio'],
+  primaryTool:{name:'CapCut (free)', why:'Free, mobile+desktop, strong auto-captions, easy multi-format export', pricing:'Free (Pro optional ~₹700/mo)', skill:'Beginner-Intermediate', curve:'Low-Medium'},
+  altTools:['DaVinci Resolve (free)','Premiere Pro'],
+  freeAlternatives:['CapCut free tier','DaVinci Resolve free tier'],
+  prompts:{
+    production:'Write 3 short on-screen text callouts (under 6 words each) to overlay on this script at its key moments: [script].',
+    advanced:'Proofread this auto-generated caption transcript against my original script and list every mismatch: [captions] vs [script].',
+    expert:'Act as a video editor for short-form educational content. Given this script, mark exactly where a jump-cut or zoom would boost retention without losing clarity.',
+    variations:['Ask for a caption style suited to Gen-Z audiences vs a more formal LinkedIn-crosspost style'],
+    negative:'Do not suggest overlays that cover more than 15% of the frame — keep text minimal and readable.',
+    optimization:'Suggest a tighter cut list to bring this video from 3:40 down to under 3:00 without losing the core lesson.'
+  }
+},
+{
+  id:'s5', name:'Thumbnail &amp; Title', difficulty:'Beginner', priority:'Medium', risk:'med',
+  time:'15–20 min', aiScore:80, autoScore:70,
+  objectives:['Design a clear, high-contrast thumbnail','Write a title that is honest but curiosity-driving'],
+  description:'Canva\'s free tier provides templates for a consistent CyberVidyarthi thumbnail style (bold text, lock/shield iconography, consistent color band), while Claude drafts title options optimized for search and click-through without slipping into clickbait.',
+  tasks:['Pick 1 key frame or icon representing the topic','Apply saved Canva template, swap headline text','Generate 5 title variants with Claude, pick the clearest one'],
+  deliverables:['Final thumbnail (1280x720)','Final title'],
+  inputs:['Video topic/thesis','Edited video for a representative frame'],
+  outputs:['Thumbnail image + title text'],
+  dependencies:['Editing'],
+  successCriteria:['Thumbnail readable at small mobile size','Title accurately reflects video content (no clickbait)'],
+  commonProblems:['Thumbnail text too small to read on mobile','Title over-promises relative to content'],
+  commonMistakes:['Using more than 5-6 words on the thumbnail, making it unreadable at a glance'],
+  tips:['Keep a fixed color band + logo corner for instant channel recognizability','Test thumbnail readability by viewing it at actual mobile thumbnail size'],
+  bestPractices:['Titles should pass the "would I click this without feeling misled" test'],
+  checklist:['Thumbnail designed from template','Title variants generated','Final title chosen','Thumbnail tested at small size'],
+  primaryTool:{name:'Canva (free)', why:'Free templates, brand kit support, fast for consistent daily thumbnails', pricing:'Free (Pro ~₹500/mo)', skill:'Beginner', curve:'Low'},
+  altTools:['Photopea (free Photoshop alt)','Figma'],
+  freeAlternatives:['Canva free tier','Photopea'],
+  prompts:{
+    production:'Write 5 YouTube title options (under 60 characters) for a video on: [thesis]. They must be accurate — no exaggeration — but curiosity-driving.',
+    advanced:'Suggest 3 short thumbnail text phrases (max 4 words each) that pair with this title without repeating it word-for-word: [title].',
+    expert:'Act as a YouTube SEO strategist. Given this thesis and target keyword [keyword], suggest a title that balances search intent with click-through appeal.',
+    variations:['Ask for a "question format" title vs a "statement format" title'],
+    negative:'Do not suggest fear-mongering or ALL-CAPS clickbait phrasing.',
+    optimization:'Shorten this title to fit fully on mobile search results (under 40 characters) while keeping the keyword: [title].'
+  }
+},
+{
+  id:'s6', name:'SEO &amp; Metadata', difficulty:'Beginner', priority:'Medium', risk:'low',
+  time:'10–15 min', aiScore:85, autoScore:75,
+  objectives:['Write a keyword-rich description','Select accurate tags and category'],
+  description:'Claude drafts an SEO-friendly description and tag list from the script and title, referencing free keyword data from TubeBuddy/VidIQ\'s free tier to sanity-check search volume.',
+  tasks:['Generate description with keywords + timestamps','Pull 15-20 relevant tags','Add end-screen and pinned comment CTA'],
+  deliverables:['Description, tags, pinned comment'],
+  inputs:['Script','Title','Thumbnail'],
+  outputs:['Full metadata package ready to paste into YouTube Studio'],
+  dependencies:['Thumbnail & Title'],
+  successCriteria:['Primary keyword appears in first 2 lines of description','Tags are specific, not generic single words'],
+  commonProblems:['Generic tags that don\'t match actual search behavior'],
+  commonMistakes:['Keyword-stuffing the description to the point it reads unnaturally'],
+  tips:['Keep a master list of 40-50 recurring cyber-hygiene keywords to draw from daily'],
+  bestPractices:['Always include a one-line channel description + subscribe CTA at the end of every description'],
+  checklist:['Description written','Tags added','Pinned comment/CTA drafted'],
+  primaryTool:{name:'Claude + VidIQ (free)', why:'Claude drafts natural copy; VidIQ free tier validates keyword volume', pricing:'Free', skill:'Beginner', curve:'Low'},
+  altTools:['TubeBuddy free tier'],
+  freeAlternatives:['VidIQ free Chrome extension'],
+  prompts:{
+    production:'Write a YouTube description (150-200 words) for this video, front-loading the keyword "[keyword]" in the first two lines, and list 20 relevant tags: [script/title].',
+    advanced:'Given this list of my channel\'s top-performing keywords: [list], suggest 5 new videos that would rank for adjacent search terms.',
+    expert:'Act as a YouTube SEO analyst. Review this title, description and tags for keyword cannibalization against my last 10 uploads: [data].',
+    variations:['Ask for a description variant optimized for YouTube search vs one optimized for suggested/browse traffic'],
+    negative:'Do not repeat the exact same keyword more than 3 times in the description.',
+    optimization:'Tighten this description to under 150 words while keeping all keywords intact: [description].'
+  }
+},
+{
+  id:'s7', name:'Publishing &amp; LinkedIn Repurposing', difficulty:'Beginner', priority:'High', risk:'low',
+  time:'15–20 min', aiScore:90, autoScore:85,
+  objectives:['Publish the video at the optimal time','Repurpose it into a polished LinkedIn/ABtalks-style post same day'],
+  description:'After scheduling the YouTube upload, Claude converts the video script into a LinkedIn educational post (with a day-number badge in ABtalks style), preserving the lesson while adapting tone for a professional audience.',
+  tasks:['Schedule YouTube upload at peak audience time','Feed script into Claude for LinkedIn repurposing prompt','Add day-number badge graphic (from saved Canva template)','Publish LinkedIn post with link to video'],
+  deliverables:['Published YouTube video','Published LinkedIn post'],
+  inputs:['Final video','Script','Day number for ABtalks tracking'],
+  outputs:['Live video URL','Live LinkedIn post URL'],
+  dependencies:['SEO & Metadata'],
+  successCriteria:['Video published at scheduled time','LinkedIn post reads naturally, not like a video transcript'],
+  commonProblems:['LinkedIn post reading too much like a raw transcript'],
+  commonMistakes:['Forgetting to link back to the YouTube video from LinkedIn'],
+  tips:['Post to LinkedIn 1-2 hours after YouTube goes live to give it independent momentum','Keep a running day-counter graphic template for instant reuse'],
+  bestPractices:['End every LinkedIn post with a specific question to drive comments'],
+  checklist:['YouTube video scheduled/published','LinkedIn post drafted','Day-badge graphic added','LinkedIn post published with video link'],
+  primaryTool:{name:'Claude', why:'Best at tone-shifting the same lesson from spoken video script to professional written post', pricing:'Free tier / Pro ₹1,700/mo', skill:'Beginner', curve:'Low'},
+  altTools:['Buffer (free tier) for scheduling'],
+  freeAlternatives:['Native YouTube Studio scheduler','Native LinkedIn scheduling'],
+  prompts:{
+    production:'Repurpose this video script into a LinkedIn educational post (150-200 words), written in first person, with a short hook line, 2-3 key takeaways as a list, and a closing question to drive comments: [script].',
+    advanced:'Rewrite this LinkedIn post draft to sound less like a video transcript and more like a natural written reflection: [draft].',
+    expert:'Act as a LinkedIn content strategist for a student building a cybersecurity personal brand. Suggest 2 alternative hooks for this post that would stop a recruiter mid-scroll: [post].',
+    variations:['Ask for a shorter "quick tip" version vs a longer "lesson learned" narrative version'],
+    negative:'Do not include hashtag-stuffing (more than 5 hashtags) or generic engagement-bait phrases like "agree?" alone.',
+    optimization:'Trim this LinkedIn post to under 150 words while keeping the hook and the closing question: [post].'
+  }
+},
+{
+  id:'s8', name:'Analytics &amp; Iteration', difficulty:'Intermediate', priority:'Medium', risk:'low',
+  time:'10–15 min (weekly-ish, folded daily)', aiScore:82, autoScore:60,
+  objectives:['Review what worked and feed it back into topic selection','Spot early retention/CTR issues'],
+  description:'A short daily/weekly check of YouTube Analytics and LinkedIn post performance, with Claude helping translate raw numbers into 1-2 concrete adjustments for the next batch of videos.',
+  tasks:['Check yesterday\'s video CTR, average view duration, LinkedIn engagement','Note any pattern (topic type, thumbnail style, title format) that over/under-performed','Feed metrics into Claude for a plain-language interpretation','Update the topic backlog priority based on findings'],
+  deliverables:['One-paragraph weekly performance note','Updated topic backlog priorities'],
+  inputs:['YouTube Studio analytics','LinkedIn post analytics'],
+  outputs:['Actionable insight for next content batch'],
+  dependencies:['Publishing & LinkedIn Repurposing'],
+  successCriteria:['At least one concrete, testable change identified per week'],
+  commonProblems:['Over-reacting to a single low-performing video instead of looking at trends'],
+  commonMistakes:['Checking analytics obsessively multiple times a day, causing anxiety rather than insight'],
+  tips:['Review analytics on a fixed schedule (e.g. every Sunday) rather than constantly','Track thumbnail style + topic type against CTR in a simple spreadsheet'],
+  bestPractices:['Always separate "this video underperformed" from "this format underperforms" — look for patterns across 5+ videos'],
+  checklist:['Weekly metrics reviewed','Pattern/insight identified','Backlog priorities updated'],
+  primaryTool:{name:'YouTube Studio Analytics (free) + Claude', why:'Native analytics is free and sufficient at this stage; Claude turns numbers into clear next steps', pricing:'Free', skill:'Intermediate', curve:'Medium'},
+  altTools:['Social Blade (free)'],
+  freeAlternatives:['YouTube Studio native analytics'],
+  prompts:{
+    production:'Here are this week\'s video stats (title, CTR, avg view duration, retention graph shape): [data]. Summarize in plain language what worked and what didn\'t.',
+    advanced:'Compare these two videos\' performance and suggest which specific variable (topic, title, thumbnail, length) most likely explains the difference: [data A] vs [data B].',
+    expert:'Act as a YouTube growth analyst. Given this month of performance data, recommend the single highest-leverage change to test next month: [data].',
+    variations:['Ask for a version focused on CTR improvements vs one focused on retention improvements'],
+    negative:'Do not recommend chasing a single viral outlier video as a repeatable strategy.',
+    optimization:'Turn this raw analytics summary into 3 bullet-point action items for next week: [summary].'
+  }
+}
+];
+
+const DECISION_PATHS = {
+  beginner:{
+    label:'Beginner Path', sub:'New to content creation & security concepts',
+    steps:['Use pre-written script templates fully — don\'t freestyle scripts yet','Batch-record 2-3 videos on your first weekend to build a buffer','Stick to short + medium formats only for the first 2 weeks','Lean heavily on Claude for every stage — treat it as a co-pilot, not just a tool'],
+    tools:'Claude, CapCut free, Canva free, phone camera'
+  },
+  experienced:{
+    label:'Experienced Path', sub:'Comfortable on camera & with basic security concepts',
+    steps:['Mix in long-form deep dives 1-2x/week alongside daily shorts','Start layering in light SEO experimentation (title/thumbnail A/B testing)','Introduce a recurring series format (e.g. "Myth-Bust Monday")','Begin tracking analytics weekly to refine topic selection'],
+    tools:'Claude, CapCut/DaVinci Resolve, Canva Pro, VidIQ free'
+  },
+  enterprise:{
+    label:'Enterprise / Scaling Path', sub:'Ready to treat this as a brand/business',
+    steps:['Bring in a part-time editor via Fiverr/Upwork for post-production','Automate LinkedIn cross-posting via Zapier/Make triggered on YouTube publish','Build a proper editorial calendar in Notion linked to the topic backlog','Explore sponsorships/affiliate placements once consistent watch-time is proven'],
+    tools:'Claude + API automation, Zapier/Make, hired editor, Notion, analytics dashboard'
+  }
+};
+
+const CMP_ROWS = [
+  ['Claude','Scripting/SEO/repurposing','Free / Pro ₹1,700/mo','Low','★★★★★','Fast','★★★★★'],
+  ['ChatGPT','Scripting alt','Free / Plus ~₹1,700/mo','Low','★★★★','Fast','★★★★'],
+  ['CapCut','Editing','Free / Pro ₹700/mo','Medium','★★★★','Medium','★★★★★'],
+  ['DaVinci Resolve','Editing (advanced)','Free','High','★★★★★','Slower','★★★'],
+  ['Canva','Thumbnails','Free / Pro ₹500/mo','Low','★★★★','Fast','★★★★★'],
+  ['VidIQ','SEO/keyword research','Free tier','Low','★★★★','Fast','★★★★'],
+  ['TubeBuddy','SEO/keyword research alt','Free tier','Low','★★★★','Fast','★★★★']
+];
+
+const INSIGHTS = [
+  {icon:'⚡',color:'var(--teal)', title:'Biggest bottleneck: Recording', body:'Recording has the lowest AI-readiness (35) yet blocks every downstream stage. Batching 3-4 recordings per sitting removes this bottleneck without adding tools.'},
+  {icon:'🔁',color:'var(--blue)', title:'Repurposing is nearly free time-wise', body:'LinkedIn repurposing costs ~5 extra minutes when scripted with Claude — this is the highest ROI stage to keep fully AI-assisted every single day.'},
+  {icon:'⚠',color:'var(--amber)', title:'Risk: caption accuracy on jargon', body:'Auto-captions frequently mis-transcribe security terms (phishing, malware, 2FA). Always proofread captions — this is the single most common quality slip in the pipeline.'},
+  {icon:'📈',color:'var(--purple)', title:'Automation opportunity', body:'A Zapier/Make trigger on "new YouTube upload" could auto-draft the LinkedIn post via the Anthropic API, cutting Stage 7 further once volume justifies the setup time.'},
+  {icon:'🧠',color:'var(--teal)', title:'Consistency beats perfection', body:'A fixed thumbnail/intro/outro template reduces daily decision fatigue more than any single tool upgrade — template once, reuse for months.'}
+];
+
+const AUTOMATION = [
+  {title:'No-code: Zapier', body:'Trigger: new YouTube video published → Action: draft LinkedIn post via Anthropic API → notify you to review & post.'},
+  {title:'No-code: Make.com', body:'Same trigger/action chain as Zapier, often cheaper at higher volumes — good option once posting daily becomes routine.'},
+  {title:'API: Anthropic API', body:'Once repurposing prompts are stable, call the API directly from a small script to batch-generate a week of LinkedIn posts at once.'},
+  {title:'API: YouTube Data API', body:'Pull analytics programmatically instead of manually checking YouTube Studio, feeding straight into the Stage 8 review.'},
+  {title:'RPA: Browser automation', body:'A simple script (e.g. Playwright) could auto-fill the YouTube upload metadata fields from a generated JSON, saving repetitive form-filling.'},
+  {title:'GitHub Actions', body:'For the technically inclined: schedule a weekly action that regenerates the topic backlog suggestions via Claude and opens it as a to-do issue.'}
+];
+
+const RESOURCES = {
+  'Courses':['Google/Coursera: Generative AI for Everyone','Coursera/Vanderbilt: Prompt Engineering for Everyone'],
+  'Communities':['r/cybersecurity','r/NewTubers','TryHackMe Discord'],
+  'YouTube Channels (study the format)':['NetworkChuck','The PC Security Channel'],
+  'Practice Platforms':['TryHackMe','PortSwigger Web Security Academy'],
+  'Documentation':['YouTube Creator Academy','LinkedIn Creator resources'],
+  'Podcasts':['Darknet Diaries','Security Now']
+};
+
+const KEYWORDS = {
+  google:['cyber hygiene tips for beginners','why is password reuse dangerous','how does phishing work simple explanation','2FA vs MFA difference','public wifi safety tips','how hackers steal passwords','ransomware explained simply','social engineering examples','data breach checker free','how to spot a fake email','VPN for beginners explained','browser security settings guide','safe online banking tips','smartphone security basics','identity theft prevention tips','secure password manager guide','wifi router security settings','what is a data breach','malware vs virus difference','how to recognize phishing links','safe online shopping checklist','privacy settings social media','email spoofing explained','QR code scam explained','deepfake scam awareness'],
+  youtube:['cyber hygiene for beginners 2026','password security explained simply','phishing email red flags','what is 2FA explained','public wifi dangers explained','ransomware attack explained','social engineering tricks explained','how to spot scam emails','VPN explained for beginners','identity theft warning signs','data breach what to do','malware explained simply','QR code scam awareness','deepfake awareness 2026','online banking safety tips','browser privacy settings guide','router security setup guide','password manager tutorial','email spoofing explained simply','smartphone privacy settings guide'],
+  ai:['Write a beginner cyber-hygiene video script on [topic]','Generate 5 fresh video angles on [topic] avoiding my last 30 topics','Turn this script into a LinkedIn post with a hook and closing question','Suggest 5 clickable but honest titles for [thesis]','Proofread these auto-captions against my script for errors','Summarize this week\'s video analytics in plain language','Suggest a myth-vs-fact framing for [topic]','Rewrite this script for a complete beginner audience','Draft 20 SEO tags for this video description','Suggest one on-screen text callout for this key line'],
+  research:['What retention patterns are common in short-form cybersecurity education content?','How do beginner audiences respond to fear-based vs empowerment-based security messaging?','What LinkedIn post structures drive the most comments for educational tech content?','How does caption accuracy affect watch time for jargon-heavy niches?','What is the optimal video length distribution for a solo educational channel scaling to daily uploads?','How can prompt engineering reduce editing time in a daily content pipeline?','What automation patterns (Zapier/Make/API) best fit a solo creator\'s daily publishing workflow?','How do topic backlogs affect long-term content consistency for solo creators?','What thumbnail design patterns correlate with higher CTR in tech-education niches?','How should a student-run YouTube channel balance authenticity with AI-assisted production?']
+};
+
+/* ============================================================
+   STATE / STORAGE
+   ============================================================ */
+const LS_KEY = 'aiWorkflowArchitect_v1';
+let STATE = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+STATE.checklists = STATE.checklists || {};
+STATE.stageDone = STATE.stageDone || {};
+STATE.notes = STATE.notes || [];
+STATE.bookmarks = STATE.bookmarks || {};
+STATE.theme = STATE.theme || 'dark';
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(STATE)); renderDashboard(); }
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+const navEl = document.getElementById('navlinks');
+NAV.forEach(([id,label])=>{
+  const b = document.createElement('button');
+  b.textContent = label; b.dataset.id = id;
+  b.onclick = ()=>go(id);
+  navEl.appendChild(b);
+});
+function go(id){
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
+}
+function updateActiveNav(){
+  const scrollPos = window.scrollY + 100;
+  let current = NAV[0][0];
+  NAV.forEach(([id])=>{
+    const el = document.getElementById(id);
+    if(el && el.offsetTop <= scrollPos) current = id;
+  });
+  [...navEl.children].forEach(b=>b.classList.toggle('active', b.dataset.id===current));
+}
+window.addEventListener('scroll', updateActiveNav);
+
+/* theme */
+function applyTheme(){
+  document.body.classList.toggle('light', STATE.theme==='light');
+  document.getElementById('themeToggle').textContent = STATE.theme==='light' ? '◑' : '◐';
+}
+document.getElementById('themeToggle').onclick = ()=>{
+  STATE.theme = STATE.theme==='light' ? 'dark' : 'light';
+  applyTheme(); save();
+};
+
+/* ============================================================
+   STAGES RENDER
+   ============================================================ */
+function riskClass(r){ return r==='low'?'risk-low':r==='med'?'risk-med':'risk-high'; }
+
+function renderStages(filterText='', diffFilter='', toolFilterVal=''){
+  const list = document.getElementById('stageList');
+  list.innerHTML='';
+  STAGES.forEach((s,idx)=>{
+    const haystack = (s.name+' '+s.tasks.join(' ')+' '+s.primaryTool.name+' '+Object.values(s.prompts).join(' ')).toLowerCase();
+    if(filterText && !haystack.includes(filterText.toLowerCase())) return;
+    if(diffFilter && s.difficulty!==diffFilter) return;
+    if(toolFilterVal && s.primaryTool.name!==toolFilterVal) return;
+
+    const done = !!STATE.stageDone[s.id];
+    const bookmarked = !!STATE.bookmarks[s.id];
+    const card = document.createElement('div');
+    card.className='glass stage-card'; card.id='card-'+s.id;
+
+    const checklistHtml = s.checklist.map((item,i)=>{
+      const key = s.id+'_c'+i;
+      const checked = !!STATE.checklists[key];
+      return `<label class="checklist-item ${checked?'checked':''}" data-key="${key}">
+        <input type="checkbox" ${checked?'checked':''} onclick="toggleChecklist('${key}', event)"><span>${item}</span>
+      </label>`;
+    }).join('');
+
+    const promptRows = [
+      ['Production', s.prompts.production],['Advanced', s.prompts.advanced],['Expert', s.prompts.expert],
+      ['Optimization', s.prompts.optimization]
+    ].map(([kind,text])=>`
+      <div class="prompt-box"><span class="kind">${kind} Prompt</span><pre>${text}</pre>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+    `).join('') + `
+      <div class="prompt-box"><span class="kind">Variations</span><pre>${s.prompts.variations.join('\\n')}</pre>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+      <div class="prompt-box"><span class="kind">Negative Prompt</span><pre>${s.prompts.negative}</pre>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+    `;
+
+    card.innerHTML = `
+      <div class="stage-header" onclick="toggleStage('${s.id}')">
+        <div class="stage-num">${idx+1}</div>
+        <div class="info">
+          <h3>${s.name}</h3>
+          <div class="meta">
+            <span class="badge">${s.difficulty}</span>
+            <span class="badge">${s.priority} priority</span>
+            <span class="badge ${riskClass(s.risk)}">${s.risk} risk</span>
+            <span class="badge">⏱ ${s.time}</span>
+            <span class="badge">AI ${s.aiScore}</span>
+          </div>
+        </div>
+        <button class="bookmark-star ${bookmarked?'on':''}" onclick="toggleBookmark(event,'${s.id}')" title="Bookmark">★</button>
+        <div class="stage-check ${done?'done':''}" onclick="toggleStageDone(event,'${s.id}')">${done?'✓':''}</div>
+        <div class="chev">▶</div>
+      </div>
+      <div class="stage-body">
+        <div class="stage-inner">
+          <p class="muted">${s.description}</p>
+          <div class="sub-grid">
+            <div>
+              <div class="field-title">Objectives</div><ul class="clean">${s.objectives.map(o=>`<li>${o}</li>`).join('')}</ul>
+              <div class="field-title">Tasks</div><ul class="clean">${s.tasks.map(o=>`<li>${o}</li>`).join('')}</ul>
+              <div class="field-title">Deliverables</div><ul class="clean">${s.deliverables.map(o=>`<li>${o}</li>`).join('')}</ul>
+              <div class="field-title">Inputs → Outputs</div><ul class="clean"><li>In: ${s.inputs.join(', ')}</li><li>Out: ${s.outputs.join(', ')}</li><li>Depends on: ${s.dependencies.join(', ')}</li></ul>
+              <div class="field-title">Success Criteria</div><ul class="clean">${s.successCriteria.map(o=>`<li>${o}</li>`).join('')}</ul>
+              <div class="field-title">Common Problems / Mistakes</div><ul class="clean">${s.commonProblems.concat(s.commonMistakes).map(o=>`<li>${o}</li>`).join('')}</ul>
+              <div class="field-title">Tips &amp; Best Practices</div><ul class="clean">${s.tips.concat(s.bestPractices).map(o=>`<li>${o}</li>`).join('')}</ul>
+              <div class="field-title">Checklist</div>${checklistHtml}
+            </div>
+            <div>
+              <div class="field-title">AI Tool</div>
+              <div class="tool-box">
+                <h4>${s.primaryTool.name}</h4>
+                <p class="muted" style="margin-bottom:6px;">${s.primaryTool.why}</p>
+                <div class="tool-grid">
+                  <div class="col"><b>Pricing</b>${s.primaryTool.pricing}</div>
+                  <div class="col"><b>Skill Level</b>${s.primaryTool.skill}</div>
+                  <div class="col"><b>Learning Curve</b>${s.primaryTool.curve}</div>
+                  <div class="col"><b>Automation</b>${s.autoScore}/100</div>
+                </div>
+                <div class="field-title" style="margin-top:12px;">Alternatives</div>
+                <div class="alt-tools">${s.altTools.map(t=>`<span class="alt-chip">${t}</span>`).join('')}</div>
+                <div class="field-title" style="margin-top:12px;">Free Alternatives</div>
+                <div class="alt-tools">${s.freeAlternatives.map(t=>`<span class="alt-chip">${t}</span>`).join('')}</div>
+              </div>
+              <div class="field-title">Prompts</div>
+              ${promptRows}
+              <div class="field-title">Note for this stage</div>
+              <div class="note-box">
+                <textarea placeholder="Add a stage-specific note..." data-stage="${s.id}" onkeydown="if(event.ctrlKey&&event.key==='Enter')saveStageNote(event)"></textarea>
+                <button class="btn" style="margin-top:8px;" onclick="saveStageNote(event)" data-stage="${s.id}">Save Note (Ctrl+Enter)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function toggleStage(id){
+  document.getElementById('card-'+id).classList.toggle('open');
+}
+function toggleStageDone(e, id){
+  e.stopPropagation();
+  STATE.stageDone[id] = !STATE.stageDone[id];
+  save(); renderStages(document.getElementById('stageSearch').value, document.getElementById('difficultyFilter').value, document.getElementById('toolFilter').value);
+}
+function toggleBookmark(e, id){
+  e.stopPropagation();
+  STATE.bookmarks[id] = !STATE.bookmarks[id];
+  save(); renderStages(document.getElementById('stageSearch').value, document.getElementById('difficultyFilter').value, document.getElementById('toolFilter').value);
+  renderBookmarks();
+}
+function toggleChecklist(key, e){
+  e.stopPropagation();
+  STATE.checklists[key] = !STATE.checklists[key];
+  save();
+  const label = document.querySelector(`[data-key="${key}"]`);
+  if(label) label.classList.toggle('checked', STATE.checklists[key]);
+}
+function copyPrompt(btn){
+  const text = btn.parentElement.querySelector('pre').textContent;
+  navigator.clipboard.writeText(text).then(()=>toast('Prompt copied to clipboard'));
+}
+function saveStageNote(e){
+  const stageId = e.target.dataset.stage;
+  const box = e.target.tagName==='TEXTAREA' ? e.target : e.target.parentElement.querySelector('textarea');
+  const text = box.value.trim();
+  if(!text) return;
+  STATE.notes.push({id:Date.now(), text, stage:stageId, when:new Date().toLocaleString()});
+  box.value='';
+  save(); renderNotes(); toast('Note saved');
+}
+
+document.getElementById('stageSearch').addEventListener('input', e=>{
+  renderStages(e.target.value, document.getElementById('difficultyFilter').value, document.getElementById('toolFilter').value);
+});
+document.getElementById('difficultyFilter').addEventListener('change', e=>{
+  renderStages(document.getElementById('stageSearch').value, e.target.value, document.getElementById('toolFilter').value);
+});
+document.getElementById('toolFilter').addEventListener('change', e=>{
+  renderStages(document.getElementById('stageSearch').value, document.getElementById('difficultyFilter').value, e.target.value);
+});
+(function populateToolFilter(){
+  const sel = document.getElementById('toolFilter');
+  const tools = [...new Set(STAGES.map(s=>s.primaryTool.name))];
+  tools.forEach(t=>{ const o=document.createElement('option'); o.textContent=t; sel.appendChild(o); });
+})();
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function renderDashboard(){
+  const totalStages = STAGES.length;
+  const doneCount = Object.values(STATE.stageDone).filter(Boolean).length;
+  const pct = Math.round((doneCount/totalStages)*100);
+  document.getElementById('dProgress').textContent = pct+'%';
+  document.getElementById('dProgressBar').style.width = pct+'%';
+  document.getElementById('dStages').textContent = doneCount+' / '+totalStages;
+  document.getElementById('dNotes').textContent = STATE.notes.length;
+  document.getElementById('dBookmarks').textContent = Object.values(STATE.bookmarks).filter(Boolean).length;
+  const totalMinsRemaining = STAGES.filter(s=>!STATE.stageDone[s.id]).length * 25;
+  document.getElementById('dHours').textContent = Math.round(totalMinsRemaining/60*10)/10 + 'h';
+  document.getElementById('statusPill').textContent = 'Status: ' + (doneCount===0?'Not Started':doneCount===totalStages?'Complete':'In Progress');
+}
+
+/* ============================================================
+   DIAGRAM (SVG, draggable + zoomable)
+   ============================================================ */
+function buildDiagram(){
+  const svg = document.getElementById('diagramCanvas');
+  const positions = [
+    {x:40,y:280},{x:230,y:280},{x:420,y:280},{x:610,y:150},{x:610,y:410},
+    {x:800,y:280},{x:990,y:150},{x:990,y:410},{x:1200,y:280},{x:1380,y:280}
+  ];
+  let svgContent = '';
+  // edges main chain
+  const chain = [0,1,2,3,5,6,8,9]; // idea->script->record->[decision]->publish->[branch]->analytics->end sort of
+  function edge(a,b,branch){
+    const p1=positions[a], p2=positions[b];
+    const midx = (p1.x+p2.x)/2;
+    return `<path class="edge ${branch?'branch':''}" d="M${p1.x+70},${p1.y+24} C${midx},${p1.y+24} ${midx},${p2.y+24} ${p2.x},${p2.y+24}"/>`;
+  }
+  svgContent += edge(0,1); svgContent += edge(1,2); svgContent += edge(2,3); svgContent += edge(2,4);
+  svgContent += edge(3,5); svgContent += edge(4,5); svgContent += edge(5,6); svgContent += edge(5,7,true);
+  svgContent += edge(6,8); svgContent += edge(7,8); svgContent += edge(8,9);
+
+  const nodeDefs = [
+    {label:'Start: Idea & Research', sub:'Stage 1', decision:false, stageId:'s1'},
+    {label:'Scripting', sub:'Stage 2', decision:false, stageId:'s2'},
+    {label:'Recording', sub:'Stage 3', decision:false, stageId:'s3'},
+    {label:'Editing (long/med)', sub:'Stage 4', decision:false, stageId:'s4'},
+    {label:'Editing (short)', sub:'Stage 4', decision:false, stageId:'s4'},
+    {label:'Decision: Format?', sub:'branch merges here', decision:true, stageId:null},
+    {label:'Thumbnail/Title/SEO', sub:'Stage 5–6', decision:false, stageId:'s5'},
+    {label:'LinkedIn Repurpose', sub:'parallel branch', decision:false, stageId:'s7'},
+    {label:'Publish (merged)', sub:'Stage 7', decision:false, stageId:'s7'},
+    {label:'Analytics → Loop', sub:'Stage 8', decision:false, stageId:'s8'}
+  ];
+
+  nodeDefs.forEach((n,i)=>{
+    const p = positions[i];
+    svgContent += `<g class="nodegroup" data-stage="${n.stageId||''}" data-tip="${n.label} — ${n.sub}" transform="translate(${p.x},${p.y})">
+      <rect class="node ${n.decision?'decision':''}" x="0" y="0" width="150" height="52" rx="12"></rect>
+      <text class="node-text" x="12" y="22">${n.label}</text>
+      <text class="node-sub" x="12" y="38">${n.sub}</text>
+    </g>`;
+  });
+
+  svg.innerHTML = svgContent;
+  svg.setAttribute('viewBox','0 0 1500 640');
+
+  const tip = document.getElementById('diagTooltip');
+  document.querySelectorAll('.nodegroup').forEach(g=>{
+    g.addEventListener('mouseenter', e=>{
+      tip.textContent = g.dataset.tip;
+      tip.style.opacity=1;
+    });
+    g.addEventListener('mousemove', e=>{
+      const rect = document.getElementById('diagramViewport').getBoundingClientRect();
+      tip.style.left = (e.clientX-rect.left+14)+'px';
+      tip.style.top = (e.clientY-rect.top+14)+'px';
+    });
+    g.addEventListener('mouseleave', ()=> tip.style.opacity=0);
+    g.addEventListener('click', ()=>{
+      document.querySelectorAll('.node').forEach(n=>n.classList.remove('active'));
+      g.querySelector('.node').classList.add('active');
+      if(g.dataset.stage){
+        go('stages');
+        setTimeout(()=>{
+          document.querySelectorAll('.stage-card').forEach(c=>c.classList.remove('open'));
+          const card = document.getElementById('card-'+g.dataset.stage);
+          if(card){ card.classList.add('open'); card.scrollIntoView({behavior:'smooth', block:'center'}); }
+        }, 350);
+      }
+    });
+  });
+}
+
+/* pan/zoom */
+let diagScale=1, diagX=0, diagY=0, dragging=false, lastX=0, lastY=0;
+function applyDiagTransform(){
+  document.getElementById('diagramCanvas').style.transform = `translate(${diagX}px,${diagY}px) scale(${diagScale})`;
+}
+function zoomDiagram(f){ diagScale = Math.min(2.2, Math.max(0.5, diagScale*f)); applyDiagTransform(); }
+function resetDiagram(){ diagScale=1; diagX=0; diagY=0; applyDiagTransform(); }
+(function setupDiagramDrag(){
+  const vp = document.getElementById('diagramViewport');
+  vp.addEventListener('mousedown', e=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; });
+  window.addEventListener('mouseup', ()=> dragging=false);
+  window.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    diagX += (e.clientX-lastX); diagY += (e.clientY-lastY);
+    lastX=e.clientX; lastY=e.clientY;
+    applyDiagTransform();
+  });
+  vp.addEventListener('wheel', e=>{ e.preventDefault(); zoomDiagram(e.deltaY<0?1.08:0.93); }, {passive:false});
+})();
+
+/* ============================================================
+   DECISION TREE
+   ============================================================ */
+function renderDecisionTree(){
+  const sel = document.getElementById('pathSelect');
+  sel.innerHTML='';
+  Object.entries(DECISION_PATHS).forEach(([key,p])=>{
+    const btn = document.createElement('div');
+    btn.className='path-btn'; btn.dataset.key=key;
+    btn.innerHTML = `<b>${p.label}</b><span>${p.sub}</span>`;
+    btn.onclick = ()=>{
+      [...sel.children].forEach(c=>c.classList.remove('active'));
+      btn.classList.add('active');
+      renderPathOutput(key);
+    };
+    sel.appendChild(btn);
+  });
+  sel.children[0].classList.add('active');
+  renderPathOutput('beginner');
+}
+function renderPathOutput(key){
+  const p = DECISION_PATHS[key];
+  document.getElementById('pathOutput').innerHTML = `
+    <div class="field-title">Recommended Steps — ${p.label}</div>
+    <ul class="clean">${p.steps.map(s=>`<li>${s}</li>`).join('')}</ul>
+    <div class="field-title">Suggested Tool Stack</div>
+    <p class="muted">${p.tools}</p>
+  `;
+}
+
+/* ============================================================
+   COMPARISON TABLE
+   ============================================================ */
+function renderComparison(){
+  const t = document.getElementById('cmpTable');
+  t.innerHTML = `<tr><th>Tool</th><th>Use Case</th><th>Pricing</th><th>Learning Curve</th><th>Ease of Use</th><th>Speed</th><th>Accuracy</th></tr>` +
+    CMP_ROWS.map(r=>`<tr>${r.map((c,i)=>`<td class="${i>=4?'stars':''}">${c}</td>`).join('')}</tr>`).join('');
+}
+
+/* ============================================================
+   INSIGHTS / AUTOMATION / RESOURCES / KEYWORDS / TIMELINE
+   ============================================================ */
+function renderInsights(){
+  document.getElementById('insightsGrid').innerHTML = INSIGHTS.map(i=>`
+    <div class="glass insight-card">
+      <div class="insight-icon" style="background:${i.color}22; color:${i.color};">${i.icon}</div>
+      <div><h4 style="font-size:13.5px; margin-bottom:4px;">${i.title}</h4><p class="muted">${i.body}</p></div>
+    </div>`).join('');
+}
+function renderAutomation(){
+  document.getElementById('automationGrid').innerHTML = AUTOMATION.map(a=>`
+    <div class="glass dash-card"><h4 style="font-family:var(--disp); font-size:13.5px; margin-bottom:6px; color:var(--teal);">${a.title}</h4><p class="muted">${a.body}</p></div>
+  `).join('');
+}
+function renderResources(){
+  document.getElementById('resourcesGrid').innerHTML = Object.entries(RESOURCES).map(([k,items])=>`
+    <div class="glass res-card"><h4>${k}</h4><ul class="clean">${items.map(i=>`<li>${i}</li>`).join('')}</ul></div>
+  `).join('');
+}
+function renderKeywords(){
+  document.getElementById('googleKw').innerHTML = KEYWORDS.google.map(k=>`<span class="kw-chip">${k}</span>`).join('');
+  document.getElementById('ytKw').innerHTML = KEYWORDS.youtube.map(k=>`<span class="kw-chip">${k}</span>`).join('');
+  document.getElementById('aiKw').innerHTML = KEYWORDS.ai.map(k=>`<span class="kw-chip">${k}</span>`).join('');
+  document.getElementById('researchKw').innerHTML = KEYWORDS.research.map(k=>`<span class="kw-chip">${k}</span>`).join('');
+}
+function renderTimeline(){
+  const items = [
+    ['Morning (15 min)','Idea & Research','Pick topic from backlog, validate with Claude'],
+    ['Morning (30 min)','Scripting','Draft + personalize script'],
+    ['Midday (25 min)','Recording','Record main take + B-roll'],
+    ['Afternoon (40 min)','Editing','Cut, caption, export'],
+    ['Afternoon (20 min)','Thumbnail, Title & SEO','Design thumbnail, finalize title/description'],
+    ['Evening (15 min)','Publish & Repurpose','Schedule video, publish LinkedIn post'],
+    ['Weekly (15 min)','Analytics & Iteration','Review the week, update backlog']
+  ];
+  document.getElementById('tlList').innerHTML = items.map(([when,title,desc])=>`
+    <div class="tl-item"><div class="when">${when}</div><h4>${title}</h4><p>${desc}</p></div>
+  `).join('');
+}
+
+/* ============================================================
+   NOTES / BOOKMARKS
+   ============================================================ */
+function renderNotes(){
+  const list = document.getElementById('notesList');
+  if(STATE.notes.length===0){ list.innerHTML = '<p class="muted">No notes yet — add one above or inside any stage.</p>'; return; }
+  list.innerHTML = STATE.notes.slice().reverse().map(n=>`
+    <div class="glass note-item">
+      <div><div class="txt">${n.text}</div><div class="meta">${n.stage? (STAGES.find(s=>s.id===n.stage)?.name || n.stage)+' · ' : ''}${n.when}</div></div>
+      <button class="del-btn" onclick="deleteNote(${n.id})">✕</button>
+    </div>
+  `).join('');
+}
+function deleteNote(id){
+  STATE.notes = STATE.notes.filter(n=>n.id!==id);
+  save(); renderNotes(); toast('Note deleted');
+}
+function addGlobalNote(){
+  const box = document.getElementById('globalNoteInput');
+  const text = box.value.trim();
+  if(!text) return;
+  STATE.notes.push({id:Date.now(), text, stage:null, when:new Date().toLocaleString()});
+  box.value=''; save(); renderNotes(); toast('Note saved');
+}
+document.getElementById('globalNoteInput').addEventListener('keydown', e=>{
+  if(e.ctrlKey && e.key==='Enter') addGlobalNote();
+});
+function renderBookmarks(){
+  const ids = Object.entries(STATE.bookmarks).filter(([,v])=>v).map(([k])=>k);
+  const list = document.getElementById('bookmarksList');
+  if(ids.length===0){ list.innerHTML = '<p class="muted">No bookmarks yet — star a stage to save it here.</p>'; return; }
+  list.innerHTML = ids.map(id=>{
+    const s = STAGES.find(st=>st.id===id);
+    return `<div class="glass note-item"><div class="txt">★ ${s.name}</div><button class="del-btn" onclick="unbookmark('${id}')">✕</button></div>`;
+  }).join('');
+}
+function unbookmark(id){
+  STATE.bookmarks[id]=false; save(); renderBookmarks();
+  renderStages(document.getElementById('stageSearch').value, document.getElementById('difficultyFilter').value, document.getElementById('toolFilter').value);
+}
+
+/* ============================================================
+   EXPORT
+   ============================================================ */
+function downloadFile(filename, content, type='text/plain'){
+  const blob = new Blob([content], {type});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+function downloadNotes(){
+  if(STATE.notes.length===0){ toast('No notes to export'); return; }
+  const text = STATE.notes.map(n=>`[${n.when}] ${n.stage? (STAGES.find(s=>s.id===n.stage)?.name||n.stage)+': ':''}${n.text}`).join('\\n\\n');
+  downloadFile('workflow-notes.txt', text);
+}
+function downloadChecklist(){
+  const lines = [];
+  STAGES.forEach(s=>{
+    lines.push(`## ${s.name}`);
+    s.checklist.forEach((item,i)=>{
+      const done = STATE.checklists[s.id+'_c'+i];
+      lines.push(`[${done?'x':' '}] ${item}`);
+    });
+    lines.push('');
+  });
+  downloadFile('workflow-checklist.txt', lines.join('\\n'));
+}
+function exportJSON(){
+  downloadFile('ai-workflow-architect.json', JSON.stringify({stages:STAGES, state:STATE}, null, 2), 'application/json');
+}
+function exportMarkdown(){
+  let md = `# AI Workflow Architect — CyberVidyarthi Daily Pipeline\\n\\n`;
+  STAGES.forEach((s,i)=>{
+    md += `## ${i+1}. ${s.name}\\n\\n${s.description}\\n\\n**Time:** ${s.time} | **Difficulty:** ${s.difficulty} | **Risk:** ${s.risk}\\n\\n`;
+    md += `### Tasks\\n` + s.tasks.map(t=>`- ${t}`).join('\\n') + `\\n\\n`;
+    md += `### Primary Tool: ${s.primaryTool.name}\\n${s.primaryTool.why}\\n\\n`;
+  });
+  downloadFile('ai-workflow-architect.md', md, 'text/markdown');
+}
+
+/* ============================================================
+   KEYBOARD SHORTCUTS
+   ============================================================ */
+document.addEventListener('keydown', e=>{
+  if(e.target.tagName==='TEXTAREA' || e.target.tagName==='INPUT') return;
+  if(e.key==='/'){ e.preventDefault(); go('stages'); document.getElementById('stageSearch').focus(); }
+  if(e.key.toLowerCase()==='p'){ window.print(); }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+applyTheme();
+renderStages();
+renderDashboard();
+buildDiagram();
+renderDecisionTree();
+renderComparison();
+renderInsights();
+renderAutomation();
+renderResources();
+renderKeywords();
+renderTimeline();
+renderNotes();
+renderBookmarks();
+updateActiveNav();
+</script>
+</body>
+</html>
