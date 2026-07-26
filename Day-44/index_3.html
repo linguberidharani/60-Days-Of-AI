@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Profile Optimizer AI</title>
+<style>
+/* ============================================================
+   TOKENS
+============================================================ */
+:root{
+  --radius-lg:20px; --radius-md:14px; --radius-sm:8px;
+  --teal:#2dd4bf; --purple:#8b5cf6; --blue:#3b82f6; --amber:#f5a524; --rose:#f43f5e; --green:#22c55e;
+  --font-display:'Segoe UI Semibold','Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --font-body:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --font-mono:'Consolas','SFMono-Regular','Menlo','Courier New',monospace;
+  --shadow-glass: 0 8px 32px rgba(0,0,0,0.28);
+}
+:root[data-theme="dark"]{
+  --bg:#080b10; --bg2:#0d1219;
+  --surface: rgba(255,255,255,0.045);
+  --surface-strong: rgba(255,255,255,0.09);
+  --border: rgba(255,255,255,0.10);
+  --text:#e7edf3; --text-dim:#8b96a8; --text-faint:#5a6474;
+}
+:root[data-theme="light"]{
+  --bg:#eef1f6; --bg2:#e4e9f1;
+  --surface: rgba(255,255,255,0.72);
+  --surface-strong: rgba(255,255,255,0.95);
+  --border: rgba(10,14,22,0.09);
+  --text:#0c1117; --text-dim:#525c6b; --text-faint:#7a8395;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:
+    radial-gradient(circle at 15% 0%, rgba(45,212,191,0.10), transparent 45%),
+    radial-gradient(circle at 85% 10%, rgba(139,92,246,0.10), transparent 45%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  transition:background .3s ease, color .3s ease;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size:26px 26px;
+  opacity:.5;
+}
+h1,h2,h3,h4{font-family:var(--font-display); letter-spacing:-0.01em;}
+.mono{font-family:var(--font-mono);}
+a{color:inherit;}
+button{font-family:inherit; cursor:pointer;}
+::selection{background:var(--teal); color:#04211d;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:10px; height:10px;}
+::-webkit-scrollbar-thumb{background:var(--border); border-radius:8px;}
+
+/* Layout shell */
+.app{position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column;}
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 28px;
+  background:var(--surface);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-size:18px; font-weight:700;}
+.brand-mark{
+  width:32px; height:32px; border-radius:9px;
+  background:linear-gradient(135deg, var(--teal), var(--blue) 55%, var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-weight:700; color:#04141f; font-size:14px;
+}
+.brand small{display:block; font-family:var(--font-mono); font-size:10px; font-weight:400; color:var(--text-dim); letter-spacing:.06em;}
+.top-actions{display:flex; align-items:center; gap:10px;}
+
+.btn{
+  border:1px solid var(--border); background:var(--surface-strong); color:var(--text);
+  border-radius:999px; padding:9px 16px; font-size:13px; font-weight:600;
+  display:inline-flex; align-items:center; gap:6px;
+  transition:transform .15s ease, border-color .15s ease, background .15s ease;
+}
+.btn:hover{transform:translateY(-1px); border-color:var(--teal);}
+.btn:active{transform:translateY(0);}
+.btn.primary{
+  background:linear-gradient(135deg, var(--teal), var(--blue));
+  color:#04141f; border:none;
+}
+.btn.primary:hover{filter:brightness(1.08);}
+.btn.ghost{background:transparent;}
+.btn:disabled{opacity:.4; cursor:not-allowed; transform:none;}
+.icon-btn{
+  width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:var(--surface-strong); border:1px solid var(--border);
+  font-size:16px;
+}
+
+main{flex:1; display:flex; flex-direction:column; align-items:center; width:100%;}
+.screen{width:100%; max-width:1180px; padding:40px 24px 100px; animation:fadeIn .5s ease;}
+.screen.hidden{display:none;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+
+.glass{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  box-shadow:var(--shadow-glass);
+}
+
+/* ============================================================
+   WELCOME SCREEN
+============================================================ */
+.hero{text-align:center; padding:60px 20px 30px;}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px;
+  color:var(--teal); letter-spacing:.12em; text-transform:uppercase; padding:6px 14px;
+  border:1px solid var(--border); border-radius:999px; background:var(--surface);
+}
+.hero h1{
+  font-size:clamp(32px,5vw,56px); margin:22px 0 14px; line-height:1.05;
+  background:linear-gradient(120deg, var(--text) 30%, var(--teal) 60%, var(--purple) 90%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero p{max-width:640px; margin:0 auto; color:var(--text-dim); font-size:16px; line-height:1.6;}
+.feature-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin:40px 0;
+}
+.feature-card{padding:22px; border-radius:var(--radius-md);}
+.feature-card .f-icon{
+  width:40px; height:40px; border-radius:11px; margin-bottom:14px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-weight:700; font-size:16px;
+}
+.feature-card h4{font-size:15px; margin-bottom:6px;}
+.feature-card p{font-size:13px; color:var(--text-dim); line-height:1.5;}
+.cta-row{display:flex; justify-content:center; gap:14px; margin-top:36px; flex-wrap:wrap;}
+
+/* Path choice */
+.path-grid{display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:30px;}
+@media(max-width:720px){.path-grid{grid-template-columns:1fr;}}
+.path-card{padding:32px; border-radius:var(--radius-lg); text-align:left; transition:transform .2s ease, border-color .2s ease; cursor:pointer;}
+.path-card:hover{transform:translateY(-4px); border-color:var(--teal);}
+.path-card h3{font-size:20px; margin-bottom:8px;}
+.path-card p{color:var(--text-dim); font-size:14px; line-height:1.55; margin-bottom:16px;}
+.path-tag{display:inline-block; font-family:var(--font-mono); font-size:11px; padding:4px 10px; border-radius:999px; background:var(--surface-strong); border:1px solid var(--border); color:var(--teal);}
+
+/* ============================================================
+   INTERVIEW
+============================================================ */
+.interview-wrap{max-width:680px; margin:0 auto;}
+.progress-label{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:12px; color:var(--text-dim); margin-bottom:8px;}
+.progress-track{height:6px; border-radius:999px; background:var(--surface-strong); overflow:hidden; margin-bottom:36px;}
+.progress-fill{height:100%; border-radius:999px; background:linear-gradient(90deg,var(--teal),var(--blue)); transition:width .4s ease;}
+.interview-card{padding:36px;}
+.interview-card h2{font-size:24px; margin-bottom:6px;}
+.interview-card .sub{color:var(--text-dim); font-size:13px; margin-bottom:26px;}
+.field{margin-bottom:20px;}
+.field label{display:block; font-size:12px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;}
+.field input[type=text], .field textarea, .field select{
+  width:100%; padding:13px 15px; border-radius:var(--radius-sm); border:1px solid var(--border);
+  background:var(--surface-strong); color:var(--text); font-size:14px; font-family:var(--font-body);
+  outline:none; transition:border-color .15s ease;
+}
+.field input[type=text]:focus, .field textarea:focus, .field select:focus{border-color:var(--teal);}
+.field textarea{min-height:120px; resize:vertical; line-height:1.5;}
+.field .hint{font-size:12px; color:var(--text-faint); margin-top:6px;}
+.radio-row{display:flex; gap:12px;}
+.radio-opt{flex:1; padding:14px; border:1px solid var(--border); border-radius:var(--radius-sm); text-align:center; background:var(--surface-strong); font-size:14px; font-weight:600;}
+.radio-opt.active{border-color:var(--teal); color:var(--teal); box-shadow:0 0 0 1px var(--teal) inset;}
+.nav-row{display:flex; justify-content:space-between; margin-top:10px;}
+
+/* ============================================================
+   DASHBOARD
+============================================================ */
+.dash-header{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px; margin-bottom:26px;}
+.tabs{display:flex; gap:6px; flex-wrap:wrap; padding:6px; border-radius:999px; background:var(--surface); border:1px solid var(--border);}
+.tab-btn{padding:8px 16px; border-radius:999px; font-size:13px; font-weight:600; color:var(--text-dim); background:transparent; border:none;}
+.tab-btn.active{background:linear-gradient(135deg,var(--teal),var(--blue)); color:#04141f;}
+.search-box{display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; background:var(--surface); border:1px solid var(--border); min-width:220px;}
+.search-box input{background:transparent; border:none; outline:none; color:var(--text); font-size:13px; width:100%;}
+.search-results{margin-top:10px; padding:16px; display:none;}
+.search-results.show{display:block;}
+.search-hit{padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;}
+.search-hit:last-child{border-bottom:none;}
+.search-hit b{color:var(--teal);}
+
+/* Overview */
+.stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:26px;}
+.stat-card{padding:22px; text-align:center;}
+.stat-card .num{font-family:var(--font-mono); font-size:34px; font-weight:700; background:linear-gradient(120deg,var(--teal),var(--purple)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.stat-card .lbl{font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-top:6px;}
+
+.gauge-wrap{display:flex; align-items:center; gap:36px; padding:32px; flex-wrap:wrap;}
+.gauge-wrap .txt{flex:1; min-width:220px;}
+.gauge-wrap h2{font-size:26px; margin-bottom:8px;}
+.gauge-wrap p{color:var(--text-dim); font-size:14px; line-height:1.6;}
+
+/* Score cards (roast) */
+.score-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:18px;}
+.score-card{padding:24px;}
+.score-card-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+.score-card-top h4{font-size:16px;}
+.score-pill{font-family:var(--font-mono); font-weight:700; font-size:15px; padding:5px 12px; border-radius:999px;}
+.score-bar-track{height:6px; border-radius:999px; background:var(--surface-strong); margin-bottom:16px; overflow:hidden;}
+.score-bar-fill{height:100%; border-radius:999px;}
+.score-detail{font-size:13px; margin-bottom:10px; line-height:1.55;}
+.score-detail b{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:3px;}
+.score-detail ul{padding-left:18px; margin-top:2px;}
+.score-detail li{margin-bottom:2px;}
+
+/* Rebuild */
+.option-card{padding:20px; margin-bottom:14px;}
+.option-tag{display:inline-block; font-family:var(--font-mono); font-size:11px; padding:3px 10px; border-radius:999px; margin-bottom:10px;}
+.option-headline{font-size:16px; font-weight:600; margin-bottom:8px; line-height:1.4;}
+.option-when{font-size:13px; color:var(--text-dim);}
+
+.about-structure{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:18px;}
+.struct-chip{padding:12px; text-align:center; border-radius:var(--radius-sm); background:var(--surface-strong); border:1px solid var(--border); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--teal);}
+.rewrite-block{padding:22px; margin-bottom:16px; white-space:pre-wrap; font-size:14px; line-height:1.7;}
+.kw-chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+.kw-chip{font-family:var(--font-mono); font-size:12px; padding:5px 11px; border-radius:999px; background:var(--surface-strong); border:1px solid var(--border);}
+
+.ba-row{display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:stretch; padding:20px; margin-bottom:14px;}
+.ba-col{padding:14px; border-radius:var(--radius-sm); font-size:13px; line-height:1.6; white-space:pre-wrap;}
+.ba-before{background:rgba(244,63,94,0.07); border:1px solid rgba(244,63,94,0.25);}
+.ba-after{background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.25);}
+.ba-arrow{display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--teal);}
+.ba-why{font-size:12px; color:var(--text-dim); margin-top:10px; grid-column:1 / -1; border-top:1px solid var(--border); padding-top:10px;}
+@media(max-width:720px){.ba-row{grid-template-columns:1fr;} .ba-arrow{transform:rotate(90deg);}}
+
+/* Timeline */
+.timeline{position:relative; padding-left:34px;}
+.timeline::before{content:''; position:absolute; left:11px; top:6px; bottom:6px; width:2px; background:linear-gradient(var(--teal),var(--purple));}
+.tl-item{position:relative; margin-bottom:22px; padding:20px;}
+.tl-dot{position:absolute; left:-34px; top:22px; width:24px; height:24px; border-radius:50%; background:var(--bg2); border:2px solid var(--teal); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--teal);}
+.tl-item h4{font-size:16px; margin-bottom:8px;}
+.tl-item p, .tl-item li{font-size:13px; color:var(--text-dim); line-height:1.6;}
+.tl-item ul{padding-left:18px; margin-top:6px;}
+.template-box{margin-top:12px; padding:14px; border-radius:var(--radius-sm); background:var(--surface-strong); border:1px dashed var(--border); font-size:13px; white-space:pre-wrap; font-family:var(--font-mono);}
+.flow-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:10px 0;}
+.flow-chip{padding:8px 14px; border-radius:999px; background:var(--surface-strong); border:1px solid var(--border); font-size:12px; font-weight:700;}
+.flow-sep{color:var(--text-faint);}
+
+/* Summary card */
+.share-card{max-width:460px; margin:0 auto; padding:32px; text-align:center; position:relative; overflow:hidden;}
+.share-card::before{content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 0%, rgba(45,212,191,.15), transparent 60%); pointer-events:none;}
+.share-card h3{font-size:19px; margin-bottom:20px;}
+.share-scores{display:flex; justify-content:center; gap:26px; margin-bottom:22px;}
+.share-scores .col{text-align:center;}
+.share-scores .num{font-family:var(--font-mono); font-size:30px; font-weight:700;}
+.share-scores .lbl{font-size:11px; color:var(--text-dim); text-transform:uppercase;}
+.share-arrow{align-self:center; color:var(--teal); font-size:20px;}
+.share-list{text-align:left; font-size:13px; margin-bottom:20px; line-height:1.7;}
+.share-list b{color:var(--teal);}
+
+/* Notes */
+textarea.notes{width:100%; min-height:220px; padding:18px; border-radius:var(--radius-md); background:var(--surface-strong); border:1px solid var(--border); color:var(--text); font-size:14px; line-height:1.6; outline:none; resize:vertical;}
+
+/* Footer */
+footer{text-align:center; padding:26px; color:var(--text-faint); font-size:13px; border-top:1px solid var(--border); background:var(--surface);}
+
+/* Section title helper */
+.section-title{display:flex; align-items:center; gap:10px; margin:34px 0 16px;}
+.section-title h3{font-size:18px;}
+.section-title .line{flex:1; height:1px; background:var(--border);}
+.section-sub{color:var(--text-dim); font-size:13px; margin-bottom:20px; margin-top:-10px;}
+
+@media print{
+  .topbar, .tabs, .search-box, .cta-row, .nav-row, footer, .no-print{display:none !important;}
+  body{background:#fff !important; color:#000 !important;}
+  .glass{border:1px solid #ccc !important; box-shadow:none !important; background:#fff !important;}
+  .screen{padding:0;}
+}
+@media(max-width:640px){
+  .topbar{padding:12px 16px;}
+  .interview-card{padding:22px;}
+  .gauge-wrap{padding:22px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">Li</div>
+      <div>LinkedIn Profile Optimizer AI<small>recruiter-grade profile intelligence</small></div>
+    </div>
+    <div class="top-actions">
+      <div id="dashTopActions" style="display:none; gap:10px; align-items:center;">
+        <button class="btn ghost no-print" id="printBtn">🖨 Print</button>
+        <button class="btn ghost no-print" id="exportTxtBtn">⬇ .txt</button>
+        <button class="btn ghost no-print" id="exportMdBtn">⬇ .md</button>
+        <button class="btn ghost no-print" id="restartBtn">↺ Restart</button>
+      </div>
+      <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- ============ WELCOME ============ -->
+    <section class="screen" id="screen-welcome">
+      <div class="hero">
+        <span class="eyebrow">● AI Career Coach · 100% Offline · Your Data Never Leaves This Browser</span>
+        <h1>Turn your LinkedIn into<br>a recruiter magnet.</h1>
+        <p>A recruiter-style roast, a full rebuild of your headline, About and experience, and a 7-day action plan —
+        generated only from what you tell us. No invented achievements, ever.</p>
+      </div>
+
+      <div class="feature-grid">
+        <div class="glass feature-card">
+          <div class="f-icon" style="background:rgba(45,212,191,.15); color:var(--teal);">01</div>
+          <h4>Profile Roast</h4>
+          <p>10-category recruiter report card, scored out of 100, with what's costing you visibility.</p>
+        </div>
+        <div class="glass feature-card">
+          <div class="f-icon" style="background:rgba(139,92,246,.15); color:var(--purple);">02</div>
+          <h4>Full Rebuild</h4>
+          <p>Three headline options, a hook-story-proof-CTA About rewrite, and bullet-by-bullet experience fixes.</p>
+        </div>
+        <div class="glass feature-card">
+          <div class="f-icon" style="background:rgba(59,130,246,.15); color:var(--blue);">03</div>
+          <h4>Before vs After</h4>
+          <p>Side-by-side comparison cards you can screenshot and actually see the improvement.</p>
+        </div>
+        <div class="glass feature-card">
+          <div class="f-icon" style="background:rgba(245,165,36,.15); color:var(--amber);">04</div>
+          <h4>7-Day Action Plan</h4>
+          <p>A day-by-day timeline: posts to write, people to connect with, comments to leave, analytics to track.</p>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <button class="btn primary" id="startBtn">Start My Free Optimization →</button>
+      </div>
+    </section>
+
+    <!-- ============ PATH CHOICE ============ -->
+    <section class="screen hidden" id="screen-path">
+      <div class="section-title"><h3>First, a quick question</h3><div class="line"></div></div>
+      <p class="section-sub">This decides which interview we run — both take about 3 minutes.</p>
+      <div class="path-grid">
+        <div class="glass path-card" id="pathHas">
+          <span class="path-tag">Existing profile</span>
+          <h3 style="margin-top:12px;">I already have LinkedIn</h3>
+          <p>Paste in your current headline, About, latest role and skills — we'll audit and rebuild what's there.</p>
+        </div>
+        <div class="glass path-card" id="pathNone">
+          <span class="path-tag">Starting fresh</span>
+          <h3 style="margin-top:12px;">I don't have LinkedIn yet</h3>
+          <p>Tell us who you are and what you've built — we'll draft a complete positioning strategy from scratch.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INTERVIEW ============ -->
+    <section class="screen hidden" id="screen-interview">
+      <div class="interview-wrap">
+        <div class="progress-label"><span id="qLabel">Question 1 / 5</span><span id="qPercent" class="mono">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="glass interview-card">
+          <h2 id="qTitle">Title</h2>
+          <div class="sub" id="qSub"></div>
+          <div id="qFields"></div>
+          <div class="nav-row">
+            <button class="btn ghost" id="prevBtn">← Previous</button>
+            <button class="btn primary" id="nextBtn">Next →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="screen hidden" id="screen-dashboard">
+      <div class="dash-header">
+        <div class="tabs" id="tabs">
+          <button class="tab-btn" data-tab="overview">Overview</button>
+          <button class="tab-btn" data-tab="roast">Profile Roast</button>
+          <button class="tab-btn" data-tab="rebuild">Rebuild</button>
+          <button class="tab-btn" data-tab="compare">Before / After</button>
+          <button class="tab-btn" data-tab="plan">7-Day Plan</button>
+          <button class="tab-btn" data-tab="summary">Summary Card</button>
+          <button class="tab-btn" data-tab="notes">Notes</button>
+        </div>
+        <div class="search-box">
+          <span>🔎</span>
+          <input type="text" id="searchInput" placeholder="Search headline, skills, recommendations…">
+        </div>
+      </div>
+      <div class="glass search-results" id="searchResults"></div>
+      <div id="tabContent"></div>
+    </section>
+
+  </main>
+
+  <footer>Made with ❤️ for LinkedIn Growth</footer>
+</div>
+
+<script>
+/* ============================================================
+   STATE
+============================================================ */
+const STORAGE_KEY = 'lpoai_v1';
+let state = {
+  screen: 'welcome',
+  path: null,
+  step: 0,
+  answers: {},
+  theme: 'dark',
+  notes: '',
+  activeTab: 'overview'
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ state = Object.assign(state, JSON.parse(raw)); }
+  }catch(e){ /* ignore corrupt storage */ }
+}
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+/* ============================================================
+   QUESTION DEFINITIONS
+============================================================ */
+const GOAL_OPTIONS = ['Software Job','Internship','Clients','Freelancing','Thought Leadership','Networking','Career Switch'];
+
+const STEPS_HAS = [
+  { title:'Current Headline', sub:'Copy your headline exactly as it appears on LinkedIn today.',
+    fields:[{key:'headline', type:'text', placeholder:'e.g. Software Engineer at XYZ Pvt Ltd'}] },
+  { title:'About Section', sub:'Paste your full About / Summary section.',
+    fields:[{key:'about', type:'textarea', placeholder:'Paste your current About section here…'}] },
+  { title:'Most Recent Experience', sub:'Your latest role, company and what you actually did.',
+    fields:[
+      {key:'jobTitle', type:'text', placeholder:'Job Title', label:'Job Title'},
+      {key:'company', type:'text', placeholder:'Company', label:'Company'},
+      {key:'responsibilities', type:'textarea', placeholder:'List your responsibilities & achievements, one per line', label:'Responsibilities'}
+    ]},
+  { title:'Top Skills', sub:'List 5–10 skills, separated by commas.',
+    fields:[{key:'skills', type:'text', placeholder:'e.g. Python, Network Security, SIEM, Incident Response', hint:'Comma-separated, 5–10 skills'}] },
+  { title:'Target Goal', sub:'What outcome are you optimizing this profile for?',
+    fields:[{key:'targetGoal', type:'select', options:GOAL_OPTIONS}] }
+];
+
+const STEPS_NONE = [
+  { title:'Full Name', sub:'How should recruiters see your name?', fields:[{key:'fullName', type:'text', placeholder:'e.g. Dharani Kumar'}] },
+  { title:'Student or Professional', sub:'Pick the one that fits right now.', fields:[{key:'status', type:'radio', options:['Student','Professional']}] },
+  { title:'Top 3 Skills', sub:'Your strongest, most defensible skills.', fields:[{key:'topSkills', type:'text', placeholder:'e.g. Python, Cybersecurity, Machine Learning', hint:'Comma-separated'}] },
+  { title:'Best Projects / Achievements', sub:'What have you actually built or accomplished?', fields:[{key:'projects', type:'textarea', placeholder:'One project or achievement per line…'}] },
+  { title:'Who do you want to attract?', sub:'Recruiters? Clients? A specific industry?', fields:[{key:'audience', type:'text', placeholder:'e.g. Cybersecurity recruiters at consulting firms'}] },
+  { title:'What makes you unique?', sub:'Your honest, specific edge — no clichés.', fields:[{key:'uniqueValue', type:'textarea', placeholder:'e.g. I combine AI engineering with security research…'}] }
+];
+
+function currentSteps(){ return state.path === 'has' ? STEPS_HAS : STEPS_NONE; }
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.getElementById('dashTopActions').style.display = (id==='screen-dashboard') ? 'flex' : 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  state.screen='path'; saveState(); showScreen('screen-path');
+});
+document.getElementById('pathHas').addEventListener('click', ()=> startPath('has'));
+document.getElementById('pathNone').addEventListener('click', ()=> startPath('none'));
+
+function startPath(path){
+  state.path = path; state.step = 0; state.screen='interview';
+  saveState(); renderInterview(); showScreen('screen-interview');
+}
+
+/* ============================================================
+   INTERVIEW RENDER
+============================================================ */
+function fieldValue(key){ return state.answers[key] || ''; }
+
+function renderInterview(){
+  const steps = currentSteps();
+  const step = steps[state.step];
+  document.getElementById('qLabel').textContent = `Question ${state.step+1} / ${steps.length}`;
+  const pct = Math.round(((state.step+1)/steps.length)*100);
+  document.getElementById('qPercent').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('qTitle').textContent = step.title;
+  document.getElementById('qSub').textContent = step.sub || '';
+
+  const wrap = document.getElementById('qFields');
+  wrap.innerHTML = '';
+  step.fields.forEach(f=>{
+    const box = document.createElement('div');
+    box.className='field';
+    let inner = '';
+    if(f.label) inner += `<label>${f.label}</label>`;
+    if(f.type==='text'){
+      inner += `<input type="text" data-key="${f.key}" placeholder="${f.placeholder||''}" value="${escapeAttr(fieldValue(f.key))}">`;
+    } else if(f.type==='textarea'){
+      inner += `<textarea data-key="${f.key}" placeholder="${f.placeholder||''}">${escapeHtml(fieldValue(f.key))}</textarea>`;
+    } else if(f.type==='select'){
+      inner += `<select data-key="${f.key}"><option value="">Select…</option>` +
+        f.options.map(o=>`<option value="${o}" ${fieldValue(f.key)===o?'selected':''}>${o}</option>`).join('') +
+        `</select>`;
+    } else if(f.type==='radio'){
+      inner += `<div class="radio-row" data-key="${f.key}">` +
+        f.options.map(o=>`<div class="radio-opt ${fieldValue(f.key)===o?'active':''}" data-val="${o}">${o}</div>`).join('') +
+        `</div>`;
+    }
+    if(f.hint) inner += `<div class="hint">${f.hint}</div>`;
+    box.innerHTML = inner;
+    wrap.appendChild(box);
+  });
+
+  wrap.querySelectorAll('input, textarea, select').forEach(el=>{
+    el.addEventListener('input', ()=>{ state.answers[el.dataset.key] = el.value; saveState(); });
+  });
+  wrap.querySelectorAll('.radio-row').forEach(row=>{
+    row.querySelectorAll('.radio-opt').forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        row.querySelectorAll('.radio-opt').forEach(o=>o.classList.remove('active'));
+        opt.classList.add('active');
+        state.answers[row.dataset.key] = opt.dataset.val;
+        saveState();
+      });
+    });
+  });
+
+  document.getElementById('prevBtn').disabled = state.step===0;
+  document.getElementById('nextBtn').textContent = (state.step===steps.length-1) ? 'Generate My Optimization Report →' : 'Next →';
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(state.step>0){ state.step--; saveState(); renderInterview(); }
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  const steps = currentSteps();
+  if(state.step < steps.length-1){
+    state.step++; saveState(); renderInterview();
+  } else {
+    finishInterview();
+  }
+});
+
+function escapeHtml(s){ return (s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
+
+/* ============================================================
+   ANALYSIS ENGINE  (heuristic, deterministic, zero-fabrication)
+============================================================ */
+const ACTION_VERBS = ['led','built','designed','developed','created','managed','launched','improved','increased',
+  'reduced','optimized','automated','implemented','architected','delivered','drove','spearheaded','engineered',
+  'analyzed','collaborated','mentored','scaled','streamlined','coordinated','executed','trained','researched','deployed'];
+const BUZZWORD_SKILLS = ['hardworking','hard worker','team player','fast learner','microsoft office','punctual','quick learner','good communication'];
+const FILLER_HEADLINE_WORDS = ['seeking opportunities','open to work','unemployed','looking for job'];
+
+function splitList(s){ return (s||'').split(',').map(x=>x.trim()).filter(Boolean); }
+function splitLines(s){ return (s||'').split('\n').map(x=>x.trim()).filter(Boolean); }
+function wordCount(s){ return ((s||'').trim().match(/\S+/g)||[]).length; }
+function hasNumber(s){ return /\d/.test(s||''); }
+function hasMetric(s){ return /\d+(\.\d+)?\s?(%|percent|x|k|lakh|crore)\b|\$\d|₹\d|\d+\+/.test((s||'').toLowerCase()); }
+function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
+
+function getSkillsArray(){
+  return state.path==='has' ? splitList(state.answers.skills) : splitList(state.answers.topSkills);
+}
+function getName(){ return state.answers.fullName || 'You'; }
+
+function scoreHeadline(){
+  const headline = state.path==='has' ? (state.answers.headline||'') : '';
+  const skills = getSkillsArray();
+  const strengths=[], weaknesses=[];
+  if(!headline){
+    return {score:0, strengths:['No current headline provided — nothing to lose, everything to gain.'],
+      weaknesses:['A blank or default headline (auto-filled with your job title) is invisible in recruiter search.'],
+      impression:'Recruiters see your job title only — no reason to click into your profile.',
+      missed:'LinkedIn gives you 220 characters of prime search real-estate that is currently unused.',
+      why:'The headline is the single most-searched field on LinkedIn after name.',
+      fix:'Add a keyword-rich headline using the options in the Rebuild tab.'};
+  }
+  let score = 3;
+  const len = headline.length;
+  if(len>=50 && len<=200){ score+=2; strengths.push('Good length — uses meaningful headline space.'); }
+  else weaknesses.push(`Headline is ${len} characters — aim for 50–200 to use more of LinkedIn's 220-character limit.`);
+  if(/\||•|·/.test(headline)){ score+=1; strengths.push('Uses separators to pack in multiple value propositions.'); }
+  else weaknesses.push('No separators (| or •) — hard to scan multiple skills/roles at a glance.');
+  const skillHits = skills.filter(s=> headline.toLowerCase().includes(s.toLowerCase()));
+  if(skillHits.length>0){ score+=2; strengths.push(`Includes ${skillHits.length} of your listed skill keyword(s): ${skillHits.join(', ')}.`); }
+  else weaknesses.push('None of your listed skills appear in the headline — recruiters search by exact keyword.');
+  if(hasNumber(headline)){ score+=1; strengths.push('Contains a number — numbers draw the eye in search results.'); }
+  if(FILLER_HEADLINE_WORDS.some(w=>headline.toLowerCase().includes(w))){ score-=2; weaknesses.push('Contains a low-signal phrase (e.g. "open to work" as the entire headline) instead of a value proposition.'); }
+  score = clamp(score,0,10);
+  return {score, strengths, weaknesses,
+    impression: score>=7 ? 'A recruiter scanning search results would recognize your value in under 3 seconds.' : 'A recruiter scanning search results would need to open your profile to understand what you actually do.',
+    missed: skillHits.length===0 ? 'You are not appearing in recruiter searches for your own top skills.' : 'Some skill keywords are still missing from the headline.',
+    why: 'The headline is indexed heavily by LinkedIn search and shown everywhere your name appears — in comments, connection requests, and search results.',
+    fix: 'Use a Skill | Skill | Value-outcome structure, keep it under 220 characters, and lead with your strongest keyword.'};
+}
+
+function scoreAboutHook(){
+  const about = state.path==='has' ? (state.answers.about||'') : (state.answers.uniqueValue||'');
+  if(!about) return {score:0, strengths:[], weaknesses:['No About section / positioning statement provided yet.'],
+    impression:'There is nothing to hook a reader in the first two lines.', missed:'The first 2 lines are what shows before "see more" — currently blank.',
+    why:'LinkedIn truncates About after ~2 lines; if the hook is weak, nobody clicks "see more".', fix:'Open with a specific, curiosity-driving first line — a question, a number, or a bold claim you can back up.'};
+  const firstLine = about.split('\n')[0] || about.slice(0,120);
+  const strengths=[], weaknesses=[];
+  let score = 3;
+  if(firstLine.length>0 && firstLine.length<=140){ score+=2; strengths.push('First line is short enough to read before "see more".'); } else weaknesses.push('First line runs long — trim it to under 140 characters so it reads before truncation.');
+  if(/\?/.test(firstLine)){ score+=2; strengths.push('Opens with a question — strong scroll-stopping hook.'); }
+  if(hasNumber(firstLine)){ score+=1; strengths.push('Leads with a concrete number.'); }
+  if(!/\?/.test(firstLine) && !hasNumber(firstLine)){ weaknesses.push('First line is a generic statement rather than a hook (no question, no number, no bold claim).'); }
+  score = clamp(score,0,10);
+  return {score, strengths, weaknesses,
+    impression: score>=6 ? 'A recruiter is likely to keep reading past the fold.' : 'A recruiter is likely to scroll past without clicking "see more".',
+    missed:'Every unclicked "see more" is a lost chance to tell your story.',
+    why:'The hook decides whether the rest of your About section is ever read.',
+    fix:'Rewrite line one as a question, a surprising number, or a one-line problem you solve.'};
+}
+
+function scoreAboutComplete(){
+  const about = state.path==='has' ? (state.answers.about||'') : (state.answers.uniqueValue||'') + '\n' + (state.answers.projects||'');
+  const skills = getSkillsArray();
+  if(!(state.answers.about || state.answers.uniqueValue)) return {score:0, strengths:[], weaknesses:['About section is empty.'],
+    impression:'No narrative exists yet for a recruiter to evaluate.', missed:'Story, proof and a call-to-action are all missing.',
+    why:'About is the only freeform section — it is where personality and proof of skill live.', fix:'Use the Hook → Story → Proof → CTA structure in the Rebuild tab.'};
+  const wc = wordCount(about);
+  const strengths=[], weaknesses=[];
+  let score=2;
+  if(wc>=80 && wc<=300){ score+=2; strengths.push(`Length (${wc} words) is in a healthy readable range.`); }
+  else if(wc<80){ weaknesses.push(`Only ${wc} words — too short to establish credibility. Aim for 80–300 words.`); }
+  else { weaknesses.push(`${wc} words is long — tighten it so recruiters don't disengage midway.`); }
+  const skillMentions = skills.filter(s=> about.toLowerCase().includes(s.toLowerCase()));
+  if(skillMentions.length>=2){ score+=2; strengths.push(`Reinforces ${skillMentions.length} of your skills in context.`); }
+  else weaknesses.push('Skills are not reinforced in the About narrative — repetition across sections builds ATS relevance.');
+  if(hasMetric(about)){ score+=2; strengths.push('Includes a quantifiable result or metric.'); } else weaknesses.push('No quantifiable outcomes (numbers, %, scale) mentioned.');
+  if(/connect|message|reach out|dm me|let'?s talk|open to/i.test(about)){ score+=2; strengths.push('Ends with a clear call-to-action.'); } else weaknesses.push('No call-to-action — reader has no next step after reading.');
+  score = clamp(score,0,10);
+  return {score, strengths, weaknesses,
+    impression: score>=6 ? 'Reads like a considered personal narrative, not a resume dump.' : 'Reads like a list of facts rather than a story with proof.',
+    missed:'Every section without proof or a CTA is a missed conversion opportunity.',
+    why:'About is what turns a profile view into a conversation.',
+    fix:'Structure as Hook → Story (why you do this) → Proof (metrics/projects) → CTA (what you want the reader to do).'};
+}
+
+function scoreExperience(){
+  const resp = state.path==='has' ? (state.answers.responsibilities||'') : (state.answers.projects||'');
+  if(!resp) return {score:0, strengths:[], weaknesses:['No experience / project details provided.'],
+    impression:'A recruiter cannot verify any real work.', missed:'No proof points exist to support your skills.',
+    why:'Experience is where recruiters verify claims made in the headline and About.', fix:'Add responsibilities or projects with concrete outcomes.'};
+  const lines = splitLines(resp);
+  const strengths=[], weaknesses=[];
+  let score=2;
+  const verbLines = lines.filter(l=> ACTION_VERBS.some(v=> l.toLowerCase().trim().startsWith(v)));
+  if(verbLines.length>0){ score+=3; strengths.push(`${verbLines.length}/${lines.length} line(s) start with a strong action verb.`); }
+  else weaknesses.push('No lines start with a strong action verb (e.g. "Led", "Built", "Reduced") — most start with duties instead of outcomes.');
+  const metricLines = lines.filter(l=> hasMetric(l));
+  if(metricLines.length>0){ score+=3; strengths.push(`${metricLines.length}/${lines.length} line(s) include a measurable result.`); }
+  else weaknesses.push('No lines include a number, percentage, or scale — outcomes are unquantified.');
+  if(lines.length>=3){ score+=2; strengths.push('Enough detail (3+ lines) to show scope of the role.'); } else weaknesses.push('Fewer than 3 lines — expand with more specific contributions.');
+  score = clamp(score,0,10);
+  return {score, strengths, weaknesses,
+    impression: score>=6 ? 'Reads like measurable impact, not a job description.' : 'Reads like a copy-pasted job description rather than your personal impact.',
+    missed:'Unquantified bullet points under-sell real work.',
+    why:'Recruiters skim experience bullets for verbs + numbers within 5 seconds.',
+    fix:'Rewrite each line as [Action verb] + [what you did] + [quantified outcome].'};
+}
+
+function scoreSkills(){
+  const skills = getSkillsArray();
+  const strengths=[], weaknesses=[];
+  let score=2;
+  if(skills.length===0) return {score:0, strengths:[], weaknesses:['No skills listed yet.'],
+    impression:'Profile will not surface in any skill-based recruiter search.', missed:'LinkedIn allows up to 50 skills; none are being used.',
+    why:'Skills power the "Skills" filter recruiters use most after keyword search.', fix:'Add 5–10 specific, in-demand skills relevant to your target goal.'};
+  if(skills.length>=5 && skills.length<=10){ score+=3; strengths.push(`${skills.length} skills is in the ideal 5–10 range.`); }
+  else if(skills.length<5){ weaknesses.push(`Only ${skills.length} skill(s) listed — add more, up to 10, to widen search visibility.`); }
+  else { weaknesses.push(`${skills.length} skills listed — consider trimming to your strongest 10 so pinned skills stay focused.`); }
+  const buzzHits = skills.filter(s=> BUZZWORD_SKILLS.includes(s.toLowerCase()));
+  if(buzzHits.length>0){ weaknesses.push(`Remove generic soft-skill filler: ${buzzHits.join(', ')} — recruiters rarely search these.`); } else { score+=2; strengths.push('No generic filler skills detected.'); }
+  const uniqueSpecific = skills.filter(s=> s.split(' ').length<=3 && !BUZZWORD_SKILLS.includes(s.toLowerCase()));
+  if(uniqueSpecific.length>0){ score+=2; strengths.push('Skills are specific and tool/technology-named rather than vague.'); }
+  score = clamp(score,0,10);
+  return {score, strengths, weaknesses,
+    impression: score>=6 ? 'A focused, searchable skill set.' : 'Skill set is thin or diluted with filler.',
+    missed:'Every missing specific skill is a search query you will not appear in.',
+    why:'Skills directly power LinkedIn\'s recruiter search filters.',
+    fix:'Keep 5–10 specific skills, pin your top 3, and remove generic soft-skill filler.'};
+}
+
+function scoreKeywords(){
+  const skills = getSkillsArray();
+  const headline = state.answers.headline||'';
+  const about = state.answers.about || state.answers.uniqueValue || '';
+  const resp = state.answers.responsibilities || state.answers.projects || '';
+  const combined = (headline+' '+about+' '+resp).toLowerCase();
+  let hits=0;
+  skills.forEach(s=>{ if(combined.includes(s.toLowerCase())) hits++; });
+  const total = skills.length || 1;
+  const ratio = hits/total;
+  const score = clamp(Math.round(ratio*10),0,10);
+  const strengths=[], weaknesses=[];
+  if(ratio>=0.6) strengths.push(`${hits}/${skills.length} skill keywords are reinforced across headline, About and experience.`);
+  else weaknesses.push(`Only ${hits}/${skills.length} skill keywords appear outside the Skills section — repetition across sections boosts search ranking.`);
+  return {score, strengths, weaknesses,
+    impression: score>=6 ? 'Keyword-consistent profile — reads coherently to both humans and search.' : 'Keywords live only in the Skills box, weakening overall search relevance.',
+    missed:'LinkedIn\'s search algorithm weighs keyword repetition across sections, not just the Skills list.',
+    why:'A keyword that appears once in Skills is worth far less than one repeated in headline + About + experience.',
+    fix:'Weave your top 3–5 skills naturally into the headline, About story, and experience bullets.'};
+}
+
+function scoreRecruiterVisibility(headlineScore, skillsScore, keywordScore){
+  const goal = state.answers.targetGoal || state.answers.audience || '';
+  const score = clamp(Math.round((headlineScore.score + skillsScore.score + keywordScore.score)/3),0,10);
+  const strengths=[], weaknesses=[];
+  if(goal) strengths.push(`Target goal ("${goal}") is defined, so the rest of the profile can be tuned to it.`);
+  else weaknesses.push('No clear target goal/audience — hard to optimize for a specific recruiter search.');
+  if(score<5) weaknesses.push('Combined weakness in headline, skills or keyword reuse limits appearance in recruiter search results.');
+  return {score, strengths, weaknesses,
+    impression: score>=6 ? 'Likely to surface in relevant recruiter searches.' : 'Likely to be under-indexed in recruiter searches for your target roles.',
+    missed:'Visibility compounds — headline, skills and keywords each independently gate search appearance.',
+    why:'Recruiter visibility is a function of keyword match, not follower count.',
+    fix:'Fix headline and skill keywords first — they carry the most search weight.'};
+}
+
+function scorePersonalBranding(){
+  const unique = state.answers.uniqueValue || '';
+  const about = state.answers.about || '';
+  const text = unique || about;
+  let score=2; const strengths=[], weaknesses=[];
+  if(text){
+    if(wordCount(text)>15){ score+=3; strengths.push('Has a stated point of view on what makes them different.'); } else weaknesses.push('Uniqueness statement is very short — expand on the specific angle.');
+    if(/ai|security|cyber|data|design|product|marketing/i.test(text)){ score+=3; strengths.push('Positioning is anchored to a specific niche rather than generic "hardworking professional" language.'); }
+  } else weaknesses.push('No explicit point of view on what makes this profile different from peers.');
+  score = clamp(score,0,10);
+  return {score, strengths, weaknesses,
+    impression: score>=6 ? 'Comes across as a specific person with a specific angle.' : 'Comes across as generic — could be describing hundreds of other candidates.',
+    missed:'A memorable niche (e.g. "AI + Security" instead of just "IT") is what gets remembered after the scroll.',
+    why:'Personal branding is what separates two otherwise-similar resumes.',
+    fix:'Name your niche explicitly in one sentence and repeat it consistently across headline, About and posts.'};
+}
+
+function scoreATS(keywordScore, skillsScore){
+  const score = clamp(Math.round((keywordScore.score*0.6 + skillsScore.score*0.4)),0,10);
+  return {score, strengths: score>=6? ['Keyword density is sufficient for basic ATS/recruiter-search parsing.']:[],
+    weaknesses: score<6? ['Keyword density across sections is too low for reliable ATS/search matching.']:[],
+    impression: score>=6 ? 'Likely to parse well against role keyword filters.' : 'At risk of being filtered out before a human ever reads it.',
+    missed:'ATS-style filters match literal keywords, not synonyms or intent.',
+    why:'Many recruiters filter LinkedIn search and applicant tools by exact keyword before reading anything.',
+    fix:'Mirror the exact terminology from target job postings in your skills and About section.'};
+}
+
+function scoreNetworking(){
+  const audience = state.answers.audience || state.answers.targetGoal || '';
+  let score = audience ? 6 : 2;
+  const strengths=[], weaknesses=[];
+  if(audience) strengths.push(`Defined target audience ("${audience}") makes outreach and content strategy possible.`);
+  else weaknesses.push('No defined audience — networking effort will be unfocused.');
+  return {score, strengths, weaknesses,
+    impression: score>=6 ? 'Ready to run a targeted connection strategy.' : 'Not yet ready to network with intent.',
+    missed:'Undefined audience means connection requests and comments will not compound into opportunities.',
+    why:'LinkedIn rewards focused, consistent engagement with a defined audience over random connecting.',
+    fix:'Name the exact 2-3 job titles or company types you want to reach, then target comments and requests to them.'};
+}
+
+function computeScores(){
+  const headline = scoreHeadline();
+  const aboutHook = scoreAboutHook();
+  const aboutComplete = scoreAboutComplete();
+  const experience = scoreExperience();
+  const skills = scoreSkills();
+  const keywords = scoreKeywords();
+  const recruiterVisibility = scoreRecruiterVisibility(headline, skills, keywords);
+  const personalBranding = scorePersonalBranding();
+  const ats = scoreATS(keywords, skills);
+  const networking = scoreNetworking();
+  const cats = {headline, aboutHook, aboutComplete, experience, skills, keywords, recruiterVisibility, personalBranding, ats, networking};
+  const overall = Math.round(Object.values(cats).reduce((a,c)=>a+c.score,0)/10*10); // out of 100
+  return {cats, overall};
+}
+
+/* ============================================================
+   REBUILD GENERATORS
+============================================================ */
+function generateHeadlines(){
+  const skills = getSkillsArray();
+  const goal = state.answers.targetGoal || state.answers.audience || 'your target roles';
+  const name = getName();
+  const skillStr = skills.slice(0,3).join(' | ') || 'Your Core Skill | Second Skill | Third Skill';
+  const roleOrStatus = state.answers.jobTitle || state.answers.status || 'Professional';
+
+  const opt1 = `${skillStr} | Helping teams with ${skills[0]||'[your top skill]'} & ${skills[1]||'[second skill]'}`;
+  const opt2 = `${roleOrStatus} → I help ${goal.toLowerCase().includes('client')?'clients':'organizations'} with ${skills[0]||'[your top skill]'}, ${skills[1]||'[skill]'} & ${skills[2]||'[skill]'}`;
+  const opt3 = `${skills[0]||'[Your Domain]'} Specialist | Building in public on ${state.answers.audience? state.answers.audience : goal} | ${skills[1]||'[second skill]'}`;
+
+  return [
+    {tag:'Keyword Optimized', color:'var(--teal)', text:opt1, when:'Use this when you want to rank in raw keyword search — best for job hunting and recruiter search visibility.'},
+    {tag:'Client Focused', color:'var(--purple)', text:opt2, when:'Use this when you want inbound clients or freelance leads — leads with the outcome you deliver, not your title.'},
+    {tag:'Authority Builder', color:'var(--blue)', text:opt3, when:'Use this when the goal is thought leadership or networking — positions you as a specialist people follow, not just a job title.'}
+  ];
+}
+
+function rewriteAbout(){
+  const skills = getSkillsArray();
+  const goal = state.answers.targetGoal || state.answers.audience || '';
+  const projects = splitLines(state.answers.projects||state.answers.responsibilities||'');
+  const unique = state.answers.uniqueValue || '';
+  const name = getName();
+
+  const hook = skills[0] ? `What if the difference between two ${skills[0]} portfolios came down to one thing recruiters actually search for?`
+    : `Here's what most profiles in this field get wrong.`;
+  const story = unique || `I work at the intersection of ${skills.slice(0,2).join(' and ') || '[your core skills]'}, focused on ${goal || 'building things that hold up under real use'}.`;
+  const proof = projects.length ? `Some of what that's looked like in practice:\n${projects.slice(0,3).map(p=>'• '+p).join('\n')}`
+    : `[Add 1-3 specific projects or outcomes here once available — never invented.]`;
+  const cta = `If you're working on ${goal || 'something in this space'}, I'd like to hear about it — message me or drop a comment.`;
+
+  const rewritten = `${hook}\n\n${story}\n\n${proof}\n\n${cta}`;
+  const kwAdded = skills.slice(0,5);
+  const recruiterKw = skills.slice(0,3);
+  const seo = clamp(Math.round((kwAdded.length/5)*100),20,100);
+  return {rewritten, kwAdded, recruiterKw, seo};
+}
+
+function rewriteExperience(){
+  const resp = state.path==='has' ? (state.answers.responsibilities||'') : (state.answers.projects||'');
+  const lines = splitLines(resp);
+  if(lines.length===0) return [];
+  return lines.map(line=>{
+    const startsWithVerb = ACTION_VERBS.some(v=> line.toLowerCase().trim().startsWith(v));
+    const hasNum = hasMetric(line);
+    let after = line;
+    let why = [];
+    if(!startsWithVerb){
+      const verb = ACTION_VERBS[Math.floor(Math.random()*ACTION_VERBS.length) % ACTION_VERBS.length];
+      after = `${capitalize(pickVerbFor(line))} ${lowerFirst(line)}`;
+      why.push('now opens with a strong action verb instead of a passive description');
+    }
+    if(!hasNum){
+      after = after.replace(/\.$/,'') + ' — [add a metric here: %, count, or time saved]';
+      why.push('flags where a real, specific metric should be added (never invented automatically)');
+    }
+    if(startsWithVerb && hasNum){ why.push('already strong — kept structure, tightened wording only'); }
+    return {before: line, after, why: why.join('; ')};
+  });
+}
+
+function pickVerbFor(line){
+  const l = line.toLowerCase();
+  if(/manage|oversaw|handled|responsible for/.test(l)) return 'led';
+  if(/made|create|build|develop/.test(l)) return 'built';
+  if(/help|assist|support/.test(l)) return 'supported';
+  if(/design/.test(l)) return 'designed';
+  if(/fix|solve|resolve/.test(l)) return 'resolved';
+  return 'drove';
+}
+function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function lowerFirst(s){ return s.charAt(0).toLowerCase()+s.slice(1); }
+
+const SKILL_SUGGESTION_MAP = {
+  'python':['Data Analysis','Automation Scripting','Machine Learning Basics'],
+  'security':['Incident Response','SIEM Tools (Splunk/QRadar)','MITRE ATT&CK Framework','Vulnerability Assessment'],
+  'cyber':['Network Security','Penetration Testing','Threat Modeling'],
+  'react':['Frontend Architecture','State Management','API Integration'],
+  'design':['Design Systems','User Research','Prototyping'],
+  'marketing':['SEO Fundamentals','Content Strategy','Analytics Reporting'],
+  'default':['Stakeholder Communication','Project Management','Public Speaking','Cross-functional Collaboration']
+};
+function skillsOptimizer(){
+  const skills = getSkillsArray();
+  const lower = skills.map(s=>s.toLowerCase());
+  let suggestPool = new Set();
+  lower.forEach(s=>{
+    Object.keys(SKILL_SUGGESTION_MAP).forEach(key=>{
+      if(key!=='default' && s.includes(key)) SKILL_SUGGESTION_MAP[key].forEach(x=>suggestPool.add(x));
+    });
+  });
+  SKILL_SUGGESTION_MAP['default'].forEach(x=>suggestPool.add(x));
+  const toAdd = [...suggestPool].filter(s=> !lower.includes(s.toLowerCase())).slice(0,10);
+  const toRemove = skills.filter(s=> BUZZWORD_SKILLS.includes(s.toLowerCase()));
+  const goal = (state.answers.targetGoal||state.answers.audience||'').toLowerCase();
+  const pinned = skills.filter(s=> goal && goal.includes(s.toLowerCase())).concat(skills).slice(0,3);
+  const industryKw = toAdd.slice(0,6);
+  const recruiterKw = skills.slice(0,5);
+  return {toAdd, toRemove, pinned, industryKw, recruiterKw};
+}
+
+/* ============================================================
+   7-DAY PLAN + SUMMARY
+============================================================ */
+function generatePlan(scores){
+  const skills = getSkillsArray();
+  const goal = state.answers.targetGoal || state.answers.audience || 'your target roles';
+  const name = getName();
+  return [
+    {day:1, title:'Profile Optimization Checklist', body:[
+      'Update headline with the Keyword Optimized option from the Rebuild tab',
+      'Replace About section using the Hook → Story → Proof → CTA rewrite',
+      `Add/pin your top skills: ${skills.slice(0,3).join(', ')||'[add skills]'}`,
+      'Rewrite experience bullets using the Before/After list'
+    ]},
+    {day:2, title:'Draft LinkedIn Post #1', body:[], post: generatePost(1)},
+    {day:3, title:'10 Strategic Connection Targets', body:[
+      `Search LinkedIn for people at target companies related to: ${goal}`,
+      'Prioritize 2nd-degree connections and alumni first — higher accept rate',
+      'Send 10 personalized requests today using the template below'
+    ], template: `Hi [Name], I saw you work in ${goal} — I'm building toward the same space (${skills.slice(0,2).join(' & ')||'[your skills]'}) and would value connecting.`},
+    {day:4, title:'Comment Strategy', body:[
+      'Find 5 posts today from people in your target field',
+      'Use the Agree → Add Value → Ask Question structure below on each'
+    ], flow:['Agree','Add Value','Ask Question'],
+      flowExample: `Agree: "Completely agree — ${skills[0]||'this'} is underrated."\nAdd Value: "In my experience, [one specific detail from your own work] made a real difference here."\nAsk Question: "Curious — how are you handling [related challenge] on your end?"`},
+    {day:5, title:'Generate LinkedIn Post #2', body:[], post: generatePost(2)},
+    {day:6, title:'Networking Checklist', body:[
+      'Follow up with any accepted connections from Day 3 with a short thank-you message',
+      'Comment on 3 more posts using the Day 4 structure',
+      'Join 1 relevant LinkedIn group aligned with your target goal'
+    ]},
+    {day:7, title:'Analytics Review', body:[
+      'Check Profile Views — compare to last week\'s baseline',
+      'Check Search Appearances — which keywords are surfacing you',
+      'Check Connection Acceptance Rate — aim for 40%+ on personalized requests',
+      'Check your Social Selling Index (SSI) — track week-over-week improvement'
+    ]}
+  ];
+}
+function generatePost(n){
+  const skills = getSkillsArray();
+  const projects = splitLines(state.answers.projects||state.answers.responsibilities||'');
+  if(n===1){
+    return `${skills[0]?('One thing about '+skills[0]+' that took me too long to learn:'):'One lesson from this month:'}\n\n${projects[0] ? '['+projects[0]+' — expand with what you learned]' : '[Share one specific lesson from your recent work — do not invent one]'}\n\nWhat's something similar you've learned the hard way?`;
+  }
+  return `Small update: I've been working on ${projects[1]||projects[0]||'[a recent project]'}.\n\nHere's what stood out:\n- [Specific detail 1]\n- [Specific detail 2]\n\nIf you're working on something similar in ${state.answers.targetGoal||state.answers.audience||'this space'}, let's compare notes.`;
+}
+
+function generateSummary(scoresBefore, scoresAfter){
+  const cats = scoresBefore.cats;
+  const sorted = Object.entries(cats).sort((a,b)=>a[1].score-b[1].score);
+  const top3 = sorted.slice(0,3).map(([k])=> labelFor(k));
+  const improvements = Object.entries(scoresAfter.cats).map(([k,v])=>({k, delta: v.score - cats[k].score}));
+  const biggest = improvements.sort((a,b)=>b.delta-a.delta)[0];
+  return {
+    before: scoresBefore.overall,
+    after: scoresAfter.overall,
+    top3,
+    biggest: biggest ? `${labelFor(biggest.k)} (+${biggest.delta*10} pts)` : 'Overall clarity',
+    next: 'Post your rewritten headline and About today, then start Day 1 of the 7-Day Plan.'
+  };
+}
+function labelFor(key){
+  return {headline:'Headline', aboutHook:'About Hook', aboutComplete:'About (Complete)', experience:'Experience',
+    skills:'Skills', keywords:'Keywords', recruiterVisibility:'Recruiter Visibility', personalBranding:'Personal Branding',
+    ats:'ATS Optimization', networking:'Networking Potential'}[key] || key;
+}
+
+/* "After" simulated scores — models the profile once Rebuild recommendations are applied, purely for the Before/After view */
+function computeAfterScores(before){
+  const after = JSON.parse(JSON.stringify(before));
+  Object.keys(after.cats).forEach(k=>{
+    after.cats[k].score = clamp(after.cats[k].score + (10-after.cats[k].score>0? Math.min(4,10-after.cats[k].score):0), 0, 10);
+  });
+  after.overall = Math.round(Object.values(after.cats).reduce((a,c)=>a+c.score,0)/10*10);
+  return after;
+}
+
+/* ============================================================
+   FINISH INTERVIEW → BUILD DASHBOARD
+============================================================ */
+let SCORES=null, AFTER=null, HEADLINES=null, ABOUT=null, EXP_REWRITE=null, SKILLS_OPT=null, PLAN=null, SUMMARY=null;
+
+function finishInterview(){
+  SCORES = computeScores();
+  AFTER = computeAfterScores(SCORES);
+  HEADLINES = generateHeadlines();
+  ABOUT = rewriteAbout();
+  EXP_REWRITE = rewriteExperience();
+  SKILLS_OPT = skillsOptimizer();
+  PLAN = generatePlan(SCORES);
+  SUMMARY = generateSummary(SCORES, AFTER);
+  state.screen='dashboard'; state.activeTab='overview'; saveState();
+  renderDashboardTabs();
+  renderTab('overview');
+  showScreen('screen-dashboard');
+}
+
+/* ============================================================
+   DASHBOARD RENDER
+============================================================ */
+function renderDashboardTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.tab===state.activeTab);
+    btn.onclick = ()=>{ state.activeTab=btn.dataset.tab; saveState(); renderDashboardTabs(); renderTab(btn.dataset.tab); };
+  });
+}
+
+function scoreColor(score){
+  if(score>=8) return 'var(--green)';
+  if(score>=5) return 'var(--amber)';
+  return 'var(--rose)';
+}
+
+function renderTab(tab){
+  const el = document.getElementById('tabContent');
+  if(!SCORES){ el.innerHTML = ''; return; }
+  if(tab==='overview') el.innerHTML = tplOverview();
+  else if(tab==='roast') el.innerHTML = tplRoast();
+  else if(tab==='rebuild') el.innerHTML = tplRebuild();
+  else if(tab==='compare') el.innerHTML = tplCompare();
+  else if(tab==='plan') el.innerHTML = tplPlan();
+  else if(tab==='summary') el.innerHTML = tplSummary();
+  else if(tab==='notes') el.innerHTML = tplNotes();
+
+  if(tab==='notes'){
+    const ta = document.getElementById('notesArea');
+    ta.addEventListener('input', ()=>{ state.notes = ta.value; saveState(); });
+  }
+  if(tab==='summary'){
+    const copyBtn = document.getElementById('copyShareBtn');
+    if(copyBtn) copyBtn.addEventListener('click', copyShareCard);
+  }
+}
+
+function tplOverview(){
+  const completion = 100;
+  const optScore = SCORES.overall;
+  const improvementPct = SUMMARY.before>0 ? Math.round(((SUMMARY.after-SUMMARY.before)/Math.max(SUMMARY.before,1))*100) : Math.round((SUMMARY.after)*1);
+  const circumference = 2*Math.PI*54;
+  const dash = (optScore/100)*circumference;
+  return `
+  <div class="glass gauge-wrap">
+    <svg width="140" height="140" viewBox="0 0 140 140">
+      <circle cx="70" cy="70" r="54" fill="none" stroke="var(--surface-strong)" stroke-width="12"/>
+      <circle cx="70" cy="70" r="54" fill="none" stroke="url(#g1)" stroke-width="12" stroke-linecap="round"
+        stroke-dasharray="${dash} ${circumference}" transform="rotate(-90 70 70)"/>
+      <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#8b5cf6"/>
+      </linearGradient></defs>
+      <text x="70" y="65" text-anchor="middle" font-family="var(--font-mono)" font-size="28" font-weight="700" fill="var(--text)">${optScore}</text>
+      <text x="70" y="84" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--text-dim)">/ 100</text>
+    </svg>
+    <div class="txt">
+      <h2>Your Optimization Score</h2>
+      <p>Based only on the information you entered — headline, About, experience and skills — scored across 10 recruiter-relevant categories. Head to <b>Profile Roast</b> for the full breakdown, or <b>Rebuild</b> to see the fix for each weak point.</p>
+    </div>
+  </div>
+  <div class="stat-grid">
+    <div class="glass stat-card"><div class="num">${completion}%</div><div class="lbl">Interview Completion</div></div>
+    <div class="glass stat-card"><div class="num">${optScore}</div><div class="lbl">Optimization Score</div></div>
+    <div class="glass stat-card"><div class="num">${SUMMARY.after}</div><div class="lbl">Projected After Score</div></div>
+    <div class="glass stat-card"><div class="num">+${Math.max(improvementPct,0)}%</div><div class="lbl">Potential Improvement</div></div>
+  </div>
+  <div class="section-title"><h3>Weakest Areas Right Now</h3><div class="line"></div></div>
+  <div class="score-grid">
+    ${Object.entries(SCORES.cats).sort((a,b)=>a[1].score-b[1].score).slice(0,3).map(([k,v])=>`
+      <div class="glass score-card">
+        <div class="score-card-top"><h4>${labelFor(k)}</h4><span class="score-pill" style="background:${scoreColor(v.score)}22; color:${scoreColor(v.score)};">${v.score}/10</span></div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:${v.score*10}%; background:${scoreColor(v.score)};"></div></div>
+        <div class="score-detail">${v.weaknesses[0]||'No major weakness detected.'}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function tplRoast(){
+  return `
+  <div class="section-title"><h3>Recruiter Report Card</h3><div class="line"></div></div>
+  <p class="section-sub">Overall Score: <b class="mono" style="color:${scoreColor(SCORES.overall/10)}">${SCORES.overall} / 100</b> — scored strictly from what you entered.</p>
+  <div class="score-grid">
+    ${Object.entries(SCORES.cats).map(([k,v])=>`
+      <div class="glass score-card">
+        <div class="score-card-top"><h4>${labelFor(k)}</h4><span class="score-pill" style="background:${scoreColor(v.score)}22; color:${scoreColor(v.score)};">${v.score}/10</span></div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:${v.score*10}%; background:${scoreColor(v.score)};"></div></div>
+        <div class="score-detail"><b>Strengths</b>${v.strengths.length? `<ul>${v.strengths.map(s=>`<li>${s}</li>`).join('')}</ul>`:'None yet.'}</div>
+        <div class="score-detail"><b>Weaknesses</b>${v.weaknesses.length? `<ul>${v.weaknesses.map(s=>`<li>${s}</li>`).join('')}</ul>`:'None detected.'}</div>
+        <div class="score-detail"><b>Recruiter's First Impression</b>${v.impression}</div>
+        <div class="score-detail"><b>Invisible Opportunities Lost</b>${v.missed}</div>
+        <div class="score-detail"><b>Why This Hurts</b>${v.why}</div>
+        <div class="score-detail"><b>How To Improve</b>${v.fix}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function tplRebuild(){
+  const skillsOpt = SKILLS_OPT;
+  return `
+  <div class="section-title"><h3>Three Optimized Headlines</h3><div class="line"></div></div>
+  ${HEADLINES.map(h=>`
+    <div class="glass option-card">
+      <span class="option-tag" style="background:${h.color}22; color:${h.color};">${h.tag}</span>
+      <div class="option-headline">${h.text}</div>
+      <div class="option-when"><b>When to use:</b> ${h.when}</div>
+    </div>`).join('')}
+
+  <div class="section-title"><h3>Rewritten About Section</h3><div class="line"></div></div>
+  <div class="about-structure">
+    <div class="struct-chip">Hook</div><div class="struct-chip">Story</div><div class="struct-chip">Proof</div><div class="struct-chip">CTA</div>
+  </div>
+  <div class="glass rewrite-block">${escapeHtml(ABOUT.rewritten)}</div>
+  <div class="glass" style="padding:20px;">
+    <div class="score-detail"><b>Keywords Added</b></div>
+    <div class="kw-chips">${ABOUT.kwAdded.map(k=>`<span class="kw-chip">${k}</span>`).join('') || '<span class="kw-chip">Add skills in the interview to populate this</span>'}</div>
+    <div class="score-detail" style="margin-top:14px;"><b>Recruiter Keywords</b></div>
+    <div class="kw-chips">${ABOUT.recruiterKw.map(k=>`<span class="kw-chip">${k}</span>`).join('') || '<span class="kw-chip">—</span>'}</div>
+    <div class="score-detail" style="margin-top:14px;"><b>SEO Score</b> ${ABOUT.seo}/100</div>
+  </div>
+
+  <div class="section-title"><h3>Rewritten Experience</h3><div class="line"></div></div>
+  ${EXP_REWRITE.length ? EXP_REWRITE.map(e=>`
+    <div class="glass ba-row">
+      <div class="ba-col ba-before">${escapeHtml(e.before)}</div>
+      <div class="ba-arrow">↓</div>
+      <div class="ba-col ba-after">${escapeHtml(e.after)}</div>
+      <div class="ba-why"><b>Why stronger:</b> ${e.why}</div>
+    </div>`).join('') : `<div class="glass" style="padding:20px;">No responsibilities/projects entered yet — add them in the interview to generate rewrites.</div>`}
+
+  <div class="section-title"><h3>Skills Optimizer</h3><div class="line"></div></div>
+  <div class="glass" style="padding:24px;">
+    <div class="score-detail"><b>Top Skills To Add</b></div>
+    <div class="kw-chips">${skillsOpt.toAdd.map(k=>`<span class="kw-chip">${k}</span>`).join('')||'<span class="kw-chip">—</span>'}</div>
+    <div class="score-detail" style="margin-top:14px;"><b>Skills To Remove</b></div>
+    <div class="kw-chips">${skillsOpt.toRemove.map(k=>`<span class="kw-chip">${k}</span>`).join('')||'<span class="kw-chip">None flagged</span>'}</div>
+    <div class="score-detail" style="margin-top:14px;"><b>Top 3 Pinned Skills</b></div>
+    <div class="kw-chips">${skillsOpt.pinned.map(k=>`<span class="kw-chip">${k}</span>`).join('')||'<span class="kw-chip">Add skills first</span>'}</div>
+    <div class="score-detail" style="margin-top:14px;"><b>Industry Keywords</b></div>
+    <div class="kw-chips">${skillsOpt.industryKw.map(k=>`<span class="kw-chip">${k}</span>`).join('')||'<span class="kw-chip">—</span>'}</div>
+    <div class="score-detail" style="margin-top:14px;"><b>Recruiter Search Keywords</b></div>
+    <div class="kw-chips">${skillsOpt.recruiterKw.map(k=>`<span class="kw-chip">${k}</span>`).join('')||'<span class="kw-chip">—</span>'}</div>
+  </div>`;
+}
+
+function tplCompare(){
+  const headlineBefore = state.answers.headline || '[No headline provided]';
+  const headlineAfter = HEADLINES[0].text;
+  const aboutBefore = state.answers.about || state.answers.uniqueValue || '[No About / positioning provided]';
+  const aboutAfter = ABOUT.rewritten;
+  const expBefore = (state.answers.responsibilities||state.answers.projects||'[No experience/projects provided]');
+  const expAfter = EXP_REWRITE.map(e=>e.after).join('\n') || '[Add responsibilities/projects to generate]';
+  const skillsBefore = getSkillsArray().join(', ') || '[No skills provided]';
+  const skillsAfter = [...getSkillsArray(), ...SKILLS_OPT.toAdd.slice(0,5)].join(', ');
+  return `
+  <div class="section-title"><h3>Before vs After</h3><div class="line"></div></div>
+  <div class="glass ba-row"><div class="ba-col ba-before">${escapeHtml(headlineBefore)}</div><div class="ba-arrow">↓</div><div class="ba-col ba-after">${escapeHtml(headlineAfter)}</div>
+    <div class="ba-why">Headline</div></div>
+  <div class="glass ba-row"><div class="ba-col ba-before">${escapeHtml(aboutBefore)}</div><div class="ba-arrow">↓</div><div class="ba-col ba-after">${escapeHtml(aboutAfter)}</div>
+    <div class="ba-why">About</div></div>
+  <div class="glass ba-row"><div class="ba-col ba-before">${escapeHtml(expBefore)}</div><div class="ba-arrow">↓</div><div class="ba-col ba-after">${escapeHtml(expAfter)}</div>
+    <div class="ba-why">Experience</div></div>
+  <div class="glass ba-row"><div class="ba-col ba-before">${escapeHtml(skillsBefore)}</div><div class="ba-arrow">↓</div><div class="ba-col ba-after">${escapeHtml(skillsAfter)}</div>
+    <div class="ba-why">Skills</div></div>
+  <div class="glass ba-row"><div class="ba-col ba-before mono" style="font-size:20px; text-align:center;">${SCORES.overall}/100</div><div class="ba-arrow">↓</div><div class="ba-col ba-after mono" style="font-size:20px; text-align:center;">${AFTER.overall}/100</div>
+    <div class="ba-why">Overall Score (projected once rebuild is applied)</div></div>
+  `;
+}
+
+function tplPlan(){
+  return `
+  <div class="section-title"><h3>7-Day Action Plan</h3><div class="line"></div></div>
+  <div class="timeline">
+    ${PLAN.map(d=>`
+      <div class="glass tl-item">
+        <div class="tl-dot">${d.day}</div>
+        <h4>Day ${d.day} · ${d.title}</h4>
+        ${d.body && d.body.length ? `<ul>${d.body.map(b=>`<li>${b}</li>`).join('')}</ul>` : ''}
+        ${d.post ? `<div class="template-box">${escapeHtml(d.post)}</div>` : ''}
+        ${d.template ? `<div class="template-box">${escapeHtml(d.template)}</div>` : ''}
+        ${d.flow ? `<div class="flow-row">${d.flow.map((f,i)=> (i>0?'<span class="flow-sep">→</span>':'')+`<span class="flow-chip">${f}</span>`).join('')}</div><div class="template-box">${escapeHtml(d.flowExample)}</div>` : ''}
+      </div>`).join('')}
+  </div>`;
+}
+
+function tplSummary(){
+  return `
+  <div class="section-title"><h3>Shareable Summary Card</h3><div class="line"></div></div>
+  <div class="glass share-card">
+    <h3>"I let AI roast my LinkedIn profile today."</h3>
+    <div class="share-scores">
+      <div class="col"><div class="num" style="color:${scoreColor(SUMMARY.before/10)}">${SUMMARY.before}</div><div class="lbl">Before</div></div>
+      <div class="share-arrow">→</div>
+      <div class="col"><div class="num" style="color:${scoreColor(SUMMARY.after/10)}">${SUMMARY.after}</div><div class="lbl">After</div></div>
+    </div>
+    <div class="share-list">
+      <div><b>Top 3 Mistakes:</b> ${SUMMARY.top3.join(', ')}</div>
+      <div style="margin-top:8px;"><b>Biggest Improvement:</b> ${SUMMARY.biggest}</div>
+      <div style="margin-top:8px;"><b>Next Action:</b> ${SUMMARY.next}</div>
+    </div>
+    <button class="btn primary" id="copyShareBtn">Copy Summary</button>
+  </div>`;
+}
+
+function tplNotes(){
+  return `
+  <div class="section-title"><h3>Your Notes</h3><div class="line"></div></div>
+  <p class="section-sub">Private notes, saved automatically to this browser.</p>
+  <textarea class="notes" id="notesArea" placeholder="Jot down anything — draft post ideas, people to follow up with, reminders…">${escapeHtml(state.notes)}</textarea>`;
+}
+
+function copyShareCard(){
+  const text = `I let AI roast my LinkedIn profile today.\nBefore: ${SUMMARY.before}/100 → After: ${SUMMARY.after}/100\nTop 3 Mistakes: ${SUMMARY.top3.join(', ')}\nBiggest Improvement: ${SUMMARY.biggest}\nNext Action: ${SUMMARY.next}`;
+  navigator.clipboard && navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.getElementById('copyShareBtn');
+    if(btn){ const old = btn.textContent; btn.textContent='Copied ✓'; setTimeout(()=>btn.textContent=old,1600); }
+  });
+}
+
+/* ============================================================
+   SEARCH
+============================================================ */
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  const box = document.getElementById('searchResults');
+  if(!q || !SCORES){ box.classList.remove('show'); box.innerHTML=''; return; }
+  const hits = [];
+  if((state.answers.headline||'').toLowerCase().includes(q)) hits.push({label:'Headline', text: state.answers.headline});
+  getSkillsArray().forEach(s=>{ if(s.toLowerCase().includes(q)) hits.push({label:'Skill', text:s}); });
+  HEADLINES.forEach(h=>{ if(h.text.toLowerCase().includes(q)) hits.push({label:'Rebuild: '+h.tag, text:h.text}); });
+  SKILLS_OPT.toAdd.forEach(s=>{ if(s.toLowerCase().includes(q)) hits.push({label:'Suggested Skill', text:s}); });
+  Object.entries(SCORES.cats).forEach(([k,v])=>{
+    v.fix && v.fix.toLowerCase().includes(q) && hits.push({label:'Recommendation: '+labelFor(k), text:v.fix});
+  });
+  if(hits.length===0){ box.classList.add('show'); box.innerHTML = `<div class="search-hit">No matches for "${e.target.value}"</div>`; return; }
+  box.classList.add('show');
+  box.innerHTML = hits.slice(0,12).map(h=>`<div class="search-hit"><b>${h.label}:</b> ${escapeHtml(h.text)}</div>`).join('');
+});
+
+/* ============================================================
+   EXPORT / PRINT
+============================================================ */
+function buildReportText(format){
+  const md = format==='md';
+  const H = (s,l)=> md? `${'#'.repeat(l)} ${s}\n` : `${s.toUpperCase()}\n`;
+  let out = '';
+  out += H('LinkedIn Profile Optimizer AI — Report',1) + '\n';
+  out += `Overall Score: ${SCORES.overall}/100 (Projected After: ${AFTER.overall}/100)\n\n`;
+  out += H('Profile Roast',2) + '\n';
+  Object.entries(SCORES.cats).forEach(([k,v])=>{
+    out += (md? `**${labelFor(k)}** — ${v.score}/10\n` : `${labelFor(k)} — ${v.score}/10\n`);
+    out += `Strengths: ${v.strengths.join('; ')||'None'}\n`;
+    out += `Weaknesses: ${v.weaknesses.join('; ')||'None'}\n`;
+    out += `Fix: ${v.fix}\n\n`;
+  });
+  out += H('Rebuild — Headlines',2) + '\n';
+  HEADLINES.forEach(h=> out += `${h.tag}: ${h.text}\nWhen to use: ${h.when}\n\n`);
+  out += H('Rebuild — About',2) + '\n' + ABOUT.rewritten + '\n\n';
+  out += H('Rebuild — Experience',2) + '\n';
+  EXP_REWRITE.forEach(e=> out += `Before: ${e.before}\nAfter: ${e.after}\nWhy: ${e.why}\n\n`);
+  out += H('Skills Optimizer',2) + '\n';
+  out += `Add: ${SKILLS_OPT.toAdd.join(', ')}\nRemove: ${SKILLS_OPT.toRemove.join(', ')||'None'}\nPinned: ${SKILLS_OPT.pinned.join(', ')}\n\n`;
+  out += H('7-Day Action Plan',2) + '\n';
+  PLAN.forEach(d=> out += `Day ${d.day} — ${d.title}\n${(d.body||[]).map(b=>'- '+b).join('\n')}\n\n`);
+  out += H('Summary',2) + '\n';
+  out += `Before: ${SUMMARY.before}/100 → After: ${SUMMARY.after}/100\nTop 3 Mistakes: ${SUMMARY.top3.join(', ')}\nBiggest Improvement: ${SUMMARY.biggest}\nNext Action: ${SUMMARY.next}\n`;
+  return out;
+}
+function downloadFile(filename, content){
+  const blob = new Blob([content], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+document.getElementById('exportTxtBtn').addEventListener('click', ()=> downloadFile('linkedin-optimization-report.txt', buildReportText('txt')));
+document.getElementById('exportMdBtn').addEventListener('click', ()=> downloadFile('linkedin-optimization-report.md', buildReportText('md')));
+document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+document.getElementById('restartBtn').addEventListener('click', ()=>{
+  if(confirm('This clears all saved answers and starts over. Continue?')){
+    localStorage.removeItem(STORAGE_KEY);
+    state = {screen:'welcome', path:null, step:0, answers:{}, theme:state.theme, notes:'', activeTab:'overview'};
+    saveState();
+    showScreen('screen-welcome');
+  }
+});
+
+/* ============================================================
+   THEME
+============================================================ */
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', state.theme);
+  document.getElementById('themeToggle').textContent = state.theme==='dark' ? '🌙' : '☀️';
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  state.theme = state.theme==='dark' ? 'light' : 'dark';
+  saveState(); applyTheme();
+});
+
+/* ============================================================
+   INIT
+============================================================ */
+function init(){
+  loadState();
+  applyTheme();
+  if(state.screen==='interview' && state.path){ renderInterview(); showScreen('screen-interview'); }
+  else if(state.screen==='dashboard'){
+    finishInterview(); // rebuild derived data from saved answers
+    state.activeTab = state.activeTab || 'overview';
+    renderDashboardTabs(); renderTab(state.activeTab);
+    showScreen('screen-dashboard');
+  } else if(state.screen==='path'){ showScreen('screen-path'); }
+  else { showScreen('screen-welcome'); }
+}
+init();
+</script>
+</body>
+</html>
