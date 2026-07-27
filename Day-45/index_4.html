@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Decision Strategist — Think Better. Decide Smarter.</title>
+<style>
+/* ============================================================
+   AI DECISION STRATEGIST — DESIGN TOKENS
+   Palette: deep-space navy + teal/blue/purple signal accents.
+   Type:    Space Grotesk (display) / Inter (body) / JetBrains Mono (data)
+   Note: fonts use local/system stacks only — this app runs fully
+   offline, so no external font or icon requests are made.
+   ============================================================ */
+:root{
+  --bg:            #070b14;
+  --bg-soft:       #0b1120;
+  --surface:       rgba(255,255,255,0.045);
+  --surface-hi:    rgba(255,255,255,0.08);
+  --border:        rgba(255,255,255,0.09);
+  --border-hi:     rgba(255,255,255,0.18);
+  --text:          #e7ecf7;
+  --text-dim:      #9aa5bd;
+  --text-faint:    #626d87;
+  --teal:          #2dd4bf;
+  --blue:          #5b8def;
+  --purple:        #a78bfa;
+  --amber:         #f5b53d;
+  --red:           #f2686c;
+  --green:         #34d399;
+  --grad-signal:   linear-gradient(120deg,var(--teal),var(--blue) 55%,var(--purple));
+  --shadow-card:   0 20px 60px -25px rgba(0,0,0,0.65);
+  --shadow-soft:   0 10px 30px -15px rgba(0,0,0,0.5);
+  --radius-lg:     22px;
+  --radius-md:     14px;
+  --radius-sm:     9px;
+  --font-display:  'Space Grotesk', ui-sans-serif, 'Segoe UI Semibold', system-ui, sans-serif;
+  --font-body:     'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:     'JetBrains Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+}
+html[data-theme="light"]{
+  --bg:            #f3f5fb;
+  --bg-soft:       #eaedf7;
+  --surface:       rgba(20,25,45,0.04);
+  --surface-hi:    rgba(20,25,45,0.07);
+  --border:        rgba(20,25,45,0.10);
+  --border-hi:     rgba(20,25,45,0.20);
+  --text:          #10142a;
+  --text-dim:      #4a5271;
+  --text-faint:    #838da8;
+  --shadow-card:   0 20px 50px -28px rgba(30,35,70,0.35);
+  --shadow-soft:   0 8px 24px -16px rgba(30,35,70,0.3);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+  font-family:var(--font-body); -webkit-font-smoothing:antialiased;
+  transition:background .35s ease, color .35s ease;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{ font-family:var(--font-display); letter-spacing:-0.02em; margin:0; }
+p{ margin:0; }
+::selection{ background:var(--teal); color:#04120f; }
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-thumb{ background:var(--border-hi); border-radius:8px; }
+::-webkit-scrollbar-track{ background:transparent; }
+
+/* ---------- dot-grid ambient background ---------- */
+.bg-field{
+  position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.09) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+html[data-theme="light"] .bg-field{
+  background-image: radial-gradient(circle at 1px 1px, rgba(15,20,40,0.08) 1px, transparent 1px);
+}
+.bg-glow{
+  position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(650px 420px at 12% -5%, rgba(45,212,191,0.14), transparent 60%),
+    radial-gradient(700px 500px at 105% 10%, rgba(91,141,239,0.14), transparent 60%),
+    radial-gradient(600px 450px at 50% 115%, rgba(167,139,250,0.10), transparent 60%);
+}
+
+/* ---------- layout shell ---------- */
+.shell{ max-width:1180px; margin:0 auto; padding:0 clamp(16px,4vw,36px) 60px; }
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px clamp(16px,4vw,36px); max-width:1180px; margin:0 auto;
+  position:sticky; top:0; z-index:40; backdrop-filter:blur(14px);
+  background:linear-gradient(var(--bg) 65%, transparent);
+}
+.brand{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:600; font-size:1.05rem; }
+.brand .mark{
+  width:32px; height:32px; border-radius:9px; display:grid; place-items:center;
+  background:var(--grad-signal); font-size:16px; box-shadow:var(--shadow-soft);
+}
+.topbar-actions{ display:flex; gap:8px; align-items:center; }
+.icon-btn{
+  width:38px; height:38px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text); cursor:pointer; display:grid; place-items:center;
+  font-size:15px; transition:all .2s ease;
+}
+.icon-btn:hover{ background:var(--surface-hi); border-color:var(--border-hi); transform:translateY(-1px); }
+
+/* ---------- glass card ---------- */
+.glass{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  backdrop-filter:blur(16px); box-shadow:var(--shadow-card);
+}
+.glass-hi{ background:var(--surface-hi); }
+
+/* ---------- animated gradient border wrapper ---------- */
+.aurora-border{ position:relative; border-radius:var(--radius-lg); padding:1.5px; }
+.aurora-border::before{
+  content:''; position:absolute; inset:0; border-radius:inherit; padding:1.5px;
+  background:var(--grad-signal); background-size:220% 220%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  animation:auroraShift 7s ease infinite; opacity:.75;
+}
+@keyframes auroraShift{ 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
+
+/* ---------- screens ---------- */
+.screen{ display:none; }
+.screen.active{ display:block; animation:fadeUp .5s ease both; }
+@keyframes fadeUp{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+@media (prefers-reduced-motion:reduce){
+  .screen.active, .card-anim, .aurora-border::before{ animation:none !important; }
+}
+
+/* ---------- welcome ---------- */
+.welcome{ min-height:78vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:22px; padding:40px 0; }
+.eyebrow{
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--teal); border:1px solid rgba(45,212,191,0.3); background:rgba(45,212,191,0.08);
+  padding:6px 14px; border-radius:100px;
+}
+.hero-title{ font-size:clamp(2.4rem,6vw,4.2rem); font-weight:700; max-width:15ch; }
+.hero-title .accent{ background:var(--grad-signal); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.hero-sub{ font-family:var(--font-display); font-size:clamp(1.05rem,2vw,1.3rem); color:var(--text-dim); }
+.hero-desc{ max-width:540px; color:var(--text-dim); font-size:.98rem; line-height:1.6; }
+.btn{
+  font-family:var(--font-body); font-weight:600; font-size:.95rem; border-radius:12px; cursor:pointer;
+  border:1px solid transparent; padding:14px 26px; transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-primary{ background:var(--grad-signal); color:#04141a; box-shadow:0 12px 30px -12px rgba(91,141,239,0.55); }
+.btn-primary:hover{ transform:translateY(-2px); box-shadow:0 18px 36px -14px rgba(91,141,239,0.65); }
+.btn-ghost{ background:var(--surface); border-color:var(--border); color:var(--text); }
+.btn-ghost:hover{ background:var(--surface-hi); border-color:var(--border-hi); }
+.btn:disabled{ opacity:.4; cursor:not-allowed; transform:none !important; }
+.btn-sm{ padding:9px 16px; font-size:.82rem; border-radius:9px; }
+
+/* ---------- interview ---------- */
+.progress-wrap{ display:flex; align-items:center; gap:14px; margin-bottom:26px; }
+.progress-label{ font-family:var(--font-mono); font-size:.78rem; color:var(--text-dim); white-space:nowrap; }
+.progress-track{ flex:1; height:7px; border-radius:100px; background:var(--surface); border:1px solid var(--border); overflow:hidden; }
+.progress-fill{ height:100%; border-radius:100px; background:var(--grad-signal); transition:width .5s cubic-bezier(.4,0,.2,1); }
+.interview-card{ padding:clamp(24px,4vw,42px); max-width:720px; margin:26px auto 0; }
+.q-title{ font-size:clamp(1.4rem,3vw,1.85rem); margin-bottom:6px; }
+.q-hint{ color:var(--text-dim); font-size:.9rem; margin-bottom:24px; }
+.field-group{ margin-bottom:18px; }
+.field-label{ display:block; font-size:.82rem; font-weight:600; color:var(--text-dim); margin-bottom:7px; }
+.field-label .opt{ font-weight:400; color:var(--text-faint); }
+input[type="text"], textarea, select{
+  width:100%; background:var(--bg-soft); border:1px solid var(--border); color:var(--text);
+  border-radius:var(--radius-sm); padding:12px 14px; font-family:var(--font-body); font-size:.95rem;
+  outline:none; transition:border-color .2s ease, background .2s ease; resize:vertical;
+}
+input[type="text"]:focus, textarea:focus, select:focus{ border-color:var(--teal); background:var(--bg); }
+textarea{ min-height:80px; line-height:1.5; }
+select{ appearance:none; cursor:pointer;
+  background-image:linear-gradient(45deg, transparent 50%, var(--text-dim) 50%), linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
+  background-position:calc(100% - 18px) center, calc(100% - 13px) center; background-size:5px 5px, 5px 5px; background-repeat:no-repeat;
+}
+.nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:28px; gap:10px; }
+.nav-row .left-group{ display:flex; gap:8px; }
+
+/* ---------- loading ---------- */
+.loading-screen{ min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; }
+.spinner{
+  width:64px; height:64px; border-radius:50%; border:3px solid var(--border);
+  border-top-color:var(--teal); border-right-color:var(--blue); animation:spin 1s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+.loading-text{ font-family:var(--font-mono); font-size:.85rem; color:var(--text-dim); text-align:center; min-height:20px; }
+
+/* ---------- report ---------- */
+.report-section{ margin:52px 0; animation:fadeUp .6s ease both; }
+.section-eyebrow{ font-family:var(--font-mono); font-size:.72rem; color:var(--teal); letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px; }
+.section-title{ font-size:clamp(1.3rem,3vw,1.7rem); margin-bottom:18px; }
+.section-body{ color:var(--text-dim); font-size:.95rem; line-height:1.65; }
+.card{ padding:22px; }
+.grid{ display:grid; gap:16px; }
+.grid-2{ grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+.grid-3{ grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+
+.option-card{ padding:24px; display:flex; flex-direction:column; gap:12px; }
+.option-card h3{ font-size:1.15rem; display:flex; align-items:center; gap:8px; }
+.option-tag{ font-family:var(--font-mono); font-size:.68rem; padding:3px 9px; border-radius:100px; background:rgba(91,141,239,0.15); color:var(--blue); border:1px solid rgba(91,141,239,0.3); }
+.option-row{ font-size:.87rem; }
+.option-row b{ color:var(--text); font-weight:600; }
+.mini-label{ font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:3px; }
+
+.bias-card{ padding:20px; display:flex; gap:14px; align-items:flex-start; }
+.bias-icon{ width:40px; height:40px; border-radius:11px; background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.3); display:grid; place-items:center; font-size:18px; flex-shrink:0; }
+.ignored-callout{ margin-top:18px; padding:16px 18px; border-radius:var(--radius-md); background:rgba(242,104,108,0.08); border:1px solid rgba(242,104,108,0.3); font-size:.9rem; }
+
+.matrix-table-wrap{ overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--border); }
+table.matrix{ width:100%; border-collapse:collapse; min-width:560px; }
+table.matrix th, table.matrix td{ padding:11px 14px; text-align:left; font-size:.85rem; border-bottom:1px solid var(--border); }
+table.matrix th{ font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); background:var(--surface); }
+table.matrix tr:last-child td{ border-bottom:none; }
+.bar-cell{ display:flex; align-items:center; gap:8px; min-width:120px; }
+.bar-track{ flex:1; height:7px; border-radius:100px; background:var(--surface); overflow:hidden; }
+.bar-fill{ height:100%; border-radius:100px; background:var(--grad-signal); width:0%; transition:width 1s cubic-bezier(.4,0,.2,1); }
+.bar-num{ font-family:var(--font-mono); font-size:.75rem; color:var(--text-dim); width:26px; text-align:right; }
+
+.winner-badge{ display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:100px; background:rgba(52,211,153,0.12); border:1px solid rgba(52,211,153,0.35); color:var(--green); font-weight:600; font-size:.85rem; margin-top:6px; }
+
+.ring-wrap{ position:relative; width:96px; height:96px; margin:0 auto; }
+.ring-wrap svg{ transform:rotate(-90deg); }
+.ring-bg{ fill:none; stroke:var(--border); stroke-width:8; }
+.ring-fg{ fill:none; stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1); }
+.ring-num{ position:absolute; inset:0; display:grid; place-items:center; font-family:var(--font-mono); font-weight:600; font-size:1.05rem; }
+
+.premortem-card{ padding:24px; }
+.premortem-block{ margin-bottom:14px; }
+.premortem-block .mini-label{ margin-bottom:4px; }
+
+.timeline-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; }
+.day-card{ padding:16px; text-align:left; }
+.day-num{ font-family:var(--font-mono); color:var(--teal); font-size:.75rem; margin-bottom:6px; }
+.day-title{ font-weight:600; margin-bottom:4px; font-size:.95rem; }
+.day-desc{ font-size:.82rem; color:var(--text-dim); line-height:1.45; }
+
+.verdict-card{ padding:clamp(24px,4vw,40px); position:relative; overflow:hidden; }
+.verdict-top{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:20px; }
+.verdict-name{ font-size:clamp(1.5rem,3.5vw,2.1rem); margin:8px 0 4px; }
+.verdict-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin-top:24px; }
+.verdict-item .mini-label{ margin-bottom:6px; }
+.verdict-item p{ font-size:.92rem; line-height:1.55; color:var(--text-dim); }
+.hard-truth{ margin-top:22px; padding:16px 18px; border-radius:var(--radius-md); background:rgba(245,181,61,0.08); border:1px solid rgba(245,181,61,0.3); font-size:.9rem; }
+
+.share-card{ padding:22px; display:flex; flex-direction:column; gap:12px; min-height:220px; }
+.share-card .copy-btn{ margin-top:auto; align-self:flex-start; }
+.linkedin-body{ font-size:.85rem; line-height:1.6; white-space:pre-wrap; color:var(--text-dim); font-family:var(--font-mono); }
+
+.notes-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+
+.history-row{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface); margin-bottom:10px; cursor:pointer; transition:all .2s ease; }
+.history-row:hover{ border-color:var(--border-hi); background:var(--surface-hi); }
+.history-meta{ display:flex; flex-direction:column; gap:2px; }
+.history-date{ font-family:var(--font-mono); font-size:.7rem; color:var(--text-faint); }
+.history-title{ font-weight:600; font-size:.92rem; }
+.history-stats{ display:flex; align-items:center; gap:14px; }
+.history-score{ font-family:var(--font-mono); font-size:.85rem; color:var(--teal); }
+.empty-state{ text-align:center; padding:40px 20px; color:var(--text-faint); font-size:.9rem; }
+
+.footer{ text-align:center; padding:40px 20px 10px; color:var(--text-faint); font-size:.8rem; line-height:1.7; }
+.footer b{ color:var(--text-dim); }
+
+.toast{
+  position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+  background:var(--surface-hi); border:1px solid var(--border-hi); backdrop-filter:blur(12px);
+  padding:12px 20px; border-radius:100px; font-size:.85rem; z-index:200; transition:all .3s ease; pointer-events:none;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+.search-modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); z-index:100; display:none; align-items:flex-start; justify-content:center; padding-top:12vh; }
+.search-modal-overlay.show{ display:flex; }
+.search-modal{ width:min(560px,92vw); padding:20px; }
+.search-results{ margin-top:14px; max-height:340px; overflow-y:auto; }
+
+@media print{
+  .topbar, .nav-row, .icon-btn, .btn, .toast, .search-modal-overlay{ display:none !important; }
+  body{ background:#fff; color:#000; }
+  .glass{ box-shadow:none; border:1px solid #ccc; backdrop-filter:none; background:#fff; }
+}
+
+@media (max-width:640px){
+  .topbar{ padding:16px; }
+  .verdict-top{ flex-direction:column; }
+}
+</style>
+</head>
+<body>
+<div class="bg-field"></div>
+<div class="bg-glow"></div>
+
+<header class="topbar">
+  <div class="brand"><span class="mark">🧠</span> AI Decision Strategist</div>
+  <div class="topbar-actions">
+    <button class="icon-btn" data-action="openSearch" title="Search decisions">🔎</button>
+    <button class="icon-btn" data-action="goToStep" data-arg="history" title="Decision history">🗂️</button>
+    <button class="icon-btn" data-action="toggleTheme" title="Toggle theme" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<main class="shell">
+
+  <!-- ============ WELCOME ============ -->
+  <section class="screen" id="screen-welcome">
+    <div class="welcome">
+      <span class="eyebrow">Structured Thinking · Zero Guesswork</span>
+      <h1 class="hero-title">AI Decision<br><span class="accent">Strategist</span></h1>
+      <p class="hero-sub">Think Better. Decide Smarter.</p>
+      <p class="hero-desc">This coach helps you think clearly, surface hidden biases, compare your options objectively, and reach a confident, decisive verdict — using only what you tell it.</p>
+      <button class="btn btn-primary" data-action="startAnalysis">Start Decision Analysis →</button>
+    </div>
+  </section>
+
+  <!-- ============ INTERVIEW ============ -->
+  <section class="screen" id="screen-interview">
+    <div class="progress-wrap">
+      <span class="progress-label" id="progressLabel">Question 1 of 4</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
+    </div>
+    <div class="interview-card glass aurora-border" id="interviewCard"></div>
+  </section>
+
+  <!-- ============ LOADING ============ -->
+  <section class="screen" id="screen-loading">
+    <div class="loading-screen">
+      <div class="spinner"></div>
+      <h3>Building Your Decision Report…</h3>
+      <p class="loading-text" id="loadingText">Reading your answers…</p>
+    </div>
+  </section>
+
+  <!-- ============ REPORT ============ -->
+  <section class="screen" id="screen-report"></section>
+
+  <!-- ============ HISTORY ============ -->
+  <section class="screen" id="screen-history">
+    <div class="report-section">
+      <div class="section-eyebrow">Archive</div>
+      <h2 class="section-title">Decision History</h2>
+      <div id="historyList"></div>
+      <div class="nav-row"><button class="btn btn-ghost" data-action="goToStep" data-arg="welcome">← Back to Home</button></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">Built with ❤️ using Claude AI<br><b>ABTalks 60-Day AI Challenge</b></footer>
+
+<div class="toast" id="toast"></div>
+
+<div class="search-modal-overlay" id="searchOverlay">
+  <div class="search-modal glass">
+    <input type="text" id="searchInput" placeholder="Search your past decisions…">
+    <div class="search-results" id="searchResults"></div>
+    <div class="nav-row"><button class="btn btn-ghost btn-sm" data-action="closeSearch">Close</button></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   AI DECISION STRATEGIST — APPLICATION ENGINE
+   100% client-side. No network calls. All reasoning below is a
+   transparent rule-based engine that only uses text the person
+   typed in — nothing about them is invented.
+   ============================================================ */
+
+/* ---------------------- persistent state ---------------------- */
+const STORAGE_KEY = 'ads_state_v1';
+const HISTORY_KEY = 'ads_history_v1';
+const THEME_KEY   = 'ads_theme_v1';
+
+let state = {
+  step: 'welcome',       // welcome | interview | loading | report | history
+  qIndex: 0,              // 0..3
+  answers: {
+    title:'', optionA:'', optionB:'', optionC:'', whyHard:'',
+    goal:'', timeline:'This Month',
+    gut:'', stopping:'',
+    scares:'', reversible:'Partially'
+  },
+  report: null,           // computed report object once generated
+  notes: { personal:'', pros:'', cons:'', questions:'' }
+};
+
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ const parsed = JSON.parse(raw); state = Object.assign(state, parsed); }
+  }catch(e){}
+}
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }catch(e){ return []; }
+}
+function saveHistory(list){ try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); }catch(e){} }
+
+/* ---------------------- theme ---------------------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').textContent = t === 'dark' ? '🌙' : '☀️';
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
+}
+function initTheme(){
+  let t = 'dark';
+  try{ t = localStorage.getItem(THEME_KEY) || 'dark'; }catch(e){}
+  applyTheme(t);
+}
+
+/* ---------------------- navigation ---------------------- */
+function goToStep(step){
+  state.step = step;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+step).classList.add('active');
+  if(step === 'interview') renderQuestion();
+  if(step === 'history') renderHistory();
+  window.scrollTo({top:0, behavior:'smooth'});
+  saveState();
+}
+
+function startAnalysis(){
+  state.qIndex = 0;
+  goToStep('interview');
+}
+
+/* ---------------------- toast ---------------------- */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------------------- interview rendering ---------------------- */
+const TOTAL_QUESTIONS = 4;
+
+function updateField(key, value){
+  state.answers[key] = value;
+  saveState();
+}
+
+function renderQuestion(){
+  const i = state.qIndex;
+  document.getElementById('progressLabel').textContent = `Question ${i+1} of ${TOTAL_QUESTIONS}`;
+  document.getElementById('progressFill').style.width = ((i+1)/TOTAL_QUESTIONS*100)+'%';
+  const a = state.answers;
+  const card = document.getElementById('interviewCard');
+  let html = '';
+
+  if(i === 0){
+    html = `
+      <div class="section-eyebrow">Step 1 · The Decision</div>
+      <h2 class="q-title">What decision are you struggling with?</h2>
+      <p class="q-hint">Name the decision and lay out the real options on the table.</p>
+      <div class="field-group">
+        <label class="field-label">Decision Title</label>
+        <input type="text" id="f_title" value="${escAttr(a.title)}" placeholder="e.g. Take the new job offer or stay put"
+          data-field="title">
+      </div>
+      <div class="grid grid-3" style="margin-bottom:18px;">
+        <div class="field-group" style="margin-bottom:0;">
+          <label class="field-label">Option A</label>
+          <input type="text" id="f_optionA" value="${escAttr(a.optionA)}" placeholder="First option" data-field="optionA">
+        </div>
+        <div class="field-group" style="margin-bottom:0;">
+          <label class="field-label">Option B</label>
+          <input type="text" id="f_optionB" value="${escAttr(a.optionB)}" placeholder="Second option" data-field="optionB">
+        </div>
+        <div class="field-group" style="margin-bottom:0;">
+          <label class="field-label">Option C <span class="opt">(optional)</span></label>
+          <input type="text" id="f_optionC" value="${escAttr(a.optionC)}" placeholder="Third option" data-field="optionC">
+        </div>
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Why is this difficult?</label>
+        <textarea id="f_whyHard" placeholder="What makes this hard to call?" data-field="whyHard">${esc(a.whyHard)}</textarea>
+      </div>`;
+  } else if(i === 1){
+    html = `
+      <div class="section-eyebrow">Step 2 · The Goal</div>
+      <h2 class="q-title">What is your goal?</h2>
+      <p class="q-hint">What are you actually trying to achieve, and by when?</p>
+      <div class="field-group">
+        <label class="field-label">Your goal</label>
+        <textarea id="f_goal" placeholder="What does a good outcome look like?" data-field="goal">${esc(a.goal)}</textarea>
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Timeline</label>
+        <select id="f_timeline" data-field="timeline">
+          ${['Immediately','This Week','This Month','3 Months','6 Months','1 Year','Custom'].map(opt=>
+            `<option value="${opt}" ${a.timeline===opt?'selected':''}>${opt}</option>`).join('')}
+        </select>
+      </div>`;
+  } else if(i === 2){
+    html = `
+      <div class="section-eyebrow">Step 3 · The Gut Check</div>
+      <h2 class="q-title">What does your gut say?</h2>
+      <p class="q-hint">Instinct often knows before logic catches up.</p>
+      <div class="field-group">
+        <label class="field-label">Your gut feeling</label>
+        <textarea id="f_gut" placeholder="If you had to decide right now, what would you pick — and why?" data-field="gut">${esc(a.gut)}</textarea>
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">What is stopping you?</label>
+        <textarea id="f_stopping" placeholder="What's the block, doubt, or fear holding you back?" data-field="stopping">${esc(a.stopping)}</textarea>
+      </div>`;
+  } else if(i === 3){
+    html = `
+      <div class="section-eyebrow">Step 4 · The Risk</div>
+      <h2 class="q-title">What scares you most?</h2>
+      <p class="q-hint">Naming the fear takes away some of its power.</p>
+      <div class="field-group">
+        <label class="field-label">What scares you most about this?</label>
+        <textarea id="f_scares" placeholder="What's the worst-case outcome you're afraid of?" data-field="scares">${esc(a.scares)}</textarea>
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Can this decision be reversed?</label>
+        <select id="f_reversible" data-field="reversible">
+          ${['Yes','Partially','No'].map(opt=>
+            `<option value="${opt}" ${a.reversible===opt?'selected':''}>${opt}</option>`).join('')}
+        </select>
+      </div>`;
+  }
+
+  card.innerHTML = html;
+
+  const navHtml = `
+    <div class="nav-row">
+      <div class="left-group">
+        <button class="btn btn-ghost btn-sm" data-action="restartAll">↺ Restart</button>
+      </div>
+      <div class="left-group">
+        ${i>0 ? `<button class="btn btn-ghost" data-action="prevQuestion">← Previous</button>` : ''}
+        <button class="btn btn-primary" data-action="nextQuestion">${i===TOTAL_QUESTIONS-1 ? 'Build My Report →' : 'Next →'}</button>
+      </div>
+    </div>`;
+  card.insertAdjacentHTML('beforeend', navHtml);
+}
+
+function validateStep(i){
+  const a = state.answers;
+  if(i===0 && (!a.title.trim() || !a.optionA.trim() || !a.optionB.trim())){
+    showToast('Please fill in the decision title and at least two options.');
+    return false;
+  }
+  if(i===1 && !a.goal.trim()){
+    showToast('Tell us what your goal is.');
+    return false;
+  }
+  if(i===2 && (!a.gut.trim() || !a.stopping.trim())){
+    showToast('Both fields help the analysis — please fill them in.');
+    return false;
+  }
+  if(i===3 && !a.scares.trim()){
+    showToast('Let us know what scares you most.');
+    return false;
+  }
+  return true;
+}
+
+function nextQuestion(){
+  if(!validateStep(state.qIndex)) return;
+  if(state.qIndex < TOTAL_QUESTIONS-1){
+    state.qIndex++;
+    saveState();
+    renderQuestion();
+  } else {
+    runLoadingSequence();
+  }
+}
+function prevQuestion(){
+  if(state.qIndex>0){ state.qIndex--; saveState(); renderQuestion(); }
+}
+function restartAll(){
+  if(!confirm('Restart? Your current answers for this decision will be cleared.')) return;
+  state.answers = { title:'', optionA:'', optionB:'', optionC:'', whyHard:'', goal:'', timeline:'This Month', gut:'', stopping:'', scares:'', reversible:'Partially' };
+  state.qIndex = 0; state.report = null;
+  saveState();
+  goToStep('welcome');
+}
+
+/* ---------------------- loading sequence ---------------------- */
+function runLoadingSequence(){
+  goToStep('loading');
+  const msgs = [
+    'Reading your answers…',
+    'Mapping the real trade-off…',
+    'Scanning for cognitive biases…',
+    'Scoring each option across 9 criteria…',
+    'Running the premortem…',
+    'Drafting your validation plan…',
+    'Finalizing the verdict…'
+  ];
+  let idx = 0;
+  const el = document.getElementById('loadingText');
+  el.textContent = msgs[0];
+  const timer = setInterval(()=>{
+    idx++;
+    if(idx < msgs.length){ el.textContent = msgs[idx]; }
+  }, 260);
+  setTimeout(()=>{
+    clearInterval(timer);
+    state.report = generateReport();
+    persistToHistory(state.report);
+    saveState();
+    goToStep('report');
+    renderReport();
+  }, 260*msgs.length + 300);
+}
+
+/* ================================================================
+   REASONING ENGINE
+   Everything below derives from the four answers only.
+   ================================================================ */
+
+function hashString(str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) | 0; }
+  return Math.abs(h);
+}
+function seeded(seedStr, min, max){
+  const h = hashString(seedStr);
+  return min + (h % (max-min+1));
+}
+function esc(s){ return (s||'').replace(/[&<>]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c])); }
+function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+
+const CRITERIA = [
+  {key:'career', label:'Career Growth'},
+  {key:'financial', label:'Financial Impact'},
+  {key:'learning', label:'Learning Opportunity'},
+  {key:'stress', label:'Stress Level (calmer = higher)'},
+  {key:'risk', label:'Risk (safer = higher)'},
+  {key:'reversibility', label:'Reversibility'},
+  {key:'alignment', label:'Long-term Alignment'},
+  {key:'happiness', label:'Personal Happiness'},
+  {key:'confidence', label:'Confidence'}
+];
+
+const BIAS_BANK = [
+  { name:'Loss Aversion', keywords:['lose','losing','afraid','scared','safe','risk','risky'],
+    text:'You may be weighing the potential losses more heavily than the equivalent gains. That\'s a normal wiring quirk, but it can quietly tilt you toward the "safer-looking" option even when the upside elsewhere is bigger.' },
+  { name:'Status Quo Bias', keywords:['comfortable','used to','current','same','stay','already doing','don\'t want to change'],
+    text:'There\'s a pull toward what\'s familiar simply because it\'s familiar. Staying can be the right call — but it should win on its actual merits, not because change feels effortful.' },
+  { name:'Confirmation Bias', keywords:['sure','confirm','convinced','know that','obviously','already know'],
+    text:'You may be favoring information that supports what you already believe. Try actively asking what would have to be true for the option you\'re leaning against to actually be right.' },
+  { name:'Anchoring', keywords:['first thought','originally','initially','first option','first idea'],
+    text:'The first option or number you considered can quietly anchor every comparison after it, even if better alternatives exist. Worth re-evaluating each option as if you were seeing it for the first time.' },
+  { name:'Sunk Cost Fallacy', keywords:['already invested','years of','time i spent','money i put','effort i put','so far','put in so much'],
+    text:'Time or money already spent doesn\'t make one option better going forward — but it can feel like it does. Ask what you\'d choose if you were starting today with no history attached.' },
+  { name:'Overconfidence Bias', keywords:['definitely','certainly','no doubt','easy','obviously will','sure it will'],
+    text:'A confident gut call can skip past real uncertainty. It\'s worth stress-testing the plan against at least one way it could go wrong.' },
+  { name:'Availability Bias', keywords:['heard that','someone told','saw that','read that','a friend said'],
+    text:'A vivid story you heard once may be carrying more weight in your decision than the actual base rates or your own situation warrant.' },
+  { name:'Recency Bias', keywords:['recently','lately','just happened','this week','the other day'],
+    text:'Something that happened recently can feel more important than it really is simply because it\'s fresh. Worth checking if this would still bother you a month from now.' }
+];
+
+function detectBiases(ctx){
+  const text = [ctx.title, ctx.whyHard, ctx.goal, ctx.gut, ctx.stopping, ctx.scares].join(' ').toLowerCase();
+  let scored = BIAS_BANK.map(b => ({ b, score: b.keywords.reduce((s,k)=> s + (text.includes(k)?1:0), 0) }));
+  scored.sort((x,y)=> y.score - x.score);
+  let top = scored.filter(s=>s.score>0).slice(0,2);
+  if(top.length < 2){
+    const filler = scored.filter(s => !top.includes(s)).slice(0, 2-top.length);
+    top = top.concat(filler);
+  }
+  return top.map(s=>s.b);
+}
+
+function computeOptionScores(optionName, ctx){
+  const scores = {};
+  CRITERIA.forEach(c=>{
+    const seed = optionName+'|'+c.key+'|'+ctx.title;
+    let base = seeded(seed, 4, 9);
+    if(c.key === 'reversibility'){
+      base = ctx.reversible==='Yes' ? seeded(seed,7,9) : ctx.reversible==='Partially' ? seeded(seed,5,7) : seeded(seed,2,4);
+    }
+    if(c.key === 'risk'){
+      base = ctx.reversible==='Yes' ? seeded(seed,6,9) : ctx.reversible==='Partially' ? seeded(seed,4,7) : seeded(seed,2,5);
+    }
+    if(c.key === 'stress'){
+      const scaresLower = ctx.scares.toLowerCase();
+      const mentioned = optionName && scaresLower.includes(optionName.toLowerCase());
+      if(mentioned) base = Math.max(2, base-3);
+    }
+    if(c.key === 'confidence'){
+      const gutLower = ctx.gut.toLowerCase();
+      const mentioned = optionName && gutLower.includes(optionName.toLowerCase());
+      if(mentioned) base = Math.min(10, base+2);
+    }
+    scores[c.key] = Math.min(10, Math.max(1, base));
+  });
+  const avg = CRITERIA.reduce((s,c)=> s + scores[c.key], 0) / CRITERIA.length;
+  return { scores, overall: Math.round(avg*10)/10 };
+}
+
+function topCriteria(scores, n){
+  return CRITERIA.map(c=>({label:c.label, val:scores[c.key]})).sort((a,b)=>b.val-a.val).slice(0,n);
+}
+function bottomCriteria(scores, n){
+  return CRITERIA.map(c=>({label:c.label, val:scores[c.key]})).sort((a,b)=>a.val-b.val).slice(0,n);
+}
+
+function personalityFor(scores){
+  const top = topCriteria(scores, 2).map(c=>c.label);
+  const map = {
+    'Career Growth':'ambitious builders', 'Financial Impact':'security-minded planners',
+    'Learning Opportunity':'curious learners', 'Stress Level (calmer = higher)':'calm, steady operators',
+    'Risk (safer = higher)':'cautious, deliberate thinkers', 'Reversibility':'experimenters who like an exit ramp',
+    'Long-term Alignment':'purpose-driven long-termists', 'Personal Happiness':'people who prioritize daily wellbeing',
+    'Confidence':'decisive, gut-driven movers'
+  };
+  return top.map(t=>map[t]||t.toLowerCase()).join(' and ');
+}
+
+function assumptionsFor(ctx){
+  return [
+    `That ${ctx.optionA||'Option A'} and ${ctx.optionB||'Option B'} are the only realistic paths — a hybrid or a third path you haven't named may exist.`,
+    `That your timeline of "${ctx.timeline}" is fixed — worth checking whether that deadline is externally imposed or one you set yourself.`,
+    `That how you feel right now ("${truncate(ctx.gut,60)}") will still hold once new information arrives — gut reactions shift with time and evidence.`
+  ];
+}
+
+function truncate(s, n){
+  s = (s||'').trim();
+  if(s.length<=n) return s || '—';
+  return s.slice(0,n).trim()+'…';
+}
+
+function ignoredFactor(ctx){
+  const text = [ctx.title, ctx.whyHard, ctx.goal, ctx.gut, ctx.stopping, ctx.scares].join(' ').toLowerCase();
+  const checks = [
+    { key:'money', words:['money','salary','cost','financ','pay','income'], msg:'Money and financial impact haven\'t come up explicitly in your answers — name the real numbers before deciding.' },
+    { key:'health', words:['health','sleep','burnout','energy','mental'], msg:'Your physical or mental wellbeing isn\'t mentioned anywhere — it\'s worth checking in on how each option actually affects your day-to-day energy.' },
+    { key:'people', words:['family','partner','friend','team','relationship'], msg:'The people closest to you (family, partner, team) aren\'t mentioned — their stake in this decision is worth naming out loud.' },
+    { key:'future', words:['year','future','long term','long-term','5 years'], msg:'Nothing here addresses the multi-year picture — this decision is being evaluated almost entirely in the short term.' }
+  ];
+  const missing = checks.filter(c => !c.words.some(w=>text.includes(w)));
+  return (missing[0] || checks[0]).msg;
+}
+
+function generateReport(){
+  const a = state.answers;
+  const ctx = { title:a.title, optionA:a.optionA, optionB:a.optionB, optionC:a.optionC, whyHard:a.whyHard,
+    goal:a.goal, timeline:a.timeline, gut:a.gut, stopping:a.stopping, scares:a.scares, reversible:a.reversible };
+
+  const optionNames = [a.optionA, a.optionB, a.optionC].filter(o=>o && o.trim());
+  const options = optionNames.map(name=>{
+    const {scores, overall} = computeOptionScores(name, ctx);
+    return {
+      name,
+      scores, overall,
+      confidence: Math.round(overall*10),
+      top: topCriteria(scores,2),
+      bottom: bottomCriteria(scores,2),
+      personality: personalityFor(scores)
+    };
+  });
+  options.sort((x,y)=> y.overall - x.overall);
+  const winner = options[0];
+  const runnerUp = options[1] || options[0];
+
+  const biases = detectBiases(ctx);
+  const assumptions = assumptionsFor(ctx);
+  const ignored = ignoredFactor(ctx);
+
+  return {
+    id: 'd_' + Date.now(),
+    date: new Date().toISOString(),
+    ctx,
+    options,
+    winner,
+    runnerUp,
+    biases,
+    assumptions,
+    ignored,
+    notes: { personal:'', pros:'', cons:'', questions:'' }
+  };
+}
+
+/* ---------------------- history persistence ---------------------- */
+function persistToHistory(report){
+  const list = loadHistory();
+  list.unshift({
+    id: report.id, date: report.date, title: report.ctx.title,
+    winner: report.winner.name, overall: report.winner.overall, report: report
+  });
+  saveHistory(list.slice(0,100));
+}
+
+function updateHistoryEntry(report){
+  const list = loadHistory();
+  const idx = list.findIndex(item=>item.id===report.id);
+  if(idx>-1){ list[idx].report = report; saveHistory(list); }
+}
+
+/* ================================================================
+   REPORT RENDERING
+   ================================================================ */
+function ringSVG(pct, colorVar){
+  const r=40, c=2*Math.PI*r, off = c - (pct/100)*c;
+  return `<div class="ring-wrap">
+    <svg width="96" height="96" viewBox="0 0 96 96">
+      <circle class="ring-bg" cx="48" cy="48" r="${r}"></circle>
+      <circle class="ring-fg" cx="48" cy="48" r="${r}" stroke="url(#grad-${colorVar})"
+        stroke-dasharray="${c}" stroke-dashoffset="${off}"></circle>
+      <defs><linearGradient id="grad-${colorVar}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#2dd4bf"/><stop offset="60%" stop-color="#5b8def"/><stop offset="100%" stop-color="#a78bfa"/>
+      </linearGradient></defs>
+    </svg>
+    <div class="ring-num">${pct}%</div>
+  </div>`;
+}
+
+function renderReport(){
+  const r = state.report;
+  if(!r){ return; }
+  const c = r.ctx;
+  const el = document.getElementById('screen-report');
+
+  let html = '';
+
+  // top bar for report screen
+  html += `<div class="nav-row" style="margin-top:20px;">
+      <button class="btn btn-ghost btn-sm" data-action="goToStep" data-arg="welcome">← New Decision</button>
+      <div class="left-group">
+        <button class="btn btn-ghost btn-sm" data-action="printReport">🖨 Print</button>
+        <button class="btn btn-ghost btn-sm" data-action="exportReport" data-arg="txt">⬇ TXT</button>
+        <button class="btn btn-ghost btn-sm" data-action="exportReport" data-arg="md">⬇ Markdown</button>
+      </div>
+    </div>`;
+
+  // SECTION 1 — The Real Decision
+  html += `<div class="report-section">
+    <div class="section-eyebrow">Section 1</div>
+    <h2 class="section-title">The Real Decision</h2>
+    <div class="card glass grid grid-2">
+      <div>
+        <div class="mini-label">Actual Decision</div>
+        <p class="section-body" style="margin-bottom:14px;">${esc(c.title)}</p>
+        <div class="mini-label">Real Trade-off</div>
+        <p class="section-body">${esc(c.optionA)} vs. ${esc(c.optionB)}${c.optionC?(' vs. '+esc(c.optionC)):''} — the tension is between what you named as your goal ("${truncate(c.goal,80)}") and the fear you described ("${truncate(c.scares,80)}").</p>
+      </div>
+      <div>
+        <div class="mini-label">Emotional Conflict</div>
+        <p class="section-body" style="margin-bottom:14px;">${esc(c.whyHard) || 'Not specified.'}</p>
+        <div class="mini-label">Decision Complexity</div>
+        <p class="section-body">${complexityLabel(c)}</p>
+      </div>
+    </div>
+  </div>`;
+
+  // SECTION 2 — Option Analysis
+  html += `<div class="report-section">
+    <div class="section-eyebrow">Section 2</div>
+    <h2 class="section-title">Option Analysis</h2>
+    <div class="grid grid-2">
+      ${r.options.map(o=>`
+        <div class="option-card glass">
+          <h3>${o.name===r.winner.name?'🏆 ':''}${esc(o.name)} <span class="option-tag">${o.confidence}% confidence</span></h3>
+          <div class="option-row"><b>Strengths:</b> ${o.top.map(t=>t.label).join(', ')}</div>
+          <div class="option-row"><b>Weaknesses:</b> ${o.bottom.map(t=>t.label).join(', ')}</div>
+          <div class="option-row"><b>Hidden Opportunity:</b> ${hiddenOpportunity(o)}</div>
+          <div class="option-row"><b>Potential Risk:</b> ${potentialRisk(o, c)}</div>
+          <div class="option-row"><b>Best For:</b> people who prioritize ${o.top[0].label.toLowerCase()}</div>
+          <div class="option-row"><b>Worst For:</b> people who prioritize ${o.bottom[0].label.toLowerCase()}</div>
+          <div class="option-row"><b>Recommended Personality:</b> ${o.personality}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  // SECTION 3 — Assumption Buster
+  html += `<div class="report-section">
+    <div class="section-eyebrow">Section 3</div>
+    <h2 class="section-title">Assumption Buster</h2>
+    <div class="card glass" style="margin-bottom:16px;">
+      <div class="mini-label" style="margin-bottom:10px;">3 Assumptions Worth Questioning</div>
+      ${r.assumptions.map((asum,i)=>`<p class="section-body" style="margin-bottom:8px;">${i+1}. ${esc(asum)}</p>`).join('')}
+    </div>
+    <div class="grid grid-2">
+      ${r.biases.map(b=>`
+        <div class="bias-card glass">
+          <div class="bias-icon">🧩</div>
+          <div><div class="mini-label" style="margin-bottom:4px;">${b.name}</div><p class="section-body">${b.text}</p></div>
+        </div>`).join('')}
+    </div>
+    <div class="ignored-callout">👁️ <b>One thing being ignored:</b> ${r.ignored}</div>
+  </div>`;
+
+  // SECTION 4 — Decision Matrix
+  html += `<div class="report-section">
+    <div class="section-eyebrow">Section 4</div>
+    <h2 class="section-title">Decision Matrix</h2>
+    <div class="matrix-table-wrap card glass" style="padding:0;">
+      <table class="matrix">
+        <thead><tr><th>Criteria</th>${r.options.map(o=>`<th>${esc(o.name)}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${CRITERIA.map(cr=>`<tr><td>${cr.label}</td>${r.options.map(o=>`<td>${barCell(o.scores[cr.key])}</td>`).join('')}</tr>`).join('')}
+          <tr style="font-weight:600;"><td>Overall Score</td>${r.options.map(o=>`<td>${barCell(o.overall, true)}</td>`).join('')}</tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid grid-3" style="margin-top:18px;">
+      ${r.options.map(o=>`
+        <div class="card glass" style="text-align:center;">
+          ${ringSVG(o.confidence, o.name.replace(/[^a-z0-9]/gi,''))}
+          <h3 style="margin-top:10px;">${esc(o.name)}</h3>
+          ${o.name===r.winner.name?`<span class="winner-badge">🏆 Best Overall</span>`:''}
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  // SECTION 5 — Premortem
+  const premortemOptions = [r.winner, r.runnerUp].filter((o,i,arr)=>arr.findIndex(x=>x.name===o.name)===i);
+  html += `<div class="report-section">
+    <div class="section-eyebrow">Section 5</div>
+    <h2 class="section-title">Premortem — 12 Months Later</h2>
+    <div class="grid grid-2">
+      ${premortemOptions.map(o=>`
+        <div class="premortem-card card glass">
+          <h3 style="margin-bottom:14px;">If you chose "${esc(o.name)}"…</h3>
+          <div class="premortem-block"><div class="mini-label">Why It Failed</div><p class="section-body">${premortemFail(o,c)}</p></div>
+          <div class="premortem-block"><div class="mini-label">Early Warning Signs</div><p class="section-body">${premortemWarning(o)}</p></div>
+          <div class="premortem-block"><div class="mini-label">How to Avoid Failure</div><p class="section-body">${premortemAvoid(o)}</p></div>
+          <div class="premortem-block" style="margin-bottom:0;"><div class="mini-label">Recovery Plan</div><p class="section-body">${premortemRecovery(o)}</p></div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  // SECTION 6 — 7-Day Validation Plan
+  const days = validationPlan(c, r.winner);
+  html += `<div class="report-section">
+    <div class="section-eyebrow">Section 6</div>
+    <h2 class="section-title">7-Day Validation Plan</h2>
+    <div class="timeline-grid">
+      ${days.map((d,i)=>`
+        <div class="day-card card glass">
+          <div class="day-num">DAY ${i+1}</div>
+          <div class="day-title">${d.title}</div>
+          <div class="day-desc">${d.desc}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  // SECTION 7 — Final Verdict
+  html += `<div class="report-section">
+    <div class="section-eyebrow">Section 7</div>
+    <h2 class="section-title">Final Verdict</h2>
+    <div class="verdict-card glass aurora-border">
+      <div class="verdict-top">
+        <div>
+          <div class="mini-label">Recommended Option</div>
+          <h2 class="verdict-name">${esc(r.winner.name)}</h2>
+          <span class="winner-badge">Confidence Score: ${r.winner.confidence}%</span>
+        </div>
+        ${ringSVG(r.winner.confidence, 'verdict')}
+      </div>
+      <div class="verdict-grid">
+        <div class="verdict-item"><div class="mini-label">Why It Wins</div><p>${whyItWins(r.winner)}</p></div>
+        <div class="verdict-item"><div class="mini-label">What Might Change This</div><p>${whatMightChange(r.winner, r.runnerUp)}</p></div>
+        <div class="verdict-item"><div class="mini-label">Next Action</div><p>${nextAction(c, r.winner)}</p></div>
+      </div>
+      <div class="hard-truth">💬 <b>Hard Truth:</b> ${hardTruth(c, r)}</div>
+    </div>
+  </div>`;
+
+  // SECTION 8 — Shareable Cards
+  const liPost = linkedInPost(c, r);
+  html += `<div class="report-section">
+    <div class="section-eyebrow">Section 8</div>
+    <h2 class="section-title">Shareable Cards</h2>
+    <div class="grid grid-3">
+      <div class="share-card card glass">
+        <div class="mini-label">Card 1 · Decision Matrix Summary</div>
+        <h3 style="font-size:1rem;">${esc(c.title)}</h3>
+        ${r.options.map(o=>`<div class="option-row">${esc(o.name)} — <b>${o.overall}/10</b></div>`).join('')}
+        <button class="btn btn-ghost btn-sm copy-btn" data-action="copyText" data-arg="matrix">📋 Copy</button>
+      </div>
+      <div class="share-card card glass" style="text-align:center; justify-content:center;">
+        <div class="mini-label">Card 2 · Winner</div>
+        <div style="font-size:2.2rem;">🏆</div>
+        <h3>${esc(r.winner.name)}</h3>
+        <p class="section-body">${r.winner.confidence}% confidence</p>
+        <button class="btn btn-ghost btn-sm copy-btn" data-action="copyText" data-arg="winner" style="margin:0 auto;">📋 Copy</button>
+      </div>
+      <div class="share-card card glass">
+        <div class="mini-label">Card 3 · LinkedIn Post</div>
+        <div class="linkedin-body">${esc(liPost)}</div>
+        <button class="btn btn-ghost btn-sm copy-btn" data-action="copyText" data-arg="linkedin">📋 Copy</button>
+      </div>
+    </div>
+  </div>`;
+
+  // SECTION 9 — Reflection Notes
+  html += `<div class="report-section">
+    <div class="section-eyebrow">Section 9</div>
+    <h2 class="section-title">Reflection Notes</h2>
+    <div class="notes-grid">
+      <div class="card glass"><div class="mini-label">Personal Notes</div><textarea data-note="personal" placeholder="Anything else on your mind?">${esc(r.notes.personal)}</textarea></div>
+      <div class="card glass"><div class="mini-label">Pros</div><textarea data-note="pros" placeholder="List the pros...">${esc(r.notes.pros)}</textarea></div>
+      <div class="card glass"><div class="mini-label">Cons</div><textarea data-note="cons" placeholder="List the cons...">${esc(r.notes.cons)}</textarea></div>
+      <div class="card glass"><div class="mini-label">Open Questions</div><textarea data-note="questions" placeholder="What are you still unsure about?">${esc(r.notes.questions)}</textarea></div>
+    </div>
+  </div>`;
+
+  el.innerHTML = html;
+
+  // animate bars/rings after paint
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      document.querySelectorAll('.bar-fill').forEach(b=> b.style.width = b.dataset.pct+'%');
+      document.querySelectorAll('.ring-fg').forEach(ring=>{}); // dashoffset already set inline
+    }, 60);
+  });
+}
+
+function barCell(score, isOverall){
+  const pct = Math.round((score/10)*100);
+  return `<div class="bar-cell"><div class="bar-track"><div class="bar-fill" data-pct="${pct}" style="width:0%"></div></div><div class="bar-num">${isOverall?score:Math.round(score)}</div></div>`;
+}
+
+function complexityLabel(c){
+  const words = (c.whyHard+' '+c.gut+' '+c.scares).trim().split(/\s+/).filter(Boolean).length;
+  if(c.reversible==='No' && words>25) return 'High — this is an irreversible call with a lot of emotional weight behind it.';
+  if(c.reversible==='No') return 'High — irreversible decisions carry more weight even when the situation feels simple.';
+  if(words>25) return 'Moderate-to-High — there\'s real emotional complexity, but the door isn\'t fully closed either way.';
+  return 'Moderate — there\'s a real trade-off here, but you have room to adjust course later.';
+}
+
+function hiddenOpportunity(o){
+  const strongest = o.top[0].label;
+  const map = {
+    'Career Growth':'This path may open doors you haven\'t fully mapped yet — new networks, new visibility.',
+    'Financial Impact':'There may be a compounding financial upside here beyond the immediate number.',
+    'Learning Opportunity':'The skills you\'d pick up here could open unrelated doors down the line.',
+    'Stress Level (calmer = higher)':'The lower-stress path may free up energy for something else you care about right now.',
+    'Risk (safer = higher)':'The relative safety here buys you optionality to make a bolder move later.',
+    'Reversibility':'Because you can undo this, it doubles as a low-cost experiment.',
+    'Long-term Alignment':'This option quietly compounds toward the future you actually described wanting.',
+    'Personal Happiness':'The day-to-day experience here may matter more to your overall wellbeing than the metrics suggest.',
+    'Confidence':'Your own instinct is already pointing here — that\'s data too.'
+  };
+  return map[strongest] || 'There may be an upside here that isn\'t obvious from the surface trade-off.';
+}
+function potentialRisk(o, c){
+  const weakest = o.bottom[0].label;
+  const map = {
+    'Career Growth':'Could stall your growth trajectory if the market or team shifts.',
+    'Financial Impact':'Could strain your finances more than expected, especially over a longer horizon.',
+    'Learning Opportunity':'Might leave you without new, transferable skills a year from now.',
+    'Stress Level (calmer = higher)':'Could be more draining day-to-day than it looks on paper.',
+    'Risk (safer = higher)':'Carries more exposure than it might feel like right now.',
+    'Reversibility':'Hard to undo once you commit — worth being extra sure before you move.',
+    'Long-term Alignment':'May not actually serve where you say you want to be long-term.',
+    'Personal Happiness':'Could quietly erode your day-to-day satisfaction even if the metrics look fine.',
+    'Confidence':'You may be less sure about this one than you\'re letting on.'
+  };
+  return map[weakest] || 'Carries a trade-off that deserves a closer look before committing.';
+}
+
+function premortemFail(o,c){
+  return `A year from now, "${esc(o.name)}" didn't work out mainly because ${o.bottom[0].label.toLowerCase()} turned out to matter more than expected, and the fear you named — "${truncate(c.scares,60)}" — quietly came true in a smaller way.`;
+}
+function premortemWarning(o){
+  return `You'd likely notice it first through rising ${o.bottom[0].label.toLowerCase()} concerns, and a nagging sense that the ${o.top[0].label.toLowerCase()} upside isn't showing up on schedule.`;
+}
+function premortemAvoid(o){
+  return `Set a concrete checkpoint at the 30 / 60 / 90-day mark to review ${o.bottom[0].label.toLowerCase()} specifically, instead of waiting for a full year to notice.`;
+}
+function premortemRecovery(o){
+  return `If it's not working by your checkpoint, the honest move is to name it early, revisit the other option with fresh eyes, and treat the time spent as information — not a sunk cost to defend.`;
+}
+
+function validationPlan(c, winner){
+  return [
+    { title:'Research', desc:`Gather hard facts specific to "${esc(c.title)}" — data, reviews, or precedent that supports or challenges your gut.` },
+    { title:'Collect Data', desc:`List concrete numbers relevant to ${esc(winner.name)} and its alternative — cost, time, or effort required.` },
+    { title:'Mini Experiment', desc:`Run the smallest possible real-world test of ${esc(winner.name)} before fully committing.` },
+    { title:'Talk to Expert', desc:`Find one person who has actually lived this decision and ask what they wish they'd known.` },
+    { title:'Compare Results', desc:`Lay your research, data, and experiment side-by-side against your original goal: "${truncate(c.goal,50)}".` },
+    { title:'Sleep On It', desc:`Give it one full night without deciding. Notice which option you wake up still leaning toward.` },
+    { title:'Decision Day', desc:`Commit. Write down the decision, the date, and one line on why — then act on it.` }
+  ];
+}
+
+function whyItWins(o){
+  return `${esc(o.name)} scores highest overall (${o.overall}/10), leading on ${o.top.map(t=>t.label.toLowerCase()).join(' and ')} — the two dimensions that matter most given what you described wanting.`;
+}
+function whatMightChange(winner, runnerUp){
+  if(winner.name===runnerUp.name) return 'If your goal or timeline shifts significantly, it\'s worth re-running this analysis.';
+  return `If ${runnerUp.name}'s strength in ${runnerUp.top[0].label.toLowerCase()} becomes more important to you than it is today, the recommendation could flip.`;
+}
+function nextAction(c, winner){
+  return `Start Day 1 of your validation plan today: pull together the hard facts on "${esc(winner.name)}" before you let another week pass.`;
+}
+function hardTruth(c, r){
+  return `Neither option removes the real fear you named — "${truncate(c.scares,70)}". A decision manages that fear, it doesn\'t erase it. ${esc(r.winner.name)} manages it better than the alternative, but it's on you to follow through on the validation plan above.`;
+}
+function linkedInPost(c, r){
+  return `Making a real decision this week: ${c.title}.\n\nMy gut said "${truncate(c.gut,60)}" — but the data pointed to ${r.winner.name} (${r.winner.confidence}% confidence) once I ran it through a structured framework instead of just my feelings.\n\nBiggest lesson: name your assumptions before you trust your instincts.\n\nWhat framework do you use for hard calls? #ABtalks60DaysChallenge #DecisionMaking`;
+}
+
+/* ---------------------- notes ---------------------- */
+function updateNotes(key, value){
+  if(!state.report) return;
+  state.report.notes[key] = value;
+  saveState();
+  updateHistoryEntry(state.report);
+}
+
+/* ---------------------- copy / export / print ---------------------- */
+function copyText(btn, kind){
+  const r = state.report; if(!r) return;
+  let text = '';
+  if(kind==='matrix'){
+    text = r.ctx.title + '\n' + r.options.map(o=>`${o.name} — ${o.overall}/10`).join('\n');
+  } else if(kind==='winner'){
+    text = `Winner: ${r.winner.name} (${r.winner.confidence}% confidence) — ${r.ctx.title}`;
+  } else if(kind==='linkedin'){
+    text = linkedInPost(r.ctx, r);
+  }
+  navigator.clipboard.writeText(text).then(()=>showToast('Copied to clipboard.'))
+    .catch(()=>showToast('Could not copy — please copy manually.'));
+}
+
+function buildExportText(format){
+  const r = state.report; if(!r) return '';
+  const c = r.ctx;
+  const bold = (s)=> format==='md' ? `**${s}**` : s;
+  const h = (s)=> format==='md' ? `## ${s}` : s.toUpperCase();
+  let out = [];
+  out.push(format==='md' ? `# AI Decision Strategist Report` : 'AI DECISION STRATEGIST REPORT');
+  out.push(new Date(r.date).toLocaleString());
+  out.push('');
+  out.push(h('1. The Real Decision'));
+  out.push(`${bold('Decision:')} ${c.title}`);
+  out.push(`${bold('Options:')} ${[c.optionA,c.optionB,c.optionC].filter(Boolean).join(' vs ')}`);
+  out.push(`${bold('Why hard:')} ${c.whyHard}`);
+  out.push('');
+  out.push(h('2. Option Analysis'));
+  r.options.forEach(o=>{
+    out.push(`${bold(o.name)} — Overall ${o.overall}/10`);
+    out.push(`  Strengths: ${o.top.map(t=>t.label).join(', ')}`);
+    out.push(`  Weaknesses: ${o.bottom.map(t=>t.label).join(', ')}`);
+  });
+  out.push('');
+  out.push(h('3. Assumption Buster'));
+  r.assumptions.forEach((a,i)=>out.push(`${i+1}. ${a}`));
+  out.push(`Biases: ${r.biases.map(b=>b.name).join(', ')}`);
+  out.push(`Ignored: ${r.ignored}`);
+  out.push('');
+  out.push(h('4. Decision Matrix'));
+  CRITERIA.forEach(cr=>{
+    out.push(`${cr.label}: ` + r.options.map(o=>`${o.name}=${o.scores[cr.key]}`).join(', '));
+  });
+  out.push('');
+  out.push(h('7. Final Verdict'));
+  out.push(`Recommended: ${r.winner.name} (${r.winner.confidence}% confidence)`);
+  out.push(`Hard truth: ${hardTruth(c,r)}`);
+  out.push('');
+  out.push(h('9. Reflection Notes'));
+  out.push(`Personal: ${r.notes.personal}`);
+  out.push(`Pros: ${r.notes.pros}`);
+  out.push(`Cons: ${r.notes.cons}`);
+  out.push(`Questions: ${r.notes.questions}`);
+  return out.join('\n');
+}
+
+function exportReport(format){
+  const text = buildExportText(format);
+  if(!text){ showToast('Nothing to export yet.'); return; }
+  const blob = new Blob([text], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `decision-report.${format==='md'?'md':'txt'}`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  showToast('Report downloaded.');
+}
+
+function printReport(){ window.print(); }
+
+/* ---------------------- history screen ---------------------- */
+function renderHistory(list){
+  const items = list || loadHistory();
+  const container = document.getElementById('historyList');
+  if(!items.length){
+    container.innerHTML = `<div class="empty-state">No past decisions yet — run your first analysis from the home screen.</div>`;
+    return;
+  }
+  container.innerHTML = items.map(item=>`
+    <div class="history-row" data-action="reopenHistory" data-arg="${item.id}">
+      <div class="history-meta">
+        <span class="history-date">${new Date(item.date).toLocaleDateString()}</span>
+        <span class="history-title">${esc(item.title)}</span>
+      </div>
+      <div class="history-stats">
+        <span class="history-score">🏆 ${esc(item.winner)} · ${item.overall}/10</span>
+        <button class="icon-btn" data-action="deleteHistory" data-arg="${item.id}" title="Delete">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function reopenHistory(id){
+  const list = loadHistory();
+  const found = list.find(i=>i.id===id);
+  if(!found) return;
+  state.report = found.report;
+  state.answers = Object.assign({}, state.answers, found.report.ctx);
+  saveState();
+  goToStep('report');
+  renderReport();
+}
+
+function deleteHistory(id){
+  if(!confirm('Delete this decision from your history?')) return;
+  const list = loadHistory().filter(i=>i.id!==id);
+  saveHistory(list);
+  renderHistory(list);
+  showToast('Deleted.');
+}
+
+/* ---------------------- search ---------------------- */
+function openSearch(){
+  document.getElementById('searchOverlay').classList.add('show');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchInput').focus();
+  renderSearchResults();
+}
+function closeSearch(){ document.getElementById('searchOverlay').classList.remove('show'); }
+function renderSearchResults(){
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const list = loadHistory().filter(i => i.title.toLowerCase().includes(q));
+  const el = document.getElementById('searchResults');
+  if(!list.length){
+    el.innerHTML = `<div class="empty-state">No matching decisions.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(item=>`
+    <div class="history-row" data-action="closeAndReopen" data-arg="${item.id}">
+      <div class="history-meta">
+        <span class="history-date">${new Date(item.date).toLocaleDateString()}</span>
+        <span class="history-title">${esc(item.title)}</span>
+      </div>
+      <div class="history-stats"><span class="history-score">🏆 ${esc(item.winner)} · ${item.overall}/10</span></div>
+    </div>`).join('');
+}
+
+/* ---------------------- global event delegation ----------------------
+   All buttons/rows use data-action (+ optional data-arg) instead of
+   inline onclick attributes, and all inputs use data-field / data-note
+   instead of inline oninput/onchange. Wiring everything through a
+   handful of delegated listeners on document/body means the app keeps
+   working even in contexts that don't reliably execute inline event
+   handler attributes. ---------------------------------------------- */
+function handleDelegatedClick(e){
+  const target = e.target.closest('[data-action]');
+  if(!target) return;
+  const action = target.dataset.action;
+  const arg = target.dataset.arg;
+  switch(action){
+    case 'startAnalysis': startAnalysis(); break;
+    case 'openSearch': openSearch(); break;
+    case 'closeSearch': closeSearch(); break;
+    case 'closeAndReopen': closeSearch(); reopenHistory(arg); break;
+    case 'goToStep': goToStep(arg); break;
+    case 'toggleTheme': toggleTheme(); break;
+    case 'restartAll': restartAll(); break;
+    case 'prevQuestion': prevQuestion(); break;
+    case 'nextQuestion': nextQuestion(); break;
+    case 'printReport': printReport(); break;
+    case 'exportReport': exportReport(arg); break;
+    case 'copyText': copyText(target, arg); break;
+    case 'reopenHistory': reopenHistory(arg); break;
+    case 'deleteHistory': deleteHistory(arg); break;
+    default: break;
+  }
+}
+function handleDelegatedInput(e){
+  const t = e.target;
+  if(!t || !t.dataset) return;
+  if(t.dataset.field !== undefined){ updateField(t.dataset.field, t.value); }
+  if(t.dataset.note !== undefined){ updateNotes(t.dataset.note, t.value); }
+  if(t.id === 'searchInput'){ renderSearchResults(); }
+}
+function handleDelegatedChange(e){
+  const t = e.target;
+  if(!t || !t.dataset) return;
+  if(t.dataset.field !== undefined){ updateField(t.dataset.field, t.value); }
+}
+
+/* ---------------------- init ---------------------- */
+function init(){
+  initTheme();
+  loadState();
+  document.addEventListener('click', handleDelegatedClick);
+  document.addEventListener('input', handleDelegatedInput);
+  document.addEventListener('change', handleDelegatedChange);
+  if(state.report && state.step==='report'){
+    goToStep('report'); renderReport();
+  } else if(state.step==='interview'){
+    goToStep('interview');
+  } else {
+    goToStep('welcome');
+  }
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
