@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Intelligence Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#070B14;
+    --bg-1:#0B111D;
+    --bg-2:#111A2C;
+    --panel:rgba(255,255,255,0.035);
+    --panel-border:rgba(255,255,255,0.08);
+    --panel-border-hover:rgba(255,255,255,0.16);
+    --teal:#2DD4BF;
+    --blue:#4E9BFF;
+    --purple:#A78BFA;
+    --pink:#F472B6;
+    --amber:#FBBF24;
+    --red:#FB7185;
+    --green:#34D399;
+    --text-0:#F3F6FB;
+    --text-1:#B7C1D6;
+    --text-2:#7C88A3;
+    --font-display:'Space Grotesk', system-ui, sans-serif;
+    --font-body:'Inter', system-ui, sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --radius:16px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(circle at 15% 8%, rgba(78,155,255,0.10), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(167,139,250,0.10), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(45,212,191,0.07), transparent 45%),
+      var(--bg-0);
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(78,155,255,0.10), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(167,139,250,0.10), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(45,212,191,0.07), transparent 45%),
+      radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: auto, auto, auto, 22px 22px;
+    color:var(--text-0);
+    font-family:var(--font-body);
+    line-height:1.5;
+    min-height:100%;
+  }
+  ::selection{background:rgba(45,212,191,0.3);}
+  a{color:inherit;}
+  ::-webkit-scrollbar{width:10px; height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12); border-radius:8px;}
+
+  /* ---------- HEADER ---------- */
+  header{
+    position:sticky; top:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    background:rgba(7,11,20,0.72);
+    backdrop-filter:blur(16px) saturate(140%);
+    border-bottom:1px solid var(--panel-border);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:38px; height:38px; border-radius:10px;
+    background:linear-gradient(135deg, var(--teal), var(--blue) 55%, var(--purple));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:700; font-size:16px; color:#04121A;
+    box-shadow:0 0 24px rgba(45,212,191,0.35);
+  }
+  .brand-text h1{font-family:var(--font-display); font-size:18px; font-weight:600; letter-spacing:0.2px;}
+  .brand-text p{font-size:11.5px; color:var(--text-2); font-family:var(--font-mono); letter-spacing:0.4px; text-transform:uppercase;}
+  .header-actions{display:flex; align-items:center; gap:10px;}
+  .mode-pill{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.5px; text-transform:uppercase;
+    padding:6px 12px; border-radius:999px; border:1px solid var(--panel-border);
+    display:flex; align-items:center; gap:6px; color:var(--text-1);
+  }
+  .mode-dot{width:7px; height:7px; border-radius:50%; background:var(--amber);}
+  .mode-pill.live .mode-dot{background:var(--green); box-shadow:0 0 8px var(--green);}
+  .btn{
+    font-family:var(--font-body); font-weight:600; font-size:13.5px;
+    padding:9px 16px; border-radius:10px; border:1px solid var(--panel-border);
+    background:var(--panel); color:var(--text-0); cursor:pointer;
+    transition:all .15s ease; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn:hover{border-color:var(--panel-border-hover); background:rgba(255,255,255,0.06); transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn-primary{
+    background:linear-gradient(135deg, var(--teal), var(--blue));
+    color:#03131A; border:none; box-shadow:0 4px 18px rgba(45,212,191,0.25);
+  }
+  .btn-primary:hover{filter:brightness(1.07); box-shadow:0 6px 22px rgba(45,212,191,0.35);}
+  .btn-primary:disabled, .btn:disabled{opacity:0.45; cursor:not-allowed; transform:none;}
+  .btn-ghost{background:transparent;}
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{max-width:1320px; margin:0 auto; padding:32px 28px 80px;}
+  .eyebrow{
+    font-family:var(--font-mono); font-size:11.5px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--teal); margin-bottom:8px; display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{content:''; width:16px; height:1px; background:var(--teal);}
+  h2.section-title{font-family:var(--font-display); font-size:24px; font-weight:600; margin-bottom:4px;}
+  .section-sub{color:var(--text-2); font-size:13.5px; margin-bottom:22px;}
+
+  .glass{
+    background:var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius:var(--radius);
+    backdrop-filter:blur(10px);
+  }
+
+  /* ---------- SETUP SCREEN ---------- */
+  #setup-screen{display:flex; flex-direction:column; gap:26px;}
+  .setup-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:24px;}
+  @media (max-width:920px){.setup-grid{grid-template-columns:1fr;}}
+
+  .upload-zone{
+    padding:28px; text-align:center; cursor:pointer; position:relative;
+    border:1.5px dashed var(--panel-border);
+    transition:all .18s ease;
+  }
+  .upload-zone.drag{border-color:var(--teal); background:rgba(45,212,191,0.06);}
+  .upload-zone:hover{border-color:var(--panel-border-hover);}
+  .upload-icon{font-size:26px; margin-bottom:10px; opacity:0.9;}
+  .upload-zone h3{font-family:var(--font-display); font-size:15px; margin-bottom:4px;}
+  .upload-zone p{font-size:12.5px; color:var(--text-2);}
+  input[type=file]{display:none;}
+
+  textarea, input[type=text], input[type=password]{
+    width:100%; background:rgba(0,0,0,0.25); border:1px solid var(--panel-border);
+    border-radius:10px; color:var(--text-0); font-family:var(--font-body); font-size:13.5px;
+    padding:12px 14px; resize:vertical; transition:border-color .15s;
+  }
+  textarea:focus, input:focus{outline:none; border-color:var(--teal);}
+  label.field-label{
+    display:block; font-family:var(--font-mono); font-size:11px; letter-spacing:0.5px;
+    text-transform:uppercase; color:var(--text-2); margin-bottom:8px;
+  }
+  .field{margin-bottom:18px;}
+
+  .thumb-preview{
+    margin-top:14px; border-radius:12px; overflow:hidden; border:1px solid var(--panel-border);
+    position:relative;
+  }
+  .thumb-preview img{width:100%; display:block; max-height:220px; object-fit:cover;}
+  .thumb-remove{
+    position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2);
+    color:#fff; border-radius:8px; padding:4px 9px; font-size:12px; cursor:pointer;
+  }
+
+  .config-card{padding:24px;}
+  .config-card h3{font-family:var(--font-display); font-size:15px; margin-bottom:14px;}
+  .pill-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .info-pill{
+    font-family:var(--font-mono); font-size:11.5px; padding:6px 11px; border-radius:999px;
+    border:1px solid var(--panel-border); color:var(--text-1); background:rgba(255,255,255,0.02);
+  }
+  .divider{height:1px; background:var(--panel-border); margin:18px 0;}
+
+  .api-status{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-2); margin-top:10px;}
+  .api-status .dot{width:7px; height:7px; border-radius:50%; background:var(--red);}
+  .api-status.ok .dot{background:var(--green); box-shadow:0 0 8px var(--green);}
+
+  .run-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:20px 24px;
+  }
+  .run-bar .hint{font-size:12.5px; color:var(--text-2);}
+
+  /* ---------- ANALYSIS SCREEN ---------- */
+  #analysis-screen{display:none;}
+  .progress-shell{padding:26px;}
+  .progress-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .progress-top h3{font-family:var(--font-display); font-size:16px;}
+  .progress-bar-outer{
+    width:100%; height:8px; border-radius:999px; background:rgba(255,255,255,0.06); overflow:hidden; margin-bottom:20px;
+  }
+  .progress-bar-inner{
+    height:100%; border-radius:999px; width:0%;
+    background:linear-gradient(90deg, var(--teal), var(--blue), var(--purple));
+    transition:width .4s ease;
+  }
+  .reviewer-timeline{display:flex; flex-direction:column; gap:10px;}
+  .reviewer-row{
+    display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:10px;
+    background:rgba(255,255,255,0.02); border:1px solid transparent; transition:all .2s;
+  }
+  .reviewer-row.active{border-color:rgba(45,212,191,0.4); background:rgba(45,212,191,0.05);}
+  .reviewer-row.done{opacity:0.65;}
+  .reviewer-status-icon{
+    width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:11px; flex-shrink:0; border:1.5px solid var(--panel-border); font-family:var(--font-mono);
+  }
+  .reviewer-status-icon.spin{
+    border-top-color:var(--teal); animation:spin 0.9s linear infinite;
+  }
+  .reviewer-status-icon.check{background:var(--green); border-color:var(--green); color:#03231A;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .reviewer-row .rname{font-size:13px; font-weight:500; flex:1;}
+  .reviewer-row .rstatus{font-size:11.5px; font-family:var(--font-mono); color:var(--text-2);}
+
+  .activity-feed{max-height:210px; overflow-y:auto; display:flex; flex-direction:column-reverse; gap:8px; padding-right:4px;}
+  .feed-line{font-family:var(--font-mono); font-size:11.5px; color:var(--text-2); display:flex; gap:8px;}
+  .feed-line .t{color:var(--text-2); opacity:0.6;}
+  .feed-line .m{color:var(--text-1);}
+
+  /* ---------- RESULTS SCREEN ---------- */
+  #results-screen{display:none;}
+  .results-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:14px;}
+  .export-row{display:flex; gap:8px; flex-wrap:wrap;}
+
+  .hero-score{
+    display:grid; grid-template-columns:220px 1fr; gap:28px; padding:30px; align-items:center; margin-bottom:26px;
+  }
+  @media (max-width:760px){.hero-score{grid-template-columns:1fr; text-align:center;}}
+  .ring-wrap{position:relative; width:200px; height:200px; margin:0 auto;}
+  .ring-wrap svg{transform:rotate(-90deg);}
+  .ring-bg{fill:none; stroke:rgba(255,255,255,0.06); stroke-width:12;}
+  .ring-fg{fill:none; stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);}
+  .ring-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .ring-center .num{font-family:var(--font-display); font-size:42px; font-weight:700;}
+  .ring-center .lbl{font-family:var(--font-mono); font-size:10.5px; color:var(--text-2); text-transform:uppercase; letter-spacing:1px;}
+  .hero-text h2{font-family:var(--font-display); font-size:22px; margin-bottom:8px;}
+  .hero-text p{color:var(--text-1); font-size:14px;}
+  .verdict-tag{
+    display:inline-block; margin-top:12px; font-family:var(--font-mono); font-size:11.5px;
+    padding:6px 12px; border-radius:999px; letter-spacing:0.4px; text-transform:uppercase;
+  }
+
+  .cards-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:16px; margin-bottom:30px;
+  }
+  .score-card{padding:20px; cursor:pointer; transition:all .18s;}
+  .score-card:hover{border-color:var(--panel-border-hover); transform:translateY(-2px);}
+  .score-card .sc-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+  .score-card .sc-title{font-family:var(--font-display); font-size:13.5px; font-weight:600;}
+  .score-card .sc-num{font-family:var(--font-display); font-size:26px; font-weight:700;}
+  .bar-outer{width:100%; height:6px; border-radius:999px; background:rgba(255,255,255,0.06); overflow:hidden; margin-bottom:10px;}
+  .bar-inner{height:100%; border-radius:999px; transition:width 1s cubic-bezier(.4,0,.2,1);}
+  .score-card .sc-note{font-size:11.5px; color:var(--text-2); line-height:1.45;}
+
+  .card-expand{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--panel-border); font-size:12.5px; color:var(--text-1);}
+  .card-expand.show{display:block;}
+  .card-expand h5{font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-2); margin:10px 0 5px;}
+  .card-expand ul{padding-left:18px;}
+  .card-expand li{margin-bottom:4px;}
+
+  .radar-section{padding:26px; margin-bottom:30px;}
+  .radar-flex{display:flex; gap:30px; align-items:center; flex-wrap:wrap;}
+  .radar-legend{flex:1; min-width:220px; display:flex; flex-direction:column; gap:8px;}
+  .legend-item{display:flex; align-items:center; gap:8px; font-size:12.5px;}
+  .legend-dot{width:9px; height:9px; border-radius:2px;}
+
+  .detail-tabs{display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;}
+  .tab-btn{
+    font-family:var(--font-mono); font-size:11.5px; padding:8px 14px; border-radius:999px;
+    border:1px solid var(--panel-border); background:transparent; color:var(--text-2); cursor:pointer;
+    transition:all .15s; text-transform:uppercase; letter-spacing:0.4px;
+  }
+  .tab-btn.active{color:var(--bg-0); background:var(--teal); border-color:var(--teal); font-weight:600;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+  .detail-block{padding:24px; margin-bottom:16px;}
+  .detail-block h4{font-family:var(--font-display); font-size:15px; margin-bottom:12px; display:flex; align-items:center; gap:8px;}
+  .detail-block .content{font-size:13.5px; color:var(--text-1); line-height:1.7; white-space:pre-wrap;}
+  .detail-block ul{padding-left:20px; font-size:13.5px; color:var(--text-1);}
+  .detail-block li{margin-bottom:6px;}
+  .chip-list{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{font-family:var(--font-mono); font-size:12px; padding:5px 11px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid var(--panel-border);}
+
+  .before-after{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:700px){.before-after{grid-template-columns:1fr;}}
+  .ba-col{padding:18px; border-radius:12px;}
+  .ba-col.before{background:rgba(251,113,133,0.06); border:1px solid rgba(251,113,133,0.2);}
+  .ba-col.after{background:rgba(52,211,153,0.06); border:1px solid rgba(52,211,153,0.2);}
+  .ba-col h5{font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;}
+  .ba-col.before h5{color:var(--red);} .ba-col.after h5{color:var(--green);}
+
+  .checklist{display:flex; flex-direction:column; gap:8px;}
+  .check-item{display:flex; align-items:flex-start; gap:10px; font-size:13px; color:var(--text-1);}
+  .check-item .box{width:16px; height:16px; border-radius:4px; border:1.5px solid var(--panel-border-hover); flex-shrink:0; margin-top:2px;}
+
+  .loading-dots span{display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--teal); margin-right:3px; animation:pulse 1.2s infinite ease-in-out;}
+  .loading-dots span:nth-child(2){animation-delay:.2s;} .loading-dots span:nth-child(3){animation-delay:.4s;}
+  @keyframes pulse{0%,80%,100%{opacity:0.25; transform:scale(0.8);} 40%{opacity:1; transform:scale(1);}}
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(4,7,13,0.72); backdrop-filter:blur(6px);
+    display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{width:100%; max-width:440px; padding:28px;}
+  .modal-box h3{font-family:var(--font-display); font-size:17px; margin-bottom:6px;}
+  .modal-box p{font-size:12.5px; color:var(--text-2); margin-bottom:18px;}
+  .modal-actions{display:flex; gap:10px; margin-top:6px;}
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:rgba(17,26,44,0.95); border:1px solid var(--panel-border-hover); border-radius:10px;
+    padding:12px 20px; font-size:13px; opacity:0; transition:all .25s; z-index:300; backdrop-filter:blur(10px);
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .fade-in{animation:fadeIn .5s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+  .footer-note{text-align:center; color:var(--text-2); font-size:11.5px; margin-top:50px; font-family:var(--font-mono);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">CI</div>
+    <div class="brand-text">
+      <h1>Content Intelligence Studio</h1>
+      <p>AI-Powered Content Analysis Platform</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div id="mode-pill" class="mode-pill"><span class="mode-dot"></span><span id="mode-pill-text">Demo Mode</span></div>
+    <button class="btn" id="settings-btn">⚙ API Settings</button>
+    <button class="btn btn-ghost" id="restart-btn" style="display:none;">↺ New Analysis</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ===================== SETUP SCREEN ===================== -->
+  <section id="setup-screen" class="fade-in">
+    <div>
+      <div class="eyebrow">Configuration · YouTube Script Review</div>
+      <h2 class="section-title">Set up your review</h2>
+      <p class="section-sub">Content type: <strong>YouTube Script</strong> · Platform: <strong>YouTube</strong> · Goal: <strong>More Followers/Subscribers</strong> · Input: <strong>Mixed Content</strong> · Review style: <strong>Brutally Honest</strong></p>
+    </div>
+
+    <div class="setup-grid">
+      <div style="display:flex; flex-direction:column; gap:20px;">
+
+        <div class="glass" style="padding:24px;">
+          <label class="field-label">Your YouTube script / transcript</label>
+          <div class="field">
+            <textarea id="script-input" rows="10" placeholder="Paste your full script or transcript here — hook, body, and CTA included. The more complete it is, the sharper the review."></textarea>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label class="field-label">Video title (optional, helps hook + SEO review)</label>
+            <input type="text" id="title-input" placeholder="e.g. I Hacked My Own Wi-Fi (Here's What I Found)">
+          </div>
+        </div>
+
+        <div class="glass upload-zone" id="thumb-zone">
+          <input type="file" id="thumb-input" accept="image/*">
+          <div class="upload-icon">🖼️</div>
+          <h3>Drop your thumbnail here</h3>
+          <p>or click to browse — PNG / JPG. Optional, but strongly recommended for a full mixed-content review.</p>
+          <div id="thumb-preview-wrap"></div>
+        </div>
+
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div class="glass config-card">
+          <h3>Reviewer panel</h3>
+          <p class="section-sub" style="margin-bottom:14px;">Assembled automatically based on your inputs.</p>
+          <div class="pill-row" id="reviewer-pills"></div>
+          <div class="divider"></div>
+          <h3>Claude API</h3>
+          <p style="font-size:12.5px; color:var(--text-2); margin-bottom:12px;">Bring your own key for live AI analysis, or run in Demo Mode with clearly-labeled sample output.</p>
+          <div id="api-status" class="api-status"><span class="dot"></span><span id="api-status-text">No API key entered — Demo Mode active</span></div>
+        </div>
+
+        <div class="glass config-card">
+          <h3>What you'll get</h3>
+          <div class="pill-row">
+            <span class="info-pill">11 score cards</span>
+            <span class="info-pill">Radar chart</span>
+            <span class="info-pill">Full rewrite</span>
+            <span class="info-pill">Alt hooks & titles</span>
+            <span class="info-pill">SEO + hashtags</span>
+            <span class="info-pill">Publishing checklist</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass run-bar">
+      <div class="hint" id="run-hint">Paste a script to begin. Thumbnail is optional.</div>
+      <button class="btn btn-primary" id="run-btn" disabled>▶ Run Brutally Honest Review</button>
+    </div>
+  </section>
+
+  <!-- ===================== ANALYSIS SCREEN ===================== -->
+  <section id="analysis-screen">
+    <div class="eyebrow">Live Analysis</div>
+    <h2 class="section-title">Your reviewer panel is at work</h2>
+    <p class="section-sub" id="analysis-sub">Each reviewer is independently analyzing your content.</p>
+
+    <div class="setup-grid" style="grid-template-columns:1.4fr 1fr;">
+      <div class="glass progress-shell">
+        <div class="progress-top">
+          <h3 id="current-reviewer-label">Starting up…</h3>
+          <span id="progress-pct" style="font-family:var(--font-mono); color:var(--text-2); font-size:12.5px;">0%</span>
+        </div>
+        <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
+        <div class="reviewer-timeline" id="reviewer-timeline"></div>
+      </div>
+      <div class="glass progress-shell">
+        <h3 style="margin-bottom:16px;">Live activity feed</h3>
+        <div class="activity-feed" id="activity-feed"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RESULTS SCREEN ===================== -->
+  <section id="results-screen">
+    <div class="results-header">
+      <div>
+        <div class="eyebrow">Final Report</div>
+        <h2 class="section-title">Content Health Report</h2>
+      </div>
+      <div class="export-row">
+        <button class="btn" id="export-txt-btn">↓ Export TXT</button>
+        <button class="btn" id="export-md-btn">↓ Export Markdown</button>
+        <button class="btn" id="copy-report-btn">⧉ Copy Report</button>
+        <button class="btn" id="print-report-btn">🖶 Print</button>
+      </div>
+    </div>
+
+    <div class="glass hero-score">
+      <div class="ring-wrap">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <circle class="ring-bg" cx="100" cy="100" r="88"></circle>
+          <circle class="ring-fg" id="hero-ring" cx="100" cy="100" r="88" stroke="url(#ringGrad)"></circle>
+          <defs>
+            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2DD4BF"/>
+              <stop offset="55%" stop-color="#4E9BFF"/>
+              <stop offset="100%" stop-color="#A78BFA"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="ring-center">
+          <div class="num" id="hero-score-num">--</div>
+          <div class="lbl">Overall Score</div>
+        </div>
+      </div>
+      <div class="hero-text">
+        <h2 id="hero-headline">Analyzing…</h2>
+        <p id="hero-summary">Your executive summary will appear here once the review completes.</p>
+        <span class="verdict-tag" id="verdict-tag"></span>
+      </div>
+    </div>
+
+    <div class="cards-grid" id="score-cards"></div>
+
+    <div class="glass radar-section">
+      <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:18px;">Category Breakdown</h4>
+      <div class="radar-flex">
+        <canvas id="radar-canvas" width="360" height="360"></canvas>
+        <div class="radar-legend" id="radar-legend"></div>
+      </div>
+    </div>
+
+    <div class="detail-tabs" id="detail-tabs"></div>
+    <div id="detail-panels"></div>
+
+    <div class="footer-note">Content Intelligence Studio · Predicted performance figures are AI estimates, not guarantees.</div>
+  </section>
+
+</div>
+
+<!-- Settings modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="glass modal-box">
+    <h3>Claude API Settings</h3>
+    <p>Your key stays in this browser tab only — it is never stored, logged, or sent anywhere except directly to Anthropic's API.</p>
+    <label class="field-label">Anthropic API Key</label>
+    <input type="password" id="api-key-input" placeholder="sk-ant-...">
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="save-key-btn" style="flex:1;">Save & Enable Live Mode</button>
+      <button class="btn" id="clear-key-btn">Clear</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="close-settings-btn" style="width:100%;">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     STATE
+  ============================================================ */
+  const state = {
+    apiKey: null,
+    scriptText: "",
+    titleText: "",
+    thumbBase64: null,
+    thumbMediaType: null,
+    reviewers: [],
+    reviewerResults: {},   // id -> parsed json
+    finalReport: null,
+    isDemo: true
+  };
+
+  const CARD_META = [
+    { key:"overall", label:"Overall Content Score", color:"var(--teal)" },
+    { key:"contentQuality", label:"Content Quality", color:"var(--blue)" },
+    { key:"hookStrength", label:"Hook Strength", color:"var(--purple)" },
+    { key:"readability", label:"Readability", color:"var(--teal)" },
+    { key:"engagementPotential", label:"Engagement Potential", color:"var(--pink)" },
+    { key:"seoScore", label:"SEO Score", color:"var(--amber)" },
+    { key:"emotionalImpact", label:"Emotional Impact", color:"var(--pink)" },
+    { key:"ctaEffectiveness", label:"CTA Effectiveness", color:"var(--blue)" },
+    { key:"visualAppeal", label:"Visual Appeal", color:"var(--purple)" },
+    { key:"platformOptimization", label:"Platform Optimization", color:"var(--teal)" },
+    { key:"publishingReadiness", label:"Publishing Readiness", color:"var(--green)" }
+  ];
+
+  /* ============================================================
+     REVIEWER DEFINITIONS
+     Each reviewer calls Claude independently with its own system prompt
+     and must return strict JSON: { score, explanation, reasoning, recommendations[] }
+  ============================================================ */
+  function buildReviewers(hasThumb){
+    const jsonInstruction = `Respond with ONLY a raw JSON object, no markdown fences, no preamble, no commentary outside the JSON. Structure exactly:
+{"score": <integer 0-100>, "explanation": "<2-3 sentence plain explanation of the score>", "reasoning": "<3-5 sentences of your actual analytical reasoning, brutally honest, specific to THIS content, no generic filler>", "recommendations": ["<specific action 1>", "<specific action 2>", "<specific action 3>"]}`;
+
+    const base = [
+      {
+        id:"hook", name:"Hook Reviewer", cardKey:"hookStrength", input:"text",
+        system:`You are a Hook Reviewer for YouTube scripts, specializing in the first 15 seconds where 70%+ of viewer drop-off happens. You are brutally honest — you do not soften scores to be nice, and you call out weak, generic, or slow-burning openings directly. Evaluate: does it create a curiosity gap, stakes, or pattern interrupt in the first 2-3 sentences? Is there throat-clearing or a slow warm-up that should be cut? Score harshly if the hook would get skipped in a real feed. ${jsonInstruction}`
+      },
+      {
+        id:"strategist", name:"Content Strategist", cardKey:"contentQuality", input:"text",
+        system:`You are a senior Content Strategist reviewing a YouTube script for structural and strategic quality — pacing, narrative arc, value density, and whether every section earns its place. Being brutally honest, flag any padding, meandering sections, or missing payoff. Judge whether the content builds toward a clear promise made in the hook/title. ${jsonInstruction}`
+      },
+      {
+        id:"engagement", name:"Engagement Reviewer", cardKey:"engagementPotential", input:"text",
+        system:`You are an Engagement Reviewer specializing in YouTube watch-time and interaction mechanics (comments, likes, shares, subscribe triggers). Brutally honest: does this script give viewers a concrete reason to comment or share, or does it just present information passively? Identify exactly where engagement prompts are missing or weak. ${jsonInstruction}`
+      },
+      {
+        id:"seo", name:"SEO Reviewer", cardKey:"seoScore", input:"text",
+        system:`You are a YouTube SEO Reviewer. Evaluate keyword presence and searchability signals within the script/title (spoken keywords support auto-captions and topical relevance for YouTube's algorithm), and whether the topic is framed in a searchable, specific way versus vague. Be brutally honest about missed keyword opportunities. ${jsonInstruction}`
+      },
+      {
+        id:"platform", name:"Platform Expert", cardKey:"platformOptimization", input:"text",
+        system:`You are a YouTube Platform Expert who understands algorithmic mechanics: retention curves, session time, click-through rate drivers, and format norms for the platform in 2026. Brutally honest: does this script respect platform-native pacing and conventions, or does it read like it was written for a different medium (blog/LinkedIn)? ${jsonInstruction}`
+      },
+      {
+        id:"copywriting", name:"Copywriting Reviewer", cardKey:"readability", input:"text",
+        system:`You are a Copywriting Reviewer assessing sentence-level craft: clarity, rhythm, word economy, and whether spoken lines sound natural when read aloud versus stiff or written-for-page. Brutally honest — flag clunky, overlong, or jargon-heavy lines specifically. ${jsonInstruction}`
+      },
+      {
+        id:"cta", name:"CTA Reviewer", cardKey:"ctaEffectiveness", input:"text",
+        system:`You are a CTA Reviewer focused on subscribe/follow conversion moments in YouTube scripts. Brutally honest: is there a clear, specific, non-generic call to action (not just "like and subscribe")? Is it placed at a moment of earned value rather than tacked on at the end? ${jsonInstruction}`
+      },
+      {
+        id:"psychology", name:"Psychology Reviewer", cardKey:"emotionalImpact", input:"text",
+        system:`You are a Behavioral Psychologist reviewing emotional engineering in a YouTube script — curiosity, tension, identity resonance, humor, or stakes that create an emotional response strong enough to drive a follow/subscribe decision. Brutally honest about flat or purely informational sections lacking emotional texture. ${jsonInstruction}`
+      },
+      {
+        id:"growth", name:"Growth Coach", cardKey:"publishingReadiness", input:"text",
+        system:`You are a Growth Coach evaluating whether this script, as currently written, is ready to help a creator gain new subscribers/followers — the stated goal. Brutally honest: is this publish-ready today, or does it need another draft pass first? Weigh hook, payoff, and CTA together. ${jsonInstruction}`
+      }
+    ];
+
+    if(hasThumb){
+      base.push({
+        id:"thumbnail", name:"Thumbnail Reviewer", cardKey:"visualAppeal", input:"image",
+        system:`You are a Thumbnail Reviewer analyzing a YouTube thumbnail image for composition, typography, color contrast, readability at small size, visual hierarchy, and click potential in a crowded feed. Brutally honest — score down for cluttered, low-contrast, or generic-looking thumbnails, and be specific about what's weak. ${jsonInstruction}`
+      });
+      base.push({
+        id:"visual", name:"Visual Design Reviewer", cardKey:"visualAppeal", input:"image", combineWith:"thumbnail",
+        system:`You are a Visual Design Reviewer evaluating branding consistency, attention score (does the eye know where to look first?), and overall professional polish of this thumbnail image versus competitor thumbnails in the niche. Brutally honest. ${jsonInstruction}`
+      });
+    }
+    return base;
+  }
+
+  /* ============================================================
+     UTILITIES
+  ============================================================ */
+  function $(id){ return document.getElementById(id); }
+  function toast(msg){
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"), 2600);
+  }
+  function escapeHtml(s){
+    return (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function scoreColor(score){
+    if(score >= 80) return "var(--green)";
+    if(score >= 60) return "var(--teal)";
+    if(score >= 40) return "var(--amber)";
+    return "var(--red)";
+  }
+  function feedLine(msg){
+    const feed = $("activity-feed");
+    const line = document.createElement("div");
+    line.className = "feed-line";
+    const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    line.innerHTML = `<span class="t">[${time}]</span><span class="m">${escapeHtml(msg)}</span>`;
+    feed.appendChild(line);
+    feed.scrollTop = feed.scrollHeight;
+  }
+
+  /* ============================================================
+     CLAUDE API CALL
+  ============================================================ */
+  async function callClaude({system, userContent}){
+    const body = {
+      model: "claude-sonnet-4-6",
+      max_tokens: 1400,
+      system: system,
+      messages: [{ role:"user", content: userContent }]
+    };
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key": state.apiKey,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body: JSON.stringify(body)
+    });
+    if(!res.ok){
+      const errText = await res.text().catch(()=> "");
+      throw new Error(`API error ${res.status}: ${errText.slice(0,200)}`);
+    }
+    const data = await res.json();
+    const textBlocks = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text);
+    return textBlocks.join("\n").trim();
+  }
+
+  function parseJsonLoose(raw){
+    let s = raw.trim();
+    s = s.replace(/^```json/i,"").replace(/^```/,"").replace(/```$/,"").trim();
+    const first = s.indexOf("{");
+    const last = s.lastIndexOf("}");
+    if(first !== -1 && last !== -1) s = s.substring(first, last+1);
+    return JSON.parse(s);
+  }
+
+  async function runReviewer(reviewer){
+    const contentParts = [];
+    if(reviewer.input === "image" && state.thumbBase64){
+      contentParts.push({ type:"image", source:{ type:"base64", media_type: state.thumbMediaType, data: state.thumbBase64 } });
+      contentParts.push({ type:"text", text: `Here is the YouTube thumbnail to review. Video title: "${state.titleText || "(no title provided)"}"` });
+    } else {
+      let textBlock = `VIDEO TITLE: ${state.titleText || "(none provided)"}\n\nSCRIPT:\n${state.scriptText}`;
+      contentParts.push({ type:"text", text: textBlock });
+    }
+    const raw = await callClaude({ system: reviewer.system, userContent: contentParts });
+    return parseJsonLoose(raw);
+  }
+
+  /* ============================================================
+     DEMO MODE DATA (clearly labeled, not sent as if it were live)
+  ============================================================ */
+  function demoReviewerResult(reviewer){
+    const demoScores = {hook:52, strategist:64, engagement:58, seo:47, platform:61, copywriting:66, cta:39, psychology:55, growth:50, thumbnail:60, visual:57};
+    const score = demoScores[reviewer.id] ?? 55;
+    return {
+      score,
+      explanation: `[DEMO MODE — sample output] This is a representative placeholder score for the ${reviewer.name.toLowerCase()} category, not a live analysis of your actual content.`,
+      reasoning: `Enter a live Claude API key in Settings to get a real, brutally honest, content-specific breakdown here instead of this illustrative demo text.`,
+      recommendations: [
+        "Add a live API key to unlock a real analysis of your script/thumbnail.",
+        "Demo Mode exists purely so you can preview the dashboard layout.",
+        "No part of this recommendation is generated from your actual content."
+      ]
+    };
+  }
+
+  async function demoFinalReport(){
+    return {
+      executiveSummary:"[DEMO MODE] This is placeholder narrative text showing where your real, AI-generated executive summary will appear once a live API key is entered. It will synthesize every reviewer's findings into one honest verdict.",
+      strengths:["(Demo) Add a live key to see real strengths pulled from your script.","(Demo) Sample strength line two.","(Demo) Sample strength line three."],
+      weaknesses:["(Demo) Add a live key to see real weaknesses.","(Demo) Sample weakness line two.","(Demo) Sample weakness line three."],
+      missedOpportunities:["(Demo) Sample missed opportunity one.","(Demo) Sample missed opportunity two."],
+      platformAdvice:"(Demo) Real platform-specific YouTube advice will appear here in live mode.",
+      audienceFit:"(Demo) Real audience-fit analysis will appear here in live mode.",
+      toneAnalysis:"(Demo) Tone analysis placeholder.",
+      writingStyle:"(Demo) Writing style placeholder.",
+      grammarReview:"(Demo) Grammar review placeholder — no issues simulated.",
+      contentStructure:"(Demo) Structure analysis placeholder.",
+      headlineAnalysis:"(Demo) Headline/title analysis placeholder.",
+      hookAnalysis:"(Demo) Hook analysis placeholder.",
+      ctaReview:"(Demo) CTA review placeholder.",
+      keywordSuggestions:["demo keyword","sample keyword","placeholder keyword"],
+      hashtagSuggestions:["#demo","#placeholder","#sampledata"],
+      seoRecommendations:["(Demo) Sample SEO recommendation."],
+      engagementPredictions:"(Demo) Engagement prediction placeholder — labeled clearly as an AI estimate in live mode.",
+      contentRewrite:"[DEMO MODE] Your real, fully rewritten script — sharpened hook, tightened body, stronger CTA — will be generated here once you connect a live API key.",
+      alternativeTitles:["(Demo) Alternative title one","(Demo) Alternative title two","(Demo) Alternative title three"],
+      alternativeHooks:["(Demo) Alternative hook one","(Demo) Alternative hook two"],
+      improvedCTA:"(Demo) An improved, specific CTA will be generated here in live mode.",
+      contentChecklist:["Hook re-tested against 3 alternates","Value promise stated within first 20 seconds","Mid-roll retention beat added","Pattern interrupts placed every 45-60s"],
+      publishingChecklist:["Title under 60 characters","Thumbnail legible at 120px width","Description includes primary keyword","End screen / next-video CTA planned"],
+      highestImpactImprovements:["(Demo) Top improvement one","(Demo) Top improvement two","(Demo) Top improvement three"],
+      predictedPerformance:"(Demo) AI ESTIMATE placeholder — not based on real content.",
+      publishingReadinessVerdict:"Needs another pass (demo placeholder verdict)",
+      finalRecommendation:"(Demo) Connect a live Claude API key to receive your real, brutally honest final recommendation."
+    };
+  }
+
+  /* ============================================================
+     FINAL SYNTHESIS CALL (live mode)
+  ============================================================ */
+  async function runFinalSynthesis(){
+    const summaryOfScores = state.reviewers.map(r=>{
+      const res = state.reviewerResults[r.id];
+      return `${r.name} (score ${res.score}/100): ${res.reasoning}`;
+    }).join("\n");
+
+    const system = `You are the Editor-in-Chief synthesizing a panel of specialist reviewers into one final, brutally honest content health report for a YouTube creator whose goal is more subscribers/followers. Use the reviewer notes given to you as grounded evidence — do not contradict their scores, but you may add nuance. Respond with ONLY a raw JSON object, no markdown fences, no commentary outside the JSON, matching EXACTLY this structure (all string values, arrays of strings where marked []):
+{
+"executiveSummary": "...",
+"strengths": ["...","...","..."],
+"weaknesses": ["...","...","..."],
+"missedOpportunities": ["...","..."],
+"platformAdvice": "...",
+"audienceFit": "...",
+"toneAnalysis": "...",
+"writingStyle": "...",
+"grammarReview": "...",
+"contentStructure": "...",
+"headlineAnalysis": "...",
+"hookAnalysis": "...",
+"ctaReview": "...",
+"keywordSuggestions": ["...","...","..."],
+"hashtagSuggestions": ["#...","#...","#..."],
+"seoRecommendations": ["...","..."],
+"engagementPredictions": "...",
+"contentRewrite": "a fully rewritten, improved version of the script, in the creator's voice, ready to record",
+"alternativeTitles": ["...","...","..."],
+"alternativeHooks": ["...","..."],
+"improvedCTA": "...",
+"contentChecklist": ["...","...","...","..."],
+"publishingChecklist": ["...","...","...","..."],
+"highestImpactImprovements": ["...","...","..."],
+"predictedPerformance": "one paragraph, and explicitly begin it with 'AI ESTIMATE:' since this is speculative",
+"publishingReadinessVerdict": "one short phrase verdict",
+"finalRecommendation": "2-3 direct, brutally honest sentences"
+}`;
+
+    const userContent = [{
+      type:"text",
+      text:`VIDEO TITLE: ${state.titleText || "(none provided)"}\n\nSCRIPT:\n${state.scriptText}\n\n--- REVIEWER PANEL NOTES ---\n${summaryOfScores}`
+    }];
+
+    const raw = await callClaude({ system, userContent });
+    return parseJsonLoose(raw);
+  }
+
+  /* ============================================================
+     UI: SETUP SCREEN WIRING
+  ============================================================ */
+  const scriptInput = $("script-input");
+  const titleInput = $("title-input");
+  const thumbZone = $("thumb-zone");
+  const thumbInput = $("thumb-input");
+  const runBtn = $("run-btn");
+  const runHint = $("run-hint");
+
+  function updateReviewerPills(){
+    const hasThumb = !!state.thumbBase64;
+    const reviewers = buildReviewers(hasThumb);
+    state.reviewers = reviewers;
+    const wrap = $("reviewer-pills");
+    wrap.innerHTML = reviewers.map(r=>`<span class="info-pill">${escapeHtml(r.name)}</span>`).join("");
+  }
+  updateReviewerPills();
+
+  function refreshRunButton(){
+    const hasScript = scriptInput.value.trim().length > 30;
+    runBtn.disabled = !hasScript;
+    runHint.textContent = hasScript
+      ? `Ready — ${state.reviewers.length} reviewers will run${state.thumbBase64 ? " (script + thumbnail)" : " (script only)"}.`
+      : "Paste at least a few sentences of your script to begin.";
+  }
+  scriptInput.addEventListener("input", ()=>{ state.scriptText = scriptInput.value; refreshRunButton(); });
+  titleInput.addEventListener("input", ()=>{ state.titleText = titleInput.value; });
+  refreshRunButton();
+
+  function handleThumbFile(file){
+    if(!file || !file.type.startsWith("image/")){ toast("Please upload an image file."); return; }
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const result = e.target.result;
+      const base64 = result.split(",")[1];
+      state.thumbBase64 = base64;
+      state.thumbMediaType = file.type;
+      $("thumb-preview-wrap").innerHTML = `<div class="thumb-preview"><img src="${result}"><button class="thumb-remove" id="thumb-remove-btn">✕ Remove</button></div>`;
+      $("thumb-remove-btn").addEventListener("click", (ev)=>{
+        ev.stopPropagation();
+        state.thumbBase64 = null; state.thumbMediaType = null;
+        $("thumb-preview-wrap").innerHTML = "";
+        updateReviewerPills(); refreshRunButton();
+      });
+      updateReviewerPills();
+      refreshRunButton();
+    };
+    reader.readAsDataURL(file);
+  }
+  thumbZone.addEventListener("click", ()=> thumbInput.click());
+  thumbInput.addEventListener("change", (e)=> handleThumbFile(e.target.files[0]));
+  ["dragover","dragenter"].forEach(evt=>{
+    thumbZone.addEventListener(evt, (e)=>{ e.preventDefault(); thumbZone.classList.add("drag"); });
+  });
+  ["dragleave","drop"].forEach(evt=>{
+    thumbZone.addEventListener(evt, (e)=>{ e.preventDefault(); thumbZone.classList.remove("drag"); });
+  });
+  thumbZone.addEventListener("drop", (e)=>{
+    const file = e.dataTransfer.files[0];
+    handleThumbFile(file);
+  });
+
+  /* ============================================================
+     API KEY / SETTINGS MODAL
+  ============================================================ */
+  function updateModeUI(){
+    const pill = $("mode-pill");
+    const pillText = $("mode-pill-text");
+    const apiStatus = $("api-status");
+    const apiStatusText = $("api-status-text");
+    if(state.apiKey){
+      pill.classList.add("live");
+      pillText.textContent = "Live Mode";
+      apiStatus.classList.add("ok");
+      apiStatusText.textContent = "API key set — live Claude analysis enabled";
+      state.isDemo = false;
+    } else {
+      pill.classList.remove("live");
+      pillText.textContent = "Demo Mode";
+      apiStatus.classList.remove("ok");
+      apiStatusText.textContent = "No API key entered — Demo Mode active";
+      state.isDemo = true;
+    }
+  }
+  updateModeUI();
+
+  $("settings-btn").addEventListener("click", ()=> $("settings-modal").classList.add("show"));
+  $("close-settings-btn").addEventListener("click", ()=> $("settings-modal").classList.remove("show"));
+  $("save-key-btn").addEventListener("click", ()=>{
+    const val = $("api-key-input").value.trim();
+    if(!val){ toast("Enter a key, or use Clear to stay in Demo Mode."); return; }
+    state.apiKey = val;
+    updateModeUI();
+    $("settings-modal").classList.remove("show");
+    toast("Live Mode enabled. Your key stays in this browser tab only.");
+  });
+  $("clear-key-btn").addEventListener("click", ()=>{
+    state.apiKey = null;
+    $("api-key-input").value = "";
+    updateModeUI();
+    toast("API key cleared. Back to Demo Mode.");
+  });
+
+  /* ============================================================
+     SCREEN SWITCHING
+  ============================================================ */
+  function showScreen(name){
+    $("setup-screen").style.display = name==="setup" ? "flex" : "none";
+    $("analysis-screen").style.display = name==="analysis" ? "block" : "none";
+    $("results-screen").style.display = name==="results" ? "block" : "none";
+    $("restart-btn").style.display = name==="setup" ? "none" : "inline-flex";
+    if(name!=="setup") document.getElementById("setup-screen").style.display = "none";
+  }
+  $("restart-btn").addEventListener("click", ()=>{
+    location.reload();
+  });
+
+  /* ============================================================
+     RUN THE FULL REVIEW
+  ============================================================ */
+  runBtn.addEventListener("click", runFullReview);
+
+  async function runFullReview(){
+    state.scriptText = scriptInput.value.trim();
+    state.titleText = titleInput.value.trim();
+    updateReviewerPills();
+    showScreen("analysis");
+    buildTimeline();
+
+    const total = state.reviewers.length + 1; // +1 for final synthesis
+    let completed = 0;
+    updateProgress(completed, total, "Warming up reviewer panel…");
+    feedLine(`Initializing ${state.reviewers.length} specialist reviewers${state.isDemo ? " (Demo Mode)" : " (Live Mode)"}…`);
+
+    for(const reviewer of state.reviewers){
+      setReviewerActive(reviewer.id);
+      $("current-reviewer-label").textContent = `${reviewer.name} is analyzing…`;
+      feedLine(`${reviewer.name} started analysis.`);
+      try{
+        let result;
+        if(state.isDemo){
+          await sleep(450 + Math.random()*350);
+          result = demoReviewerResult(reviewer);
+        } else {
+          result = await runReviewer(reviewer);
+        }
+        state.reviewerResults[reviewer.id] = result;
+        feedLine(`${reviewer.name} completed — score ${result.score}/100.`);
+      }catch(err){
+        console.error(err);
+        feedLine(`${reviewer.name} failed: ${err.message}. Using fallback note.`);
+        state.reviewerResults[reviewer.id] = {
+          score: 50,
+          explanation: "This reviewer's live call failed, so no reliable score is available.",
+          reasoning: `Error detail: ${err.message}`,
+          recommendations: ["Retry the analysis, or check that your API key is valid and has available credits."]
+        };
+      }
+      setReviewerDone(reviewer.id);
+      completed++;
+      updateProgress(completed, total);
+    }
+
+    $("current-reviewer-label").textContent = "Editor-in-Chief is synthesizing the final report…";
+    feedLine("Running final synthesis across all reviewer notes…");
+    try{
+      state.finalReport = state.isDemo ? await demoFinalReport() : await runFinalSynthesis();
+      feedLine("Final report ready.");
+    }catch(err){
+      console.error(err);
+      feedLine(`Final synthesis failed: ${err.message}. Showing reviewer-level results only.`);
+      state.finalReport = await demoFinalReport();
+      state.finalReport.executiveSummary = `Final synthesis call failed (${err.message}). The report below falls back to placeholder narrative text — individual reviewer scores above are still real.`;
+    }
+    completed++;
+    updateProgress(completed, total, "Done.");
+    await sleep(400);
+    renderResults();
+    showScreen("results");
+  }
+
+  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+  /* ---- timeline / progress UI ---- */
+  function buildTimeline(){
+    const tl = $("reviewer-timeline");
+    tl.innerHTML = state.reviewers.map(r=>`
+      <div class="reviewer-row" id="row-${r.id}">
+        <div class="reviewer-status-icon" id="icon-${r.id}">·</div>
+        <div class="rname">${escapeHtml(r.name)}</div>
+        <div class="rstatus" id="status-${r.id}">Queued</div>
+      </div>
+    `).join("");
+    $("activity-feed").innerHTML = "";
+  }
+  function setReviewerActive(id){
+    $(`row-${id}`).classList.add("active");
+    $(`icon-${id}`).classList.add("spin");
+    $(`status-${id}`).textContent = "Analyzing…";
+  }
+  function setReviewerDone(id){
+    $(`row-${id}`).classList.remove("active");
+    $(`row-${id}`).classList.add("done");
+    $(`icon-${id}`).classList.remove("spin");
+    $(`icon-${id}`).classList.add("check");
+    $(`icon-${id}`).textContent = "✓";
+    $(`status-${id}`).textContent = "Complete";
+  }
+  function updateProgress(completed, total, label){
+    const pct = Math.round((completed/total)*100);
+    $("progress-bar").style.width = pct + "%";
+    $("progress-pct").textContent = pct + "%";
+    if(label) $("current-reviewer-label").textContent = label;
+  }
+
+  /* ============================================================
+     RESULTS RENDERING
+  ============================================================ */
+  function aggregateCardScores(){
+    const scores = {};
+    const buckets = {};
+    state.reviewers.forEach(r=>{
+      const res = state.reviewerResults[r.id];
+      if(!res) return;
+      if(!buckets[r.cardKey]) buckets[r.cardKey] = [];
+      buckets[r.cardKey].push(res);
+    });
+    CARD_META.forEach(c=>{
+      if(c.key === "overall") return;
+      const arr = buckets[c.key];
+      if(arr && arr.length){
+        const avg = Math.round(arr.reduce((s,x)=>s+x.score,0)/arr.length);
+        scores[c.key] = { score:avg, items:arr };
+      } else {
+        // Fallback derived value when no reviewer maps directly (kept transparent)
+        scores[c.key] = { score:null, items:[] };
+      }
+    });
+    const allScores = Object.values(scores).map(s=>s.score).filter(v=>v!==null);
+    scores.overall = { score: allScores.length ? Math.round(allScores.reduce((a,b)=>a+b,0)/allScores.length) : null, items:[] };
+    return scores;
+  }
+
+  function renderResults(){
+    const agg = aggregateCardScores();
+    const overall = agg.overall.score ?? 50;
+
+    // Hero ring
+    const ring = $("hero-ring");
+    const circumference = 2*Math.PI*88;
+    ring.setAttribute("stroke-dasharray", circumference);
+    const offset = circumference - (overall/100)*circumference;
+    setTimeout(()=>{ ring.style.strokeDashoffset = offset; }, 80);
+    ring.style.strokeDashoffset = circumference;
+    $("hero-score-num").textContent = overall;
+
+    const fr = state.finalReport || {};
+    $("hero-headline").textContent = state.isDemo ? "Demo Report — Connect a Key for Real Analysis" : "Executive Summary";
+    $("hero-summary").textContent = fr.executiveSummary || "No summary generated.";
+    const verdictEl = $("verdict-tag");
+    const verdict = fr.publishingReadinessVerdict || (overall>=70 ? "Ready with minor polish" : overall>=50 ? "Needs another pass" : "Not ready to publish");
+    verdictEl.textContent = verdict;
+    const vcolor = overall>=70 ? "var(--green)" : overall>=50 ? "var(--amber)" : "var(--red)";
+    verdictEl.style.background = `color-mix(in srgb, ${vcolor} 18%, transparent)`;
+    verdictEl.style.color = vcolor;
+    verdictEl.style.border = `1px solid ${vcolor}`;
+
+    // Score cards
+    const cardsWrap = $("score-cards");
+    cardsWrap.innerHTML = CARD_META.filter(c=>c.key!=="overall").map(c=>{
+      const data = agg[c.key];
+      const score = data.score ?? 0;
+      const items = data.items;
+      const combinedExplanation = items.length ? items.map(i=>i.explanation).join(" ") : "No direct reviewer mapped to this category for this input.";
+      const combinedReasoning = items.length ? items.map(i=>i.reasoning).join("\n\n") : "";
+      const recs = items.length ? items.flatMap(i=>i.recommendations) : [];
+      return `
+        <div class="glass score-card" data-card="${c.key}">
+          <div class="sc-top">
+            <div class="sc-title">${c.label}</div>
+            <div class="sc-num" style="color:${scoreColor(score)}">${score}</div>
+          </div>
+          <div class="bar-outer"><div class="bar-inner" style="width:0%; background:${scoreColor(score)};" data-target="${score}"></div></div>
+          <div class="sc-note">${escapeHtml(combinedExplanation)}</div>
+          <div class="card-expand" id="expand-${c.key}">
+            <h5>Claude's reasoning</h5>
+            <div style="white-space:pre-wrap;">${escapeHtml(combinedReasoning)}</div>
+            ${recs.length ? `<h5>Recommendations</h5><ul>${recs.map(r=>`<li>${escapeHtml(r)}</li>`).join("")}</ul>` : ""}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    cardsWrap.querySelectorAll(".score-card").forEach(card=>{
+      card.addEventListener("click", ()=>{
+        const key = card.dataset.card;
+        $(`expand-${key}`).classList.toggle("show");
+      });
+    });
+
+    setTimeout(()=>{
+      cardsWrap.querySelectorAll(".bar-inner").forEach(bar=>{
+        bar.style.width = bar.dataset.target + "%";
+      });
+    }, 100);
+
+    renderRadar(agg);
+    renderDetailTabs(fr, agg);
+  }
+
+  /* ---- Radar chart (canvas) ---- */
+  function renderRadar(agg){
+    const canvas = $("radar-canvas");
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width, h = canvas.height;
+    const cx = w/2, cy = h/2, radius = Math.min(w,h)/2 - 40;
+    ctx.clearRect(0,0,w,h);
+
+    const cats = CARD_META.filter(c=>c.key!=="overall");
+    const n = cats.length;
+    const colors = ["#2DD4BF","#4E9BFF","#A78BFA","#2DD4BF","#F472B6","#FBBF24","#F472B6","#4E9BFF","#A78BFA","#2DD4BF"];
+
+    // grid rings
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    ctx.lineWidth = 1;
+    for(let ring=1; ring<=4; ring++){
+      ctx.beginPath();
+      for(let i=0;i<=n;i++){
+        const angle = (Math.PI*2*i/n) - Math.PI/2;
+        const r = radius*(ring/4);
+        const x = cx + r*Math.cos(angle);
+        const y = cy + r*Math.sin(angle);
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    // spokes
+    for(let i=0;i<n;i++){
+      const angle = (Math.PI*2*i/n) - Math.PI/2;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.lineTo(cx+radius*Math.cos(angle), cy+radius*Math.sin(angle));
+      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+      ctx.stroke();
+    }
+    // data polygon
+    ctx.beginPath();
+    cats.forEach((c,i)=>{
+      const score = agg[c.key].score ?? 0;
+      const angle = (Math.PI*2*i/n) - Math.PI/2;
+      const r = radius*(score/100);
+      const x = cx + r*Math.cos(angle);
+      const y = cy + r*Math.sin(angle);
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = "rgba(45,212,191,0.16)";
+    ctx.fill();
+    ctx.strokeStyle = "#2DD4BF";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // points
+    cats.forEach((c,i)=>{
+      const score = agg[c.key].score ?? 0;
+      const angle = (Math.PI*2*i/n) - Math.PI/2;
+      const r = radius*(score/100);
+      const x = cx + r*Math.cos(angle);
+      const y = cy + r*Math.sin(angle);
+      ctx.beginPath();
+      ctx.arc(x,y,3.5,0,Math.PI*2);
+      ctx.fillStyle = colors[i%colors.length];
+      ctx.fill();
+    });
+
+    // labels
+    ctx.font = "11px Inter, sans-serif";
+    ctx.fillStyle = "rgba(183,193,214,0.85)";
+    cats.forEach((c,i)=>{
+      const angle = (Math.PI*2*i/n) - Math.PI/2;
+      const lx = cx + (radius+22)*Math.cos(angle);
+      const ly = cy + (radius+22)*Math.sin(angle);
+      ctx.textAlign = Math.abs(Math.cos(angle))<0.2 ? "center" : (Math.cos(angle)>0 ? "left":"right");
+      ctx.fillText(c.label.split(" ")[0], lx, ly);
+    });
+
+    const legend = $("radar-legend");
+    legend.innerHTML = cats.map((c,i)=>`
+      <div class="legend-item"><span class="legend-dot" style="background:${colors[i%colors.length]}"></span>${c.label}: <strong style="margin-left:auto;">${agg[c.key].score ?? "--"}</strong></div>
+    `).join("");
+  }
+
+  /* ---- Detail tabs / long-form report ---- */
+  function renderDetailTabs(fr, agg){
+    const tabs = [
+      {id:"summary", label:"Executive Summary"},
+      {id:"strengths", label:"Strengths & Weaknesses"},
+      {id:"platform", label:"Platform & Audience"},
+      {id:"structure", label:"Structure & Craft"},
+      {id:"seo", label:"SEO & Hashtags"},
+      {id:"rewrite", label:"Rewrite"},
+      {id:"checklist", label:"Checklists"},
+      {id:"final", label:"Final Recommendation"}
+    ];
+    $("detail-tabs").innerHTML = tabs.map((t,i)=>`<button class="tab-btn ${i===0?'active':''}" data-tab="${t.id}">${t.label}</button>`).join("");
+
+    const panels = {
+      summary: `
+        <div class="glass detail-block"><h4>📋 Executive Summary</h4><div class="content">${escapeHtml(fr.executiveSummary||"—")}</div></div>
+        <div class="glass detail-block"><h4>📈 Predicted Performance <span style="font-size:10px; font-family:var(--font-mono); color:var(--amber); border:1px solid var(--amber); border-radius:6px; padding:2px 6px;">AI ESTIMATE</span></h4><div class="content">${escapeHtml(fr.predictedPerformance||"—")}</div></div>
+        <div class="glass detail-block"><h4>🎯 Highest-Impact Improvements</h4><ul>${(fr.highestImpactImprovements||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></div>
+      `,
+      strengths: `
+        <div class="glass detail-block"><h4>✅ Strengths</h4><ul>${(fr.strengths||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></div>
+        <div class="glass detail-block"><h4>⚠️ Weaknesses</h4><ul>${(fr.weaknesses||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></div>
+        <div class="glass detail-block"><h4>🔍 Missed Opportunities</h4><ul>${(fr.missedOpportunities||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></div>
+      `,
+      platform: `
+        <div class="glass detail-block"><h4>📺 Platform-Specific Advice</h4><div class="content">${escapeHtml(fr.platformAdvice||"—")}</div></div>
+        <div class="glass detail-block"><h4>👥 Audience Fit</h4><div class="content">${escapeHtml(fr.audienceFit||"—")}</div></div>
+        <div class="glass detail-block"><h4>🎭 Tone Analysis</h4><div class="content">${escapeHtml(fr.toneAnalysis||"—")}</div></div>
+        <div class="glass detail-block"><h4>💬 Engagement Predictions</h4><div class="content">${escapeHtml(fr.engagementPredictions||"—")}</div></div>
+      `,
+      structure: `
+        <div class="glass detail-block"><h4>🏗️ Content Structure</h4><div class="content">${escapeHtml(fr.contentStructure||"—")}</div></div>
+        <div class="glass detail-block"><h4>✍️ Writing Style</h4><div class="content">${escapeHtml(fr.writingStyle||"—")}</div></div>
+        <div class="glass detail-block"><h4>🔤 Grammar Review</h4><div class="content">${escapeHtml(fr.grammarReview||"—")}</div></div>
+        <div class="glass detail-block"><h4>🎬 Headline Analysis</h4><div class="content">${escapeHtml(fr.headlineAnalysis||"—")}</div></div>
+        <div class="glass detail-block"><h4>🪝 Hook Analysis</h4><div class="content">${escapeHtml(fr.hookAnalysis||"—")}</div></div>
+        <div class="glass detail-block"><h4>📣 CTA Review</h4><div class="content">${escapeHtml(fr.ctaReview||"—")}</div></div>
+      `,
+      seo: `
+        <div class="glass detail-block"><h4>🔑 Keyword Suggestions</h4><div class="chip-list">${(fr.keywordSuggestions||[]).map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join("")}</div></div>
+        <div class="glass detail-block"><h4># Hashtag Suggestions</h4><div class="chip-list">${(fr.hashtagSuggestions||[]).map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join("")}</div></div>
+        <div class="glass detail-block"><h4>📊 SEO Recommendations</h4><ul>${(fr.seoRecommendations||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></div>
+      `,
+      rewrite: `
+        <div class="glass detail-block"><h4>✨ Alternative Titles</h4><ul>${(fr.alternativeTitles||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></div>
+        <div class="glass detail-block"><h4>🪝 Alternative Hooks</h4><ul>${(fr.alternativeHooks||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></div>
+        <div class="glass detail-block"><h4>📣 Improved CTA</h4><div class="content">${escapeHtml(fr.improvedCTA||"—")}</div></div>
+        <div class="glass detail-block">
+          <h4>♻️ Before vs After</h4>
+          <div class="before-after">
+            <div class="ba-col before"><h5>Before (Your Original Script)</h5><div class="content" style="max-height:260px; overflow-y:auto;">${escapeHtml(state.scriptText)}</div></div>
+            <div class="ba-col after"><h5>After (Claude's Rewrite)</h5><div class="content" style="max-height:260px; overflow-y:auto;">${escapeHtml(fr.contentRewrite||"—")}</div></div>
+          </div>
+        </div>
+      `,
+      checklist: `
+        <div class="glass detail-block"><h4>✔️ Content Checklist</h4><div class="checklist">${(fr.contentChecklist||[]).map(x=>`<div class="check-item"><div class="box"></div>${escapeHtml(x)}</div>`).join("")}</div></div>
+        <div class="glass detail-block"><h4>🚀 Publishing Checklist</h4><div class="checklist">${(fr.publishingChecklist||[]).map(x=>`<div class="check-item"><div class="box"></div>${escapeHtml(x)}</div>`).join("")}</div></div>
+      `,
+      final: `
+        <div class="glass detail-block"><h4>🏁 Final Recommendation</h4><div class="content">${escapeHtml(fr.finalRecommendation||"—")}</div></div>
+      `
+    };
+
+    const panelsWrap = $("detail-panels");
+    panelsWrap.innerHTML = tabs.map((t,i)=>`<div class="tab-panel ${i===0?'active':''}" id="panel-${t.id}">${panels[t.id]}</div>`).join("");
+
+    $("detail-tabs").querySelectorAll(".tab-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        $("detail-tabs").querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+        panelsWrap.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+        btn.classList.add("active");
+        $(`panel-${btn.dataset.tab}`).classList.add("active");
+      });
+    });
+  }
+
+  /* ============================================================
+     EXPORTS
+  ============================================================ */
+  function buildReportText(){
+    const fr = state.finalReport || {};
+    const agg = aggregateCardScores();
+    let lines = [];
+    lines.push("CONTENT INTELLIGENCE STUDIO — CONTENT HEALTH REPORT");
+    lines.push(state.isDemo ? "(DEMO MODE OUTPUT — not a real analysis)" : "(Live Claude analysis)");
+    lines.push("=".repeat(60));
+    lines.push(`Overall Content Score: ${agg.overall.score}/100`);
+    lines.push(`Publishing Readiness Verdict: ${fr.publishingReadinessVerdict || "—"}`);
+    lines.push("");
+    lines.push("SCORE BREAKDOWN");
+    CARD_META.filter(c=>c.key!=="overall").forEach(c=>{
+      lines.push(`- ${c.label}: ${agg[c.key].score ?? "--"}/100`);
+    });
+    lines.push("");
+    lines.push("EXECUTIVE SUMMARY");
+    lines.push(fr.executiveSummary || "—");
+    lines.push("");
+    lines.push("STRENGTHS");
+    (fr.strengths||[]).forEach(s=>lines.push("- "+s));
+    lines.push("");
+    lines.push("WEAKNESSES");
+    (fr.weaknesses||[]).forEach(s=>lines.push("- "+s));
+    lines.push("");
+    lines.push("MISSED OPPORTUNITIES");
+    (fr.missedOpportunities||[]).forEach(s=>lines.push("- "+s));
+    lines.push("");
+    lines.push("PLATFORM ADVICE\n"+ (fr.platformAdvice||"—"));
+    lines.push("\nAUDIENCE FIT\n"+ (fr.audienceFit||"—"));
+    lines.push("\nTONE ANALYSIS\n"+ (fr.toneAnalysis||"—"));
+    lines.push("\nCONTENT STRUCTURE\n"+ (fr.contentStructure||"—"));
+    lines.push("\nHEADLINE ANALYSIS\n"+ (fr.headlineAnalysis||"—"));
+    lines.push("\nHOOK ANALYSIS\n"+ (fr.hookAnalysis||"—"));
+    lines.push("\nCTA REVIEW\n"+ (fr.ctaReview||"—"));
+    lines.push("\nKEYWORD SUGGESTIONS: "+ (fr.keywordSuggestions||[]).join(", "));
+    lines.push("HASHTAG SUGGESTIONS: "+ (fr.hashtagSuggestions||[]).join(" "));
+    lines.push("\nSEO RECOMMENDATIONS");
+    (fr.seoRecommendations||[]).forEach(s=>lines.push("- "+s));
+    lines.push("\nENGAGEMENT PREDICTIONS\n"+ (fr.engagementPredictions||"—"));
+    lines.push("\nCONTENT REWRITE\n"+ (fr.contentRewrite||"—"));
+    lines.push("\nALTERNATIVE TITLES");
+    (fr.alternativeTitles||[]).forEach(s=>lines.push("- "+s));
+    lines.push("\nALTERNATIVE HOOKS");
+    (fr.alternativeHooks||[]).forEach(s=>lines.push("- "+s));
+    lines.push("\nIMPROVED CTA\n"+ (fr.improvedCTA||"—"));
+    lines.push("\nCONTENT CHECKLIST");
+    (fr.contentChecklist||[]).forEach(s=>lines.push("[ ] "+s));
+    lines.push("\nPUBLISHING CHECKLIST");
+    (fr.publishingChecklist||[]).forEach(s=>lines.push("[ ] "+s));
+    lines.push("\nPREDICTED PERFORMANCE (AI ESTIMATE)\n"+ (fr.predictedPerformance||"—"));
+    lines.push("\nFINAL RECOMMENDATION\n"+ (fr.finalRecommendation||"—"));
+    return lines.join("\n");
+  }
+
+  function download(filename, content, mime){
+    const blob = new Blob([content], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  $("export-txt-btn").addEventListener("click", ()=>{
+    download("content-health-report.txt", buildReportText(), "text/plain");
+    toast("TXT report downloaded.");
+  });
+  $("export-md-btn").addEventListener("click", ()=>{
+    const txt = buildReportText();
+    const md = "# Content Health Report\n\n" + txt.split("\n").map(l=>{
+      if(/^[A-Z][A-Z \/&]+$/.test(l.trim()) && l.trim().length>3) return "## " + l.trim();
+      return l;
+    }).join("\n");
+    download("content-health-report.md", md, "text/markdown");
+    toast("Markdown report downloaded.");
+  });
+  $("copy-report-btn").addEventListener("click", async ()=>{
+    try{
+      await navigator.clipboard.writeText(buildReportText());
+      toast("Report copied to clipboard.");
+    }catch(e){
+      toast("Copy failed — your browser may block clipboard access here.");
+    }
+  });
+  $("print-report-btn").addEventListener("click", ()=> window.print());
+
+})();
+</script>
+</body>
+</html>
