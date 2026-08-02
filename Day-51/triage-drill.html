@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRIAGE//44 — SOC Alert Classification Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#080b14;
+    --bg-1:#0d1220;
+    --panel:#111830;
+    --panel-glass:rgba(19,26,48,0.55);
+    --border:rgba(120,160,220,0.14);
+    --teal:#2dd4bf;
+    --blue:#5b8def;
+    --purple:#9b7bff;
+    --amber:#f2b84b;
+    --red:#ef5a6f;
+    --text-hi:#eef2fb;
+    --text-mid:#a9b3cc;
+    --text-low:#6c7591;
+    --radius:14px;
+  }
+  [data-theme="light"]{
+    --bg-0:#f3f5fb;
+    --bg-1:#e9ecf6;
+    --panel:#ffffff;
+    --panel-glass:rgba(255,255,255,0.7);
+    --border:rgba(40,60,110,0.12);
+    --text-hi:#131a2c;
+    --text-mid:#4a5271;
+    --text-low:#828aa8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(91,141,239,0.16), transparent 45%),
+      radial-gradient(circle at 90% 10%, rgba(155,123,255,0.12), transparent 40%),
+      var(--bg-0);
+    background-attachment:fixed;
+    color:var(--text-hi);
+    font-family:'Inter',sans-serif;
+    transition:background 0.3s ease, color 0.3s ease;
+  }
+  .dotgrid{
+    position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.5;
+    background-image:radial-gradient(var(--border) 1px, transparent 1px);
+    background-size:26px 26px;
+  }
+  .wrap{position:relative; z-index:1; max-width:840px; margin:0 auto; padding:28px 20px 60px;}
+
+  header{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:22px;}
+  .brand-eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em;
+    color:var(--teal); text-transform:uppercase; margin:0 0 6px;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(26px,4vw,34px);
+    margin:0; letter-spacing:-0.01em; line-height:1.1;
+  }
+  h1 span{color:var(--blue);}
+  .tagline{color:var(--text-mid); font-size:14px; margin:8px 0 0; max-width:46ch;}
+
+  .headctrl{display:flex; flex-direction:column; align-items:flex-end; gap:10px;}
+  .theme-toggle{
+    display:flex; align-items:center; gap:8px; background:var(--panel-glass);
+    border:1px solid var(--border); border-radius:999px; padding:6px 6px 6px 12px;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-mid); cursor:pointer;
+    backdrop-filter:blur(10px);
+  }
+  .theme-toggle .dot{width:9px; height:9px; border-radius:50%; background:var(--teal);}
+
+  .scorebar{
+    display:flex; gap:10px; font-family:'JetBrains Mono',monospace; font-size:12px;
+  }
+  .scorebar .chip{
+    background:var(--panel-glass); border:1px solid var(--border); border-radius:10px;
+    padding:8px 12px; text-align:right; backdrop-filter:blur(10px); min-width:78px;
+  }
+  .scorebar .chip b{display:block; font-size:16px; color:var(--text-hi); font-weight:600;}
+  .scorebar .chip small{color:var(--text-low); font-size:10px; letter-spacing:0.06em; text-transform:uppercase;}
+
+  .progressline{
+    height:4px; border-radius:99px; background:var(--border); overflow:hidden; margin-bottom:20px;
+  }
+  .progressline i{display:block; height:100%; background:linear-gradient(90deg,var(--teal),var(--blue)); transition:width 0.4s ease;}
+
+  .case{
+    background:var(--panel-glass); border:1px solid var(--border); border-radius:var(--radius);
+    backdrop-filter:blur(16px); padding:26px; position:relative; overflow:hidden;
+  }
+  .case::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:1px;
+    background:linear-gradient(90deg, transparent, var(--teal), var(--purple), transparent);
+    opacity:0.6;
+  }
+  .case-meta{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;}
+  .case-id{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-low); letter-spacing:0.05em;}
+  .cat-tag{
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:5px 10px; border-radius:999px; border:1px solid var(--border); color:var(--text-mid);
+  }
+  .cat-tag.bf{color:var(--amber); border-color:rgba(242,184,75,0.35);}
+  .cat-tag.pe{color:var(--purple); border-color:rgba(155,123,255,0.35);}
+
+  .alert-log{
+    font-family:'JetBrains Mono',monospace; font-size:14.5px; line-height:1.65; color:var(--text-hi);
+    background:var(--bg-1); border:1px solid var(--border); border-radius:10px; padding:18px 20px;
+    margin-bottom:22px; white-space:pre-wrap;
+  }
+  [data-theme="light"] .alert-log{background:#f6f8fd;}
+
+  .prompt-label{font-size:13px; color:var(--text-mid); margin-bottom:12px; font-weight:500;}
+
+  .choices{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:6px;}
+  @media (max-width:560px){ .choices{grid-template-columns:1fr;} }
+  .choice-btn{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:14px; color:var(--text-hi);
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:14px 10px; cursor:pointer; transition:all 0.15s ease; text-align:center;
+  }
+  .choice-btn:hover{border-color:var(--blue); transform:translateY(-1px);}
+  .choice-btn:disabled{cursor:default;}
+  .choice-btn.mal{--accent:var(--red);}
+  .choice-btn.ben{--accent:var(--teal);}
+  .choice-btn.inv{--accent:var(--amber);}
+  .choice-btn.chosen{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset;}
+  .choice-btn.reveal-correct{border-color:var(--teal); background:rgba(45,212,191,0.1);}
+  .choice-btn.reveal-wrong{border-color:var(--red); background:rgba(239,90,111,0.08);}
+
+  .feedback{
+    margin-top:18px; border-radius:10px; padding:18px 20px; border:1px solid var(--border);
+    animation:slideIn 0.25s ease;
+  }
+  @keyframes slideIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .feedback.correct{background:rgba(45,212,191,0.08); border-color:rgba(45,212,191,0.35);}
+  .feedback.incorrect{background:rgba(239,90,111,0.08); border-color:rgba(239,90,111,0.35);}
+  .feedback .verdict{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; margin-bottom:8px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .feedback.correct .verdict{color:var(--teal);}
+  .feedback.incorrect .verdict{color:var(--red);}
+  .feedback p{margin:0; font-size:14px; line-height:1.6; color:var(--text-mid);}
+  .feedback .analyst-note{
+    margin-top:10px; padding-top:10px; border-top:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-low);
+  }
+
+  .actions{display:flex; justify-content:space-between; align-items:center; margin-top:20px;}
+  .next-btn{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; color:#08111f;
+    background:linear-gradient(90deg,var(--teal),var(--blue)); border:none; border-radius:10px;
+    padding:12px 22px; cursor:pointer; transition:opacity 0.15s ease;
+  }
+  .next-btn:hover{opacity:0.9;}
+  .reset-link{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-low); background:none;
+    border:none; cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+  }
+  .reset-link:hover{color:var(--text-mid);}
+
+  .done-card{text-align:center; padding:40px 20px;}
+  .done-card h2{font-family:'Space Grotesk',sans-serif; font-size:24px; margin:0 0 8px;}
+  .done-card p{color:var(--text-mid); font-size:14px; margin:0 0 20px;}
+
+  footer{text-align:center; margin-top:26px; color:var(--text-low); font-size:11.5px; font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body data-theme="dark">
+<div class="dotgrid"></div>
+<div class="wrap">
+
+  <header>
+    <div>
+      <p class="brand-eyebrow">CyberVidyarthi // SOC Training Lab</p>
+      <h1>TRIAGE<span>//44</span></h1>
+      <p class="tagline">Classify real-shaped SOC alerts as Malicious, Benign, or Needs Investigation — then see why.</p>
+    </div>
+    <div class="headctrl">
+      <div class="theme-toggle" id="themeToggle"><span class="dot"></span><span id="themeLabel">dark_mode</span></div>
+      <div class="scorebar">
+        <div class="chip"><b id="scoreVal">0</b><small>Correct</small></div>
+        <div class="chip"><b id="attemptVal">0</b><small>Attempted</small></div>
+        <div class="chip"><b id="accVal">—</b><small>Accuracy</small></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="progressline"><i id="progressFill" style="width:0%"></i></div>
+
+  <div class="case" id="caseCard"></div>
+
+  <footer>44 curated scenarios · Brute Force / Credential Stuffing · Privilege Escalation · progress saved locally in this browser</footer>
+</div>
+
+<script>
+const ALERTS = [
+{id:1,cat:"bf",text:"[AUTH] 15 failed login attempts for user 'r.iyer' within 2 minutes from IP 103.42.11.8 (Vietnam), followed by 1 successful login. No MFA on this account.",answer:"malicious",explanation:"Rapid failed attempts followed immediately by success, from a foreign IP the user has no history with, is the classic brute-force success pattern — especially with MFA absent to catch it."},
+{id:2,cat:"bf",text:"[AUTH] Single source IP 45.132.9.20 attempted login to 500 distinct customer accounts using the same password 'Summer2024!' over a 10-minute window.",answer:"malicious",explanation:"One password tried across hundreds of accounts from one IP is textbook credential stuffing — attackers testing a leaked password list at scale, not a real user."},
+{id:3,cat:"bf",text:"[AUTH] User 'k.desai' attempted login to admin portal from 50 different residential IPs within 5 minutes, all targeting the same account.",answer:"malicious",explanation:"A real person doesn't log in from 50 IPs in 5 minutes. This is a distributed brute-force attempt using a botnet or proxy network to avoid IP-based rate limiting."},
+{id:4,cat:"bf",text:"[AUTH] User 'a.nair' failed login 3 times (typo in password), then succeeded on 4th attempt from their usual device and home IP 182.64.20.5.",answer:"benign",explanation:"Three failed attempts followed by success from a known device and known IP matches ordinary human error, not an attack pattern. Volume and origin both look normal."},
+{id:5,cat:"bf",text:"[AUTH] 8 failed logins overnight for user 'p.sharma' from an IP in a country the user has never logged in from before, then 1 success. MFA challenge was not triggered due to a config exception on this account.",answer:"needs investigation",explanation:"The unusual location and missing MFA are red flags, but 8 attempts is low-volume and could be a traveling user. This needs a follow-up (verify travel, check MFA exception) before ruling malicious or benign."},
+{id:6,cat:"bf",text:"[AUTH] 200 different usernames attempted login using the single password 'Welcome123' from IP 91.203.5.14 within 1 hour.",answer:"malicious",explanation:"One password sprayed across many usernames is password spraying — designed to stay under per-account lockout thresholds while still finding weak passwords."},
+{id:7,cat:"bf",text:"[AUTH] New employee 's.reddy' failed login twice while connecting via VPN from an unfamiliar country (approved remote work location), succeeded on 3rd try from same session.",answer:"benign",explanation:"Two failed attempts from one continuous VPN session, from a pre-approved remote location, is consistent with keyboard-layout or connection hiccups — not an attack signature."},
+{id:8,cat:"bf",text:"[AUTH] Account 'finance_svc' succeeded login after 40 failed attempts from IP 198.51.100.4. Within 60 seconds, an inbox rule was created forwarding all mail to an external address.",answer:"malicious",explanation:"A high-attempt brute-force success immediately followed by an external mail-forwarding rule is a well-known post-compromise action — attackers set up silent data exfiltration right after breaking in."},
+{id:9,cat:"bf",text:"[AUTH] Admin account 'j.mehta' logged in from a new laptop device fingerprint, correct password on first attempt, no prior travel notice on file.",answer:"needs investigation",explanation:"No failed attempts and a correct password mean this isn't brute force, but a new device with no travel notice on a privileged account warrants a quick check-in with the user before clearing it."},
+{id:10,cat:"bf",text:"[AUTH] Login API received 1,200 requests/min with uniform 400ms timing intervals and User-Agent 'python-requests/2.28', targeting /api/login endpoint.",answer:"malicious",explanation:"Uniform timing and a scripting-library user-agent hitting the login endpoint at scale is a signature of automated credential-stuffing tooling, not a human user."},
+{id:11,cat:"bf",text:"[AUTH] Shared service account 'backup_svc' failed login 6 times after a scheduled password rotation script ran, succeeded once IT manually reset the credential.",answer:"benign",explanation:"This traces directly to a known internal event — a rotation script and IT's remediation — with no external involvement. The failures have a documented, benign cause."},
+{id:12,cat:"bf",text:"[AUTH] Account 'temp_contractor22', dormant for 400 days, had a successful login this morning, immediately followed by a request to add itself to the 'Billing-Admins' group.",answer:"malicious",explanation:"A long-dormant account suddenly logging in and self-escalating privileges is a strong compromise indicator — legitimate dormant accounts don't wake up and grant themselves access."},
+{id:13,cat:"bf",text:"[AUTH] VPN logins for user 'v.krishnan' recorded in Singapore and Germany within the same hour, but both sessions matched the fingerprint of the user's known corporate laptop.",answer:"needs investigation",explanation:"Impossible travel is suspicious, but a matching device fingerprint suggests possible VPN exit-node weirdness or geolocation error rather than a stolen credential. Worth confirming with the user before deciding."},
+{id:14,cat:"bf",text:"[AUTH] 1,000+ login attempts across multiple customer accounts using a password list matching a known 2023 third-party data breach dump.",answer:"malicious",explanation:"Reused breach-dump passwords tested at volume across many accounts is credential stuffing using publicly leaked credentials — a common, well-documented attack pattern."},
+{id:15,cat:"bf",text:"[AUTH] User 'd.pillai' attempted login with their old password the morning after a company-wide mandatory password reset was announced via email.",answer:"benign",explanation:"This is expected friction right after a known, scheduled organizational change — not attacker behavior. The timing and cause are fully explained by an internal event."},
+{id:16,cat:"bf",text:"[NETWORK] SSH port 22 on server WEB-PROD-03 received 300 connection attempts/minute from IP range 185.220.101.0/24, a range flagged in threat intel as Tor exit nodes.",answer:"malicious",explanation:"High-volume SSH brute forcing from known Tor/malicious infrastructure ranges is a textbook automated attack against exposed services."},
+{id:17,cat:"bf",text:"[AUTH] User 'n.verma' denied 6 consecutive MFA push notifications over 4 minutes, then approved the 7th.",answer:"malicious",explanation:"Repeated MFA push denials followed by an approval is the signature of 'MFA fatigue' or 'push bombing' — an attacker spamming approval requests until the user accepts one by mistake or exhaustion."},
+{id:18,cat:"bf",text:"[AUTH] Monitoring script 'uptime-checker' failed authentication against the internal API 12 times over 24 hours after its API token expired; retries followed its configured hourly schedule.",answer:"benign",explanation:"A predictable retry schedule tied to a known token expiry is routine automation behavior, clearly distinguishable from an attacker's irregular probing pattern."},
+{id:19,cat:"bf",text:"[NETWORK] Login attempt on switch management interface 10.0.4.1 using vendor default credentials 'admin/admin' from an internal workstation IP not normally used for network administration.",answer:"malicious",explanation:"Default vendor credentials being tried from a non-admin workstation suggests either an internal attacker or a compromised host probing for weakly-secured infrastructure."},
+{id:20,cat:"bf",text:"[NETWORK] RDP service on server HR-APP-02 (internet-facing) was accessed after 900 failed attempts from IP 203.0.113.77, followed within minutes by outbound SMB connections to 12 internal hosts.",answer:"malicious",explanation:"Successful brute force against exposed RDP followed by scanning internal hosts over SMB is a classic initial-access-to-lateral-movement chain."},
+{id:21,cat:"bf",text:"[AUTH] Contractor account 'c.thomas-ext' was locked after 5 failed login attempts during their first week; help desk ticket #4471 confirms the contractor called in for password assistance at the same time.",answer:"benign",explanation:"A verified help desk ticket matching the timing and describing exactly this issue confirms a legitimate, documented cause — not attacker behavior."},
+{id:22,cat:"bf",text:"[AUTH] User 'm.das', a night-shift support engineer, logged in successfully at 2:14 AM from their usual home IP, which is on file but rarely used at this hour.",answer:"needs investigation",explanation:"The IP and device are known, which rules out a clear attack, but off-hours access from a role that's occasionally-but-not-usually active this late is worth a quick confirmation rather than an automatic pass."},
+
+{id:23,cat:"pe",text:"[IAM] User account 's.kapoor' (Marketing, standard user) was added to the 'Domain Admins' security group. No change ticket exists for this modification.",answer:"malicious",explanation:"A standard user gaining Domain Admin rights with zero change-control paperwork is one of the highest-severity privilege escalation indicators in any environment."},
+{id:24,cat:"pe",text:"[EDR] Endpoint detection flagged exploitation of CVE-2023-21768 on server APP-DB-01 (unpatched), process 'svchost.exe' spawned with SYSTEM-level token immediately after.",answer:"malicious",explanation:"A known privilege-escalation CVE being exploited on an unpatched host, confirmed by EDR, followed by a SYSTEM-level process spawn, is a clear technical compromise indicator."},
+{id:25,cat:"pe",text:"[IAM] New hire 'a.bose' added to the 'Sales-ReadOnly' group by IT admin 'r.fernandes', matching approved onboarding ticket #8821.",answer:"benign",explanation:"A documented, ticket-referenced onboarding action performed by an authorized admin, granting an appropriately scoped role, is routine IAM hygiene."},
+{id:26,cat:"pe",text:"[IAM] Service account 'reporting_svc' was granted 'Global Administrator' rights with no expiration date set. The related ticket field is blank.",answer:"needs investigation",explanation:"Overly broad, non-expiring privileges are a real risk, but without confirming whether a ticket simply wasn't logged yet vs. this being unauthorized, it's premature to call it malicious outright — it needs follow-up with the requesting team."},
+{id:27,cat:"pe",text:"[IAM] Directory logs show user account 'v.singh' modified its own 'memberOf' attribute directly via LDAP, bypassing the standard group-management console, adding itself to 'Finance-Approvers'.",answer:"malicious",explanation:"Self-modifying group membership by editing directory attributes directly — instead of through the sanctioned request workflow — is a classic privilege-escalation technique, regardless of the account's normal role."},
+{id:28,cat:"pe",text:"[IAM] Manager 'p.gupta' was reassigned from 'Sales-Team' to 'IT-Approvers' group as part of the scheduled Q3 quarterly access review, matching the corresponding HR role-change record.",answer:"benign",explanation:"A group change tied to a scheduled, documented review process and a matching HR record is exactly how legitimate access changes should look."},
+{id:29,cat:"pe",text:"[SYSTEM] Linux server BUILD-02 logs show a misconfigured sudoers entry was exploited by user 'devops1' to spawn an interactive root shell outside of any approved maintenance window.",answer:"malicious",explanation:"Exploiting a sudo misconfiguration to obtain root, outside of any approved change window, is unauthorized privilege escalation even if the account itself is a legitimate one."},
+{id:30,cat:"pe",text:"[IAM] Two new admin-level accounts, 'svc_temp1' and 'svc_temp2', were created within 3 minutes of each other by user 'l.ferreira'. No matching change tickets have been located yet.",answer:"needs investigation",explanation:"Rapid creation of multiple privileged accounts without visible tickets is concerning, but tickets sometimes lag creation — this calls for immediate verification with the requester before escalating to a confirmed incident."},
+{id:31,cat:"pe",text:"[EDR] Token impersonation technique detected on host FIN-WKS-14: a process running under a standard user token was observed duplicating and using a SYSTEM-level access token.",answer:"malicious",explanation:"Token impersonation to escalate from a standard user context to SYSTEM is a well-documented Windows privilege-escalation technique, not something that happens through normal usage."},
+{id:32,cat:"pe",text:"[IAM] CI/CD pipeline service account 'deploy_bot' was granted temporary elevated database permissions for a 2-hour window, matching the scheduled release listed in the change calendar.",answer:"benign",explanation:"Temporary, time-boxed elevation for automation tied to a documented, scheduled deployment is standard, expected DevOps practice."},
+{id:33,cat:"pe",text:"[EDR] Registry modification disabling User Account Control (UAC) prompts was made on host MKT-LT-09, immediately preceding execution of an unsigned executable from the Downloads folder.",answer:"malicious",explanation:"Disabling UAC right before running an unsigned, unfamiliar executable is a common technique to allow malware to escalate and run without triggering user consent prompts."},
+{id:34,cat:"pe",text:"[IAM] User 'h.chatterjee' now has access matching a Team Lead role; HR's system has not yet reflected the promotion, though the employee's manager confirms it verbally happened last week.",answer:"needs investigation",explanation:"The access looks appropriate for a real, recent promotion, but until HR's system-of-record catches up, this should be confirmed through proper channels rather than assumed correct or flagged as an incident."},
+{id:35,cat:"pe",text:"[EDR] A standard user process on host DEV-22 loaded an unsigned DLL from a writable temp directory, resulting in the process executing with elevated privileges shortly after.",answer:"malicious",explanation:"DLL hijacking — loading a malicious DLL to hijack a legitimate process's privileges — is a recognized escalation technique, especially when the DLL comes from an unusual writable location."},
+{id:36,cat:"pe",text:"[IAM] Helpdesk technician 'a.joseph' was granted local admin rights on user workstation FIN-LT-03 for a 1-hour troubleshooting session, access automatically expired afterward, per standard support procedure.",answer:"benign",explanation:"Scoped, time-limited elevation for a documented support task, with automatic expiry, is exactly how temporary privileged access should be managed."},
+{id:37,cat:"pe",text:"[EDR] Kernel-level exploit attempt detected on server LEGACY-APP-01 targeting an unpatched CVE known to allow privilege escalation to SYSTEM.",answer:"malicious",explanation:"A detected exploit attempt against a known escalation vulnerability on an unpatched system is a direct technical attack, independent of who or what triggered the alert."},
+{id:38,cat:"pe",text:"[IAM] Local administrator rights were granted to laptop 'SALES-LT-11' per support ticket #9034, but the 'requested by' field on the ticket was left blank.",answer:"needs investigation",explanation:"A real ticket exists, which lowers the likelihood of pure malice, but the missing requestor field is a process gap that should be closed before treating the access grant as fully verified."},
+{id:39,cat:"pe",text:"[IAM] Service account 'nightly_backup_svc', which normally only runs scheduled jobs at 2 AM unattended, was used to log in interactively at 11:40 AM by a human user.",answer:"malicious",explanation:"Interactive human use of a service account that should only ever run unattended automation is a strong sign of an attacker abusing that account's standing privileges."},
+{id:40,cat:"pe",text:"[IAM] New system administrator 'f.almeida' was granted full domain admin rights matching the documented responsibilities of the role, supported by a signed access-request form on file.",answer:"benign",explanation:"Full documentation — a signed request matching a real, defined role — is exactly the paper trail that distinguishes legitimate high-privilege grants from unauthorized ones."},
+{id:41,cat:"pe",text:"[IAM] A Group Policy Object was modified to add 'Authenticated Users' to the local Administrators group on all domain-joined machines. No change record exists for this GPO edit.",answer:"malicious",explanation:"Granting every authenticated user local admin rights domain-wide, with no change record, is a massive and almost never-legitimate escalation of privilege across the entire environment."},
+{id:42,cat:"pe",text:"[IAM] Privileged account 'db_admin_2' accessed the HR payroll database for the first time in its access history, during normal business hours, with no associated ticket found.",answer:"needs investigation",explanation:"A privileged account touching a new system it's never used before is worth flagging even without obvious malicious markers — the lack of a ticket combined with the first-time access pattern needs a human to confirm intent."},
+{id:43,cat:"pe",text:"[EDR] Pass-the-hash activity detected: a captured NTLM hash for account 'svc_sql' was used to authenticate to three additional servers without the corresponding plaintext password ever being entered.",answer:"malicious",explanation:"Pass-the-hash is a well-known lateral-movement and privilege-escalation technique that lets attackers authenticate using a stolen hash instead of a password — this is not something that occurs through normal use."},
+{id:44,cat:"pe",text:"[IAM] Backup service account 'infra_backup_svc' had its storage permissions expanded to include a new S3 bucket, matching the documented scope of the ongoing infrastructure migration project (ticket #INFRA-2291).",answer:"benign",explanation:"An access expansion that lines up precisely with a documented, ongoing project ticket is expected operational change, not a red flag."}
+];
+
+const CAT_LABEL = {bf:"Brute Force / Cred. Stuffing", pe:"Privilege Escalation"};
+const ANSWER_LABEL = {malicious:"Malicious", benign:"Benign", "needs investigation":"Needs Investigation"};
+const STORAGE_KEY = "triage44_state_v1";
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && Array.isArray(parsed.order)) return parsed;
+    }
+  }catch(e){}
+  return freshState();
+}
+function freshState(){
+  return { order: shuffledIds(), pos:0, correct:0, attempted:0, answeredCurrent:false, theme:"dark" };
+}
+function shuffledIds(){
+  const ids = ALERTS.map(a=>a.id);
+  for(let i=ids.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [ids[i],ids[j]]=[ids[j],ids[i]];
+  }
+  return ids;
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+function applyTheme(){
+  document.body.setAttribute("data-theme", state.theme);
+  document.getElementById("themeLabel").textContent = state.theme === "dark" ? "dark_mode" : "light_mode";
+}
+document.getElementById("themeToggle").addEventListener("click", ()=>{
+  state.theme = state.theme === "dark" ? "light" : "dark";
+  saveState(); applyTheme();
+});
+
+function currentAlert(){
+  const id = state.order[state.pos];
+  return ALERTS.find(a=>a.id===id);
+}
+
+function updateScorebar(){
+  document.getElementById("scoreVal").textContent = state.correct;
+  document.getElementById("attemptVal").textContent = state.attempted;
+  document.getElementById("accVal").textContent = state.attempted ? Math.round((state.correct/state.attempted)*100)+"%" : "—";
+  document.getElementById("progressFill").style.width = Math.round((state.pos/state.order.length)*100)+"%";
+}
+
+function render(){
+  updateScorebar();
+  const card = document.getElementById("caseCard");
+
+  if(state.pos >= state.order.length){
+    card.innerHTML = `
+      <div class="done-card">
+        <h2>Case file complete.</h2>
+        <p>You classified all 44 alerts this round — final accuracy ${state.attempted? Math.round((state.correct/state.attempted)*100):0}%.</p>
+        <button class="next-btn" id="restartBtn">Reshuffle &amp; Start Over</button>
+      </div>`;
+    document.getElementById("restartBtn").addEventListener("click", ()=>{
+      state.order = shuffledIds(); state.pos = 0; state.answeredCurrent=false;
+      saveState(); render();
+    });
+    return;
+  }
+
+  const a = currentAlert();
+  const catClass = a.cat;
+  card.innerHTML = `
+    <div class="case-meta">
+      <span class="case-id">CASE #${String(a.id).padStart(3,"0")} &nbsp;·&nbsp; ${state.pos+1} / ${state.order.length}</span>
+      <span class="cat-tag ${catClass}">${CAT_LABEL[a.cat]}</span>
+    </div>
+    <div class="alert-log">${escapeHtml(a.text)}</div>
+    <p class="prompt-label">How would you classify this alert?</p>
+    <div class="choices">
+      <button class="choice-btn mal" data-choice="malicious">Malicious</button>
+      <button class="choice-btn ben" data-choice="benign">Benign</button>
+      <button class="choice-btn inv" data-choice="needs investigation">Needs Investigation</button>
+    </div>
+    <div id="feedbackSlot"></div>
+    <div class="actions" id="actionsSlot" style="visibility:hidden;">
+      <button class="next-btn" id="nextBtn">Next alert →</button>
+      <button class="reset-link" id="resetBtn">Reset progress</button>
+    </div>
+  `;
+
+  card.querySelectorAll(".choice-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>handleChoice(a, btn, card));
+  });
+
+  const resetBtn = document.createElement("button");
+  if(!document.getElementById("resetBtnBottom")){
+    const foot = document.createElement("div");
+    foot.style.marginTop="14px";
+    foot.style.textAlign="center";
+  }
+}
+
+function handleChoice(alert, btn, card){
+  if(state.answeredCurrent) return;
+  state.answeredCurrent = true;
+  const chosen = btn.dataset.choice;
+  const isCorrect = chosen === alert.answer;
+
+  card.querySelectorAll(".choice-btn").forEach(b=>{
+    b.disabled = true;
+    if(b.dataset.choice === alert.answer) b.classList.add("reveal-correct");
+    if(b.dataset.choice === chosen && !isCorrect) b.classList.add("reveal-wrong");
+    if(b.dataset.choice === chosen) b.classList.add("chosen");
+  });
+
+  state.attempted += 1;
+  if(isCorrect) state.correct += 1;
+  saveState();
+  updateScorebar();
+
+  const slot = document.getElementById("feedbackSlot");
+  slot.innerHTML = `
+    <div class="feedback ${isCorrect ? "correct" : "incorrect"}">
+      <div class="verdict">${isCorrect ? "✔ Correct" : "✘ Incorrect"} — actual verdict: ${ANSWER_LABEL[alert.answer]}</div>
+      <p>${escapeHtml(alert.explanation)}</p>
+    </div>
+  `;
+  const actions = document.getElementById("actionsSlot");
+  actions.style.visibility = "visible";
+  document.getElementById("nextBtn").addEventListener("click", ()=>{
+    state.pos += 1;
+    state.answeredCurrent = false;
+    saveState();
+    render();
+  });
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    if(confirm("Reset all progress and score? This can't be undone.")){
+      state = freshState();
+      state.theme = document.body.getAttribute("data-theme");
+      saveState();
+      render();
+    }
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+applyTheme();
+render();
+</script>
+</body>
+</html>
