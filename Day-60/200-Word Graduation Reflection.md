@@ -1,0 +1,7 @@
+Sixty days ago this started as a challenge to learn AI-assisted development. It ends with TRIAGE//44 v1.0.0, live on GitHub Pages — a real, working SOC alert classification trainer, not a tutorial exercise.
+
+The 10-day capstone was where everything compounded. Planning and system design gave way to a genuine build: a scenario engine, scoring logic, localStorage-backed progress, difficulty filtering, streak tracking, a full results review — each piece added deliberately, one verified milestone at a time. Real bugs showed up along the way, including a click handler that needed console verification to trust, and a CSS opacity issue that hid working feedback until the actual DOM was inspected rather than assumed. Each one got root-caused, not guessed at.
+
+Day 7 brought real UI polish, verified with live screenshots rather than code review alone. Day 8 brought structured testing across functional, security, performance, and accessibility categories — with an honest gap (screen-reader testing) documented rather than hidden. Day 9 meant discovering and fixing a real deployment obstacle: a subfolder structure GitHub Pages couldn't serve from directly.
+
+TRIAGE//44 is small, honest, and shipped. That's the whole point of the challenge — and of this project.
